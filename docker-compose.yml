@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - social_data:/app/data
+      - social_uploads:/app/public/uploads
+    environment:
+      - DATABASE_URL=file:/app/data/app.db
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+    restart: unless-stopped
+
+volumes:
+  social_data:
+  social_uploads:

@@ -1,0 +1,159 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator client_custom {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+model User {
+  id           String             @id @default(cuid())
+  name         String
+  email        String             @unique
+  passwordHash String
+  role         String             @default("REGISTERED_USER") // VISITOR, REGISTERED_USER, MODERATOR, ADMIN, SUPER_ADMIN
+  isSuspended  Boolean            @default(false)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @default(now()) @updatedAt
+  profile      Profile?
+  reportsSent  Report[]           @relation("Reporter")
+  blocksSent   UserBlock[]        @relation("Blocker")
+  blocksRecv   UserBlock[]        @relation("Blocked")
+  auditLogs    AuditLog[]
+  modActions   ModerationAction[]
+}
+
+model Profile {
+  id                  String         @id @default(cuid())
+  userId              String         @unique
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status              String         @default("APPROVED") // DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED, NEEDS_CHANGES, SUSPENDED
+  visibility          String         @default("PUBLIC") // PUBLIC, REGISTERED_USERS_ONLY, PRIVATE, UNPUBLISHED
+  moderationNotes     String?
+  rejectionReason     String?
+  ageConfirmed        Boolean        @default(false)
+  consentRecorded     Boolean        @default(false)
+  consentTimestamp    DateTime?
+  consentVersion      String?        @default("1.0")
+  photoUrl            String?
+  photos              ProfilePhoto[]
+  bio                 String?
+  address             String?
+  city                String?
+  region              String?
+  district            String?
+  localArea           String?
+  country             String?        @default("India")
+  favColor            String?
+  phone               String?
+  whatsapp            String?
+  hidePhoneFromPublic Boolean        @default(false)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  reports             Report[]
+  rates               ProfileRate[]
+
+  @@index([region])
+  @@index([city])
+  @@index([status])
+  @@index([visibility])
+}
+
+model ProfilePhoto {
+  id         String   @id @default(cuid())
+  profileId  String
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  url        String
+  sha256Hash String?
+  order      Int      @default(0)
+  isPrimary  Boolean  @default(false)
+  status     String   @default("APPROVED") // PENDING, APPROVED, REJECTED
+  createdAt  DateTime @default(now())
+
+  @@index([profileId])
+  @@index([sha256Hash])
+}
+
+model ProfileRate {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  duration  String
+  incall    Int
+  outcall   Int
+  order     Int      @default(0)
+
+  @@index([profileId])
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  profileId   String
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  reporterId  String?
+  reporter    User?    @relation("Reporter", fields: [reporterId], references: [id], onDelete: SetNull)
+  category    String // FAKE_PROFILE, STOLEN_PHOTOS, IMPERSONATION, UNDERAGE_CONCERN, HARASSMENT, SPAM, FRAUD, NON_CONSENSUAL_CONTENT, WRONG_INFORMATION, OTHER
+  description String
+  status      String   @default("PENDING") // PENDING, INVESTIGATING, RESOLVED, DISMISSED
+  actionTaken String?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([profileId])
+  @@index([status])
+}
+
+model UserBlock {
+  id        String   @id @default(cuid())
+  blockerId String
+  blocker   User     @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId String
+  blocked   User     @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+}
+
+model ModerationAction {
+  id          String   @id @default(cuid())
+  moderatorId String
+  moderator   User     @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
+  targetType  String // PROFILE, USER, PHOTO, REPORT
+  targetId    String
+  action      String // APPROVE, REJECT, REQUEST_CHANGES, SUSPEND, UNPUBLISH, RESTORE
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  @@index([moderatorId])
+  @@index([targetId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String // LOGIN, FAILED_LOGIN, ROLE_CHANGE, PROFILE_APPROVE, PROFILE_REJECT, USER_DELETE, ACCOUNT_SUSPEND, REPORT_RESOLVE
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([action])
+  @@index([userId])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  status    String   @default("SENT") // PENDING, SENT, FAILED
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
