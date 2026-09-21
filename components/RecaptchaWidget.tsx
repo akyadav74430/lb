@@ -135,6 +135,7 @@ export const RecaptchaWidget = forwardRef<RecaptchaWidgetRef, RecaptchaWidgetPro
           </span>
         </div>
         <div className="recaptcha-fallback-brand">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="https://www.gstatic.com/recaptcha/api2/logo_48.png"
             alt="reCAPTCHA logo"

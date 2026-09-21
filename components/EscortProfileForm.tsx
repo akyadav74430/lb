@@ -831,7 +831,7 @@ export default function EscortProfileForm({ initialData, mode = "add" }: EscortP
             <span>Standard Rate</span>
             <span>Premium Rate</span>
           </div>
-          {["1 Hour", "2 Hours", "3 Hours", "Full Night", "Full Day"].map((duration, i) => {
+          {["1 Hour", "2 Hours", "3 Hours", "Full Night", "Full Day"].map((duration) => {
             const currentRate = form.rates?.find(r => r.duration === duration) || { duration, incall: "", outcall: "" };
             return (
               <div key={duration} style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: 8, alignItems: "center" }}>

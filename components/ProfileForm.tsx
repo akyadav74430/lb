@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Image from "next/image";
-import Avatar from "./Avatar";
 import { PRESET_COLORS } from "@/lib/colors";
 import type { ProfileInput } from "@/lib/validation";
 
@@ -23,11 +21,11 @@ interface ProfileFormProps {
       rejectionReason?: string | null;
     }
   >;
-  userName: string;
+  userName?: string;
   onSuccess?: () => void;
 }
 
-export default function ProfileForm({ initialData = {}, userName, onSuccess }: ProfileFormProps) {
+export default function ProfileForm({ initialData = {}, onSuccess }: ProfileFormProps) {
   const [form, setForm] = useState<
     ProfileInput & {
       photoUrl?: string | null;
@@ -54,7 +52,7 @@ export default function ProfileForm({ initialData = {}, userName, onSuccess }: P
         ? [{ url: initialData.photoUrl, order: 0, isPrimary: true }]
         : [],
     rates: initialData.rates || [],
-    visibility: (initialData.visibility as any) || "PUBLIC",
+    visibility: (initialData.visibility as "PUBLIC" | "REGISTERED_USERS_ONLY" | "PRIVATE" | "UNPUBLISHED") || "PUBLIC",
     hidePhoneFromPublic: Boolean(initialData.hidePhoneFromPublic),
     ageConfirmed: Boolean(initialData.ageConfirmed),
     consentRecorded: Boolean(initialData.consentRecorded),
@@ -118,8 +116,8 @@ export default function ProfileForm({ initialData = {}, userName, onSuccess }: P
         photos: newPhotos,
         photoUrl: primary,
       }));
-    } catch (err: any) {
-      setUploadError(err.message || "An unexpected error occurred during upload.");
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : "An unexpected error occurred during upload.");
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -282,6 +280,7 @@ export default function ProfileForm({ initialData = {}, userName, onSuccess }: P
                 background: "var(--input-bg)",
               }}
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={photo.url}
                 alt={`Photo ${idx + 1}`}
@@ -497,7 +496,7 @@ export default function ProfileForm({ initialData = {}, userName, onSuccess }: P
               <span>Premium Rate</span>
             </div>
             {["1 Hour", "2 Hours", "3 Hours", "Full Night", "Full Day"].map((duration, i) => {
-              const currentRate = form.rates?.find((r: any) => r.duration === duration) || { duration, incall: "", outcall: "" };
+              const currentRate = form.rates?.find((r) => r.duration === duration) || { duration, incall: 0, outcall: 0, order: i };
               return (
                 <div key={duration} style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: 8, alignItems: "center" }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>{duration}</span>
@@ -508,10 +507,11 @@ export default function ProfileForm({ initialData = {}, userName, onSuccess }: P
                     value={currentRate.incall || ""}
                     onChange={(e) => {
                       const newRates = [...(form.rates || [])];
-                      const idx = newRates.findIndex((r: any) => r.duration === duration);
-                      if (idx >= 0) newRates[idx].incall = e.target.value as any;
-                      else newRates.push({ duration, incall: e.target.value as any, outcall: "" as any, order: i });
-                      setForm(p => ({ ...p, rates: newRates }));
+                      const val = e.target.value ? Number(e.target.value) : 0;
+                      const idx = newRates.findIndex((r) => r.duration === duration);
+                      if (idx >= 0) newRates[idx] = { ...newRates[idx], incall: val };
+                      else newRates.push({ duration, incall: val, outcall: 0, order: i });
+                      setForm((p) => ({ ...p, rates: newRates }));
                     }}
                   />
                   <input
@@ -521,10 +521,11 @@ export default function ProfileForm({ initialData = {}, userName, onSuccess }: P
                     value={currentRate.outcall || ""}
                     onChange={(e) => {
                       const newRates = [...(form.rates || [])];
-                      const idx = newRates.findIndex((r: any) => r.duration === duration);
-                      if (idx >= 0) newRates[idx].outcall = e.target.value as any;
-                      else newRates.push({ duration, incall: "" as any, outcall: e.target.value as any, order: i });
-                      setForm(p => ({ ...p, rates: newRates }));
+                      const val = e.target.value ? Number(e.target.value) : 0;
+                      const idx = newRates.findIndex((r) => r.duration === duration);
+                      if (idx >= 0) newRates[idx] = { ...newRates[idx], outcall: val };
+                      else newRates.push({ duration, incall: 0, outcall: val, order: i });
+                      setForm((p) => ({ ...p, rates: newRates }));
                     }}
                   />
                 </div>

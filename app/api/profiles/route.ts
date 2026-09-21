@@ -20,7 +20,7 @@ export async function GET(request: Request) {
           id: session.user.id as string,
           name: session.user.name,
           email: session.user.email,
-          role: ((session.user as any).role as RoleType) || "REGISTERED_USER",
+          role: ((session.user as { role?: string }).role as RoleType) || "REGISTERED_USER",
         };
       }
     } catch {
@@ -81,9 +81,9 @@ export async function GET(request: Request) {
       profiles: sanitized,
       pagination: { page, pageSize: PAGE_SIZE, total, totalPages: Math.ceil(total / PAGE_SIZE) },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("GET /api/profiles error:", err);
-    return NextResponse.json({ error: err.message || "Failed to fetch profiles" }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Failed to fetch profiles" }, { status: 500 });
   }
 }
 
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
   }
 
   const data = parsed.data;
-  const userRole = (session.user as any).role || "REGISTERED_USER";
+  const userRole = (session.user as { role?: string }).role || "REGISTERED_USER";
   const isPrivileged = userRole === "ADMIN" || userRole === "SUPER_ADMIN" || userRole === "MODERATOR";
 
   // Business rule: Check age confirmation and consent if photos are uploaded
@@ -158,7 +158,7 @@ export async function POST(request: Request) {
   // Lifecycle status: Auto-approve for admins/mods, or set to APPROVED / UNDER_REVIEW
   const statusToSet = isPrivileged ? "APPROVED" : duplicateFlag ? "UNDER_REVIEW" : "APPROVED";
 
-  const profileData: any = {
+  const profileData = {
     bio: data.bio || null,
     address: data.address || null,
     city: data.city || null,
@@ -216,11 +216,11 @@ export async function POST(request: Request) {
 
     if (data.rates.length > 0) {
       await prisma.profileRate.createMany({
-        data: data.rates.map((r: any, idx: number) => ({
+        data: data.rates.map((r, idx: number) => ({
           profileId: profile.id,
           duration: r.duration,
-          incall: typeof r.incall === "string" ? parseInt(r.incall.replace(/\D/g, "")) || 0 : r.incall || 0,
-          outcall: typeof r.outcall === "string" ? parseInt(r.outcall.replace(/\D/g, "")) || 0 : r.outcall || 0,
+          incall: typeof r.incall === "string" ? parseInt((r.incall as string).replace(/\D/g, "")) || 0 : r.incall || 0,
+          outcall: typeof r.outcall === "string" ? parseInt((r.outcall as string).replace(/\D/g, "")) || 0 : r.outcall || 0,
           order: idx,
         })),
       });

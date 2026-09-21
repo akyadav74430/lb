@@ -49,7 +49,7 @@ export async function verifyRecaptchaToken(
       console.error("[reCAPTCHA Error] Google siteverify failed:", data["error-codes"]);
       return { success: false, errorCodes: data["error-codes"] || ["verification-failed"] };
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[reCAPTCHA Error] Network error verifying token:", error);
     return { success: false, errorCodes: ["network-error"] };
   }

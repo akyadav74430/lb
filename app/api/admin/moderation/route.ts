@@ -105,7 +105,7 @@ export async function GET(request: Request) {
   });
 
   const duplicateClusters = Object.entries(hashMap)
-    .filter(([_, list]) => list.length > 1)
+    .filter(([, list]) => list.length > 1)
     .map(([hash, list]) => ({
       hash,
       count: list.length,
@@ -127,7 +127,7 @@ export async function POST(request: Request) {
   const { session, errorResponse } = await requireMinRole(Role.MODERATOR);
   if (errorResponse || !session) return errorResponse;
 
-  let body: any;
+  let body: unknown;
   try {
     body = await request.json();
   } catch {

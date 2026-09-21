@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: any;
+  let body: unknown;
   try {
     body = await request.json();
   } catch {

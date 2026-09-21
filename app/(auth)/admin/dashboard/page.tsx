@@ -48,7 +48,7 @@ interface ProfileItem {
   updatedAt: string;
   photos: { id: string; url: string; order: number; isPrimary: boolean; sha256Hash: string | null }[];
   rates?: { id: string; duration: string; incall: number; outcall: number; order: number }[];
-  reports?: any[];
+  reports?: ReportItem[];
 }
 
 interface ReportItem {
@@ -117,7 +117,6 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      setLoading(true);
       const [statsRes, modRes, usersRes] = await Promise.all([
         fetch("/api/admin/stats"),
         fetch("/api/admin/moderation"),
@@ -152,6 +151,7 @@ export default function AdminDashboard() {
     if (status === "unauthenticated") {
       router.push("/admin/signin");
     } else if (status === "authenticated") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchDashboardData();
     }
   }, [status, router, fetchDashboardData]);
@@ -160,7 +160,7 @@ export default function AdminDashboard() {
   const handleProfileAction = async (profileId: string, action: string, reason?: string) => {
     if (action === "REJECT" || action === "REQUEST_CHANGES") {
       setRejectTargetId(profileId);
-      setRejectActionType(action as any);
+      setRejectActionType(action as "REJECT" | "REQUEST_CHANGES");
       setRejectModalOpen(true);
       return;
     }
@@ -304,7 +304,7 @@ export default function AdminDashboard() {
 
         <nav className="admin-dash__nav" style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <span style={{ fontSize: 13, color: "#9ca3af" }}>
-            Signed in as: <strong style={{ color: "#fff" }}>{session?.user?.name || "Admin"}</strong> ({(session?.user as any)?.role || "ADMIN"})
+            Signed in as: <strong style={{ color: "#fff" }}>{session?.user?.name || "Admin"}</strong> ({(session?.user as { role?: string } | undefined)?.role || "ADMIN"})
           </span>
           <Link href="/" className="admin-dash__nav-link" style={{ color: "#e5e7eb", textDecoration: "none", fontSize: 13 }}>
             View Site
@@ -333,7 +333,7 @@ export default function AdminDashboard() {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as "overview" | "pending" | "reports" | "photos" | "users" | "logs")}
               style={{
                 padding: "8px 16px",
                 borderRadius: 8,
@@ -494,6 +494,7 @@ export default function AdminDashboard() {
                       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                         {p.photos.map((photo) => (
                           <div key={photo.id} style={{ position: "relative", width: 100, height: 130, borderRadius: 6, overflow: "hidden", border: photo.isPrimary ? "2px solid #e11d48" : "1px solid #333" }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={photo.url} alt="Photo thumbnail" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                             {photo.isPrimary && (
                               <span style={{ position: "absolute", top: 4, left: 4, background: "#e11d48", color: "#fff", fontSize: 9, fontWeight: 700, padding: "1px 4px", borderRadius: 2 }}>
@@ -640,6 +641,7 @@ export default function AdminDashboard() {
                     <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                       {cluster.photos.map((p) => (
                         <div key={p.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 120 }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={p.url} alt="Duplicate" style={{ width: 120, height: 160, objectFit: "cover", borderRadius: 6 }} />
                           <span style={{ fontSize: 11, color: "#fff", fontWeight: 600, marginTop: 4, textAlign: "center" }}>
                             {p.profile?.user?.name}

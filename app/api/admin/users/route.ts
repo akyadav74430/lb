@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireMinRole, Role } from "@/lib/rbac";
+import { requireMinRole, Role, RoleType } from "@/lib/rbac";
 import { prisma } from "@/lib/db";
 import { sanitizeUserDTO } from "@/lib/security";
 
@@ -34,7 +34,7 @@ export async function PATCH(request: Request) {
   const { session, errorResponse } = await requireMinRole(Role.ADMIN);
   if (errorResponse || !session) return errorResponse;
 
-  let body: any;
+  let body: { userId?: string; role?: string; isSuspended?: boolean };
   try {
     body = await request.json();
   } catch {
@@ -56,7 +56,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  const updateData: any = {};
+  const updateData: { role?: RoleType; isSuspended?: boolean } = {};
 
   if (role !== undefined) {
     if (!["REGISTERED_USER", "MODERATOR", "ADMIN", "SUPER_ADMIN"].includes(role)) {
@@ -66,7 +66,7 @@ export async function PATCH(request: Request) {
     if ((role === "ADMIN" || role === "SUPER_ADMIN" || targetUser.role === "ADMIN" || targetUser.role === "SUPER_ADMIN") && session.user.role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Only Super Admins can assign or modify Admin roles" }, { status: 403 });
     }
-    updateData.role = role;
+    updateData.role = role as RoleType;
   }
 
   if (isSuspended !== undefined) {

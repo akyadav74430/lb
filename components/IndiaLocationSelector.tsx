@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  INDIA_LOCATIONS,
   getAllStates,
   getDistrictsForState,
   getCitiesForDistrict,
@@ -21,27 +20,14 @@ export default function IndiaLocationSelector({ onLocationChange, compact = fals
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const stateParam = searchParams.get("state") || "";
-  const districtParam = searchParams.get("district") || "";
-  const cityParam = searchParams.get("city") || "";
-  const localAreaParam = searchParams.get("localArea") || "";
-
-  const [selectedState, setSelectedState] = useState(stateParam);
-  const [selectedDistrict, setSelectedDistrict] = useState(districtParam);
-  const [selectedCity, setSelectedCity] = useState(cityParam);
-  const [selectedLocalArea, setSelectedLocalArea] = useState(localAreaParam);
+  const selectedState = searchParams.get("state") || "";
+  const selectedDistrict = searchParams.get("district") || "";
+  const selectedCity = searchParams.get("city") || "";
+  const selectedLocalArea = searchParams.get("localArea") || "";
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchBoxRef = useRef<HTMLDivElement>(null);
-
-  // Sync state with URL params
-  useEffect(() => {
-    setSelectedState(stateParam);
-    setSelectedDistrict(districtParam);
-    setSelectedCity(cityParam);
-    setSelectedLocalArea(localAreaParam);
-  }, [stateParam, districtParam, cityParam, localAreaParam]);
 
   // Derived lists
   const states = useMemo(() => getAllStates(), []);
@@ -101,17 +87,10 @@ export default function IndiaLocationSelector({ onLocationChange, compact = fals
   };
 
   const handleStateChange = (stateVal: string) => {
-    setSelectedState(stateVal);
-    setSelectedDistrict("");
-    setSelectedCity("");
-    setSelectedLocalArea("");
     pushLocation({ state: stateVal || undefined });
   };
 
   const handleDistrictChange = (distVal: string) => {
-    setSelectedDistrict(distVal);
-    setSelectedCity("");
-    setSelectedLocalArea("");
     pushLocation({
       state: selectedState || undefined,
       district: distVal || undefined,
@@ -119,8 +98,6 @@ export default function IndiaLocationSelector({ onLocationChange, compact = fals
   };
 
   const handleCityChange = (cityVal: string) => {
-    setSelectedCity(cityVal);
-    setSelectedLocalArea("");
     pushLocation({
       state: selectedState || undefined,
       district: selectedDistrict || undefined,
@@ -129,7 +106,6 @@ export default function IndiaLocationSelector({ onLocationChange, compact = fals
   };
 
   const handleLocalAreaChange = (areaVal: string) => {
-    setSelectedLocalArea(areaVal);
     pushLocation({
       state: selectedState || undefined,
       district: selectedDistrict || undefined,
@@ -139,10 +115,6 @@ export default function IndiaLocationSelector({ onLocationChange, compact = fals
   };
 
   const handleSelectSearchResult = (loc: SearchableLocation) => {
-    setSelectedState(loc.state);
-    setSelectedDistrict(loc.district || "");
-    setSelectedCity(loc.city || "");
-    setSelectedLocalArea(loc.localArea || "");
     setSearchQuery("");
     setIsSearchOpen(false);
 
@@ -155,10 +127,6 @@ export default function IndiaLocationSelector({ onLocationChange, compact = fals
   };
 
   const handleAllIndia = () => {
-    setSelectedState("");
-    setSelectedDistrict("");
-    setSelectedCity("");
-    setSelectedLocalArea("");
     setSearchQuery("");
     pushLocation({});
   };

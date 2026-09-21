@@ -41,29 +41,17 @@ export default function TopHeader() {
 
   const toggleMobileMenu = () => {
     const sidebar = document.getElementById("sidebar-left");
-    let overlay = document.getElementById("sidebar-overlay");
+    const overlay = document.getElementById("sidebar-overlay");
     if (!sidebar) return;
-
-    if (!overlay) {
-      overlay = document.createElement("div");
-      overlay.id = "sidebar-overlay";
-      overlay.className = "sidebar-overlay";
-      overlay.addEventListener("click", () => {
-        sidebar.classList.remove("sidebar-left--open");
-        overlay?.classList.remove("sidebar-overlay--visible");
-        document.body.style.overflow = "";
-      });
-      document.body.appendChild(overlay);
-    }
 
     const isOpen = sidebar.classList.contains("sidebar-left--open");
     if (isOpen) {
       sidebar.classList.remove("sidebar-left--open");
-      overlay.classList.remove("sidebar-overlay--visible");
+      overlay?.classList.remove("sidebar-overlay--visible");
       document.body.style.overflow = "";
     } else {
       sidebar.classList.add("sidebar-left--open");
-      overlay.classList.add("sidebar-overlay--visible");
+      overlay?.classList.add("sidebar-overlay--visible");
       document.body.style.overflow = "hidden";
     }
   };

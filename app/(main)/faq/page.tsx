@@ -83,7 +83,7 @@ export default function FAQPage() {
               type="button"
               className={`faq-tab-pill ${activeTab === tab.id ? "faq-tab-pill--active" : ""}`}
               onClick={() => {
-                setActiveTab(tab.id as any);
+                setActiveTab(tab.id as "all" | "clients" | "models" | "safety" | "advertising");
                 setOpenIndex(null);
               }}
             >

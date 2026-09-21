@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { EscortProfile, ProfileReview } from "@/lib/profiles-data";
 import ReportModal from "./ReportModal";
 
@@ -23,8 +22,6 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
   const [newReview, setNewReview] = useState({ author: "", rating: 5, comment: "", city: profile.city });
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
-  const router = useRouter();
 
   const gallery = profile.gallery.length > 0 ? profile.gallery : [profile.photoUrl];
   const activePhoto = gallery[photoIndex] || profile.photoUrl;
@@ -159,7 +156,6 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
                 priority
                 sizes="(max-width: 768px) 100vw, 420px"
                 className="pdv-main-photo__img"
-                onError={() => setImgErrors((p) => ({ ...p, [activePhoto]: true }))}
               />
 
               {/* Top-left stacked circular badges */}

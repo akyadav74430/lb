@@ -72,7 +72,7 @@ export default async function EditProfilePage() {
                     whatsapp: profile.whatsapp || "",
                     photoUrl: profile.photoUrl,
                     photos: profile.photos || [],
-                    visibility: (profile.visibility as any) || "PUBLIC",
+                    visibility: (profile.visibility as "PUBLIC" | "REGISTERED_USERS_ONLY" | "PRIVATE" | "UNPUBLISHED") || "PUBLIC",
                     hidePhoneFromPublic: profile.hidePhoneFromPublic,
                     ageConfirmed: profile.ageConfirmed,
                     consentRecorded: profile.consentRecorded,

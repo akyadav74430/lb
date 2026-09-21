@@ -1,11 +1,12 @@
-import { Role, isStaffOrAdmin, AuthSessionUser } from "./rbac";
+import { isStaffOrAdmin, AuthSessionUser } from "./rbac";
 
 /**
  * Sanitize user object for client response — never leak password hashes or internal sensitive data
  */
-export function sanitizeUserDTO(user: any) {
+export function sanitizeUserDTO(user: Record<string, unknown> | null | undefined) {
   if (!user) return null;
-  const { passwordHash: _ignored, ...safeUser } = user;
+  const safeUser = { ...user };
+  delete safeUser.passwordHash;
   return safeUser;
 }
 
@@ -13,7 +14,7 @@ export function sanitizeUserDTO(user: any) {
  * Sanitize profile according to privacy settings and requester privileges
  */
 export function sanitizeProfileDTO(
-  profile: any,
+  profile: Record<string, unknown> | null | undefined,
   requester?: AuthSessionUser | null
 ) {
   if (!profile) return null;
@@ -28,9 +29,10 @@ export function sanitizeProfileDTO(
 
   // If profile visibility is REGISTERED_USERS_ONLY and requester is not logged in
   if (profile.visibility === "REGISTERED_USERS_ONLY" && !requester) {
+    const userObj = profile.user as { name?: string } | undefined;
     return {
       id: profile.id,
-      name: profile.user?.name || "Member Profile",
+      name: userObj?.name || "Member Profile",
       city: profile.city,
       region: profile.region,
       visibility: profile.visibility,
@@ -44,7 +46,7 @@ export function sanitizeProfileDTO(
     return null;
   }
 
-  const safe: any = {
+  const safe: Record<string, unknown> = {
     ...profile,
     // Mask exact street address for privacy (India-only State -> District -> City navigation)
     address: isOwner || isStaff ? profile.address : undefined,
@@ -60,7 +62,7 @@ export function sanitizeProfileDTO(
   // Filter unapproved photos for public viewers
   if (profile.photos && Array.isArray(profile.photos)) {
     if (!isOwner && !isStaff) {
-      safe.photos = profile.photos.filter((p: any) => p.status === "APPROVED");
+      safe.photos = (profile.photos as { status?: string }[]).filter((p) => p.status === "APPROVED");
     }
   }
 

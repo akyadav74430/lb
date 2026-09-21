@@ -78,10 +78,10 @@ export async function POST(request: Request) {
       height: processed.height,
       mimeType: processed.mimeType,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Image processing error:", err);
     return NextResponse.json(
-      { error: err.message || "Failed to process image" },
+      { error: err instanceof Error ? err.message : "Failed to process image" },
       { status: 400 }
     );
   }

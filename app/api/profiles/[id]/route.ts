@@ -16,7 +16,7 @@ export async function GET(
         id: session.user.id as string,
         name: session.user.name,
         email: session.user.email,
-        role: ((session.user as any).role as RoleType) || "REGISTERED_USER",
+        role: ((session.user as { role?: string }).role as RoleType) || "REGISTERED_USER",
       }
     : null;
 
@@ -57,7 +57,7 @@ export async function PUT(
     return NextResponse.json({ error: "Profile not found" }, { status: 404 });
   }
 
-  const userRole = (session.user as any).role || "REGISTERED_USER";
+  const userRole = (session.user as { role?: string }).role || "REGISTERED_USER";
   const isOwner = existing.userId === session.user.id;
   const isStaff = isStaffOrAdmin(userRole);
 
@@ -110,7 +110,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Profile not found" }, { status: 404 });
   }
 
-  const userRole = (session.user as any).role || "REGISTERED_USER";
+  const userRole = (session.user as { role?: string }).role || "REGISTERED_USER";
   const isOwner = existing.userId === session.user.id;
   const isStaff = isStaffOrAdmin(userRole);
 

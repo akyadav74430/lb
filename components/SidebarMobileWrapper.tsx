@@ -1,15 +1,36 @@
 "use client";
 
-import { useEffect, ReactNode } from "react";
+import { useEffect, useCallback, ReactNode } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
+/**
+ * Wraps the LeftSidebar and manages mobile open/close state.
+ *
+ * Key fixes:
+ * - Closes sidebar on ANY route/search-params change (link click inside sidebar).
+ * - Closes sidebar when tapping overlay.
+ * - Does NOT duplicate the toggle listener — TopHeader.tsx owns the toggle via its onClick.
+ * - Uses CSS transitions on opacity+visibility (not display:none) for smooth animations.
+ */
 export default function SidebarMobileWrapper({ children }: { children: ReactNode }) {
-  useEffect(() => {
-    const btn = document.getElementById("mobile-menu-btn");
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const closeSidebar = useCallback(() => {
     const sidebar = document.getElementById("sidebar-left");
+    const overlay = document.getElementById("sidebar-overlay");
+    if (sidebar) sidebar.classList.remove("sidebar-left--open");
+    if (overlay) overlay.classList.remove("sidebar-overlay--visible");
+    document.body.style.overflow = "";
+  }, []);
 
-    if (!btn || !sidebar) return;
+  // Close sidebar whenever the route or search params change (user clicked a link)
+  useEffect(() => {
+    closeSidebar();
+  }, [pathname, searchParams, closeSidebar]);
 
-    // Create overlay element
+  // Set up overlay element once, attach close handler
+  useEffect(() => {
     let overlay = document.getElementById("sidebar-overlay");
     if (!overlay) {
       overlay = document.createElement("div");
@@ -18,34 +39,20 @@ export default function SidebarMobileWrapper({ children }: { children: ReactNode
       document.body.appendChild(overlay);
     }
 
-    function openSidebar() {
-      sidebar!.classList.add("sidebar-left--open");
-      overlay!.classList.add("sidebar-overlay--visible");
-      document.body.style.overflow = "hidden";
-    }
+    const handleOverlayClick = () => closeSidebar();
+    overlay.addEventListener("click", handleOverlayClick);
 
-    function closeSidebar() {
-      sidebar!.classList.remove("sidebar-left--open");
-      overlay!.classList.remove("sidebar-overlay--visible");
-      document.body.style.overflow = "";
-    }
-
-    function toggleSidebar() {
-      if (sidebar!.classList.contains("sidebar-left--open")) {
-        closeSidebar();
-      } else {
-        openSidebar();
-      }
-    }
-
-    btn.addEventListener("click", toggleSidebar);
-    overlay.addEventListener("click", closeSidebar);
+    // Close on Escape key
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeSidebar();
+    };
+    document.addEventListener("keydown", handleEsc);
 
     return () => {
-      btn.removeEventListener("click", toggleSidebar);
-      overlay!.removeEventListener("click", closeSidebar);
+      overlay!.removeEventListener("click", handleOverlayClick);
+      document.removeEventListener("keydown", handleEsc);
     };
-  }, []);
+  }, [closeSidebar]);
 
   return <>{children}</>;
 }

@@ -132,9 +132,9 @@ ${timestamp}`;
       });
       console.log(`[Email Sent] Message ID: ${info.messageId} to ${supportEmail}`);
       return { success: true, messageId: info.messageId };
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[Email Error] Failed to send via SMTP:", err);
-      return { success: false, error: err.message || "Failed to deliver email" };
+      return { success: false, error: err instanceof Error ? err.message : "Failed to deliver email" };
     }
   }
 
