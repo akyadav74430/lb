@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
   { label: "VIP Escorts", href: "/?filter=vip", key: "vip" },
   { label: "Girls", href: "/", key: "girls" },
   { label: "Massages", href: "/?filter=massages", key: "massages" },
