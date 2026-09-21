@@ -53,8 +53,28 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
   const prevId = currentIndex > 0 ? allProfileIds[currentIndex - 1] : null;
   const nextId = currentIndex < allProfileIds.length - 1 ? allProfileIds[currentIndex + 1] : null;
 
+  // Check if contact info is restricted / hidden by profile privacy settings
+  const isContactRestricted = Boolean(profile.isPhoneHidden);
+
+  // Normalize phone for tel: protocol (e.g., "+91 62035 40719" -> "+916203540719")
+  const rawDigits = profile.phone ? profile.phone.replace(/[^\d+]/g, "") : "";
+  const telHref = rawDigits ? `tel:${rawDigits}` : "#";
+
+  // Normalize WhatsApp number (international digits only without '+' or spaces -> "916203540719")
+  const waDigits = profile.whatsapp
+    ? profile.whatsapp.replace(/\D/g, "")
+    : (profile.phone ? profile.phone.replace(/\D/g, "") : "");
+
+  // Prefilled WhatsApp message correctly URL-encoded
+  const waPrefill = "Hello, I am interested in your profile on Lovebite.com.";
+  const waHref = waDigits
+    ? `https://wa.me/${waDigits}?text=${encodeURIComponent(waPrefill)}`
+    : "#";
+
   const handleCopyPhone = () => {
+    if (!profile.phone || isContactRestricted) return;
     navigator.clipboard.writeText(profile.phone);
+    setPhoneRevealed(true);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -275,50 +295,72 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
             <h3 className="pdv-contact-box__title">Contact {profile.name}</h3>
             <p className="pdv-contact-box__desc">Mention lovebite.com when contacting for VIP rate</p>
 
-            <div className="pdv-contact-btns">
-              <a
-                href={`tel:${profile.phone}`}
-                id="btn-call"
-                className="pdv-cta-btn pdv-cta-btn--call"
-                onClick={() => setPhoneRevealed(true)}
+            {isContactRestricted ? (
+              <div
+                className="pdv-contact-restricted"
+                style={{
+                  padding: "14px",
+                  background: "rgba(255, 255, 255, 0.03)",
+                  border: "1px dashed var(--border)",
+                  borderRadius: "var(--radius-sm)",
+                  marginBottom: "14px",
+                  fontSize: "12px",
+                  color: "var(--text-muted)",
+                  lineHeight: 1.5,
+                }}
               >
-                <span className="pdv-cta-icon">📞</span>
-                <span className="pdv-cta-text">
-                  <strong>Call Now</strong>
-                  <span>{phoneRevealed ? profile.phone : "Show Phone Number"}</span>
-                </span>
-              </a>
+                🔒 Contact details are restricted by the profile owner for unauthenticated users. Please sign in to view phone and WhatsApp info.
+              </div>
+            ) : (
+              <div className="pdv-contact-btns">
+                <a
+                  href={telHref}
+                  id="btn-call"
+                  className="pdv-cta-btn pdv-cta-btn--call"
+                  onClick={() => setPhoneRevealed(true)}
+                  aria-label={`Call ${profile.name} at ${phoneRevealed ? profile.phone : "show phone number"}`}
+                  title={phoneRevealed ? profile.phone : "Call Now / Show Phone Number"}
+                >
+                  <span className="pdv-cta-icon">📞</span>
+                  <span className="pdv-cta-text">
+                    <strong>Call Now</strong>
+                    <span>{phoneRevealed ? profile.phone : "Show Phone Number"}</span>
+                  </span>
+                </a>
 
-              <a
-                href={`https://wa.me/${profile.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
-                  `Hi ${profile.name}, I saw your profile on lovebite.com and would like to inquire about your availability.`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                id="btn-whatsapp"
-                className="pdv-cta-btn pdv-cta-btn--wa"
-              >
-                <span className="pdv-cta-icon">💬</span>
-                <span className="pdv-cta-text">
-                  <strong>WhatsApp</strong>
-                  <span>Instant Chat &amp; Booking</span>
-                </span>
-              </a>
+                <a
+                  href={waHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  id="btn-whatsapp"
+                  className="pdv-cta-btn pdv-cta-btn--wa"
+                  aria-label={`WhatsApp chat with ${profile.name}`}
+                  title="WhatsApp Instant Chat & Booking"
+                >
+                  <span className="pdv-cta-icon">💬</span>
+                  <span className="pdv-cta-text">
+                    <strong>WhatsApp</strong>
+                    <span>Instant Chat &amp; Booking</span>
+                  </span>
+                </a>
 
-              <a
-                href={`https://t.me/${profile.telegram.replace("@", "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                id="btn-telegram"
-                className="pdv-cta-btn pdv-cta-btn--tg"
-              >
-                <span className="pdv-cta-icon">✈️</span>
-                <span className="pdv-cta-text">
-                  <strong>Telegram</strong>
-                  <span>{profile.telegram}</span>
-                </span>
-              </a>
-            </div>
+                <a
+                  href={`https://t.me/${profile.telegram.replace("@", "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  id="btn-telegram"
+                  className="pdv-cta-btn pdv-cta-btn--tg"
+                  aria-label={`Telegram chat with ${profile.name}`}
+                  title="Telegram Chat"
+                >
+                  <span className="pdv-cta-icon">✈️</span>
+                  <span className="pdv-cta-text">
+                    <strong>Telegram</strong>
+                    <span>{profile.telegram}</span>
+                  </span>
+                </a>
+              </div>
+            )}
 
             {/* Quick action bar */}
             <div className="pdv-contact-actions">
@@ -327,6 +369,8 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
                 className="pdv-action-link"
                 onClick={handleCopyPhone}
                 id="btn-copy-phone"
+                disabled={isContactRestricted || !profile.phone}
+                aria-label="Copy phone number to clipboard"
               >
                 {copied ? "✓ Number Copied!" : "📋 Copy Number"}
               </button>
@@ -711,21 +755,25 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
       />
 
       {/* Sticky Mobile Bar */}
-      <div className="mobile-sticky-bar">
-        <a href={`tel:${profile.phone}`} className="mobile-bar-btn mobile-bar-btn--call">📞 Call</a>
-        <a
-          href={`https://wa.me/${profile.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
-            `Hi ${profile.name}, saw your profile on lovebite.com.`
-          )}`}
-          target="_blank" rel="noopener noreferrer"
-          className="mobile-bar-btn mobile-bar-btn--wa"
-        >💬 WhatsApp</a>
-        <a
-          href={`https://t.me/${profile.telegram.replace("@", "")}`}
-          target="_blank" rel="noopener noreferrer"
-          className="mobile-bar-btn mobile-bar-btn--tg"
-        >✈️ Telegram</a>
-      </div>
+      {!isContactRestricted && (
+        <div className="mobile-sticky-bar">
+          <a href={telHref} className="mobile-bar-btn mobile-bar-btn--call" aria-label={`Call ${profile.name}`}>📞 Call</a>
+          <a
+            href={waHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mobile-bar-btn mobile-bar-btn--wa"
+            aria-label={`WhatsApp chat with ${profile.name}`}
+          >💬 WhatsApp</a>
+          <a
+            href={`https://t.me/${profile.telegram.replace("@", "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mobile-bar-btn mobile-bar-btn--tg"
+            aria-label={`Telegram chat with ${profile.name}`}
+          >✈️ Telegram</a>
+        </div>
+      )}
     </div>
   );
 }

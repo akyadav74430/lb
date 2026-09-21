@@ -57,6 +57,8 @@ export interface EscortProfile {
   views: number;
   verifiedAt: string;
   // Extended attributes
+  hidePhoneFromPublic?: boolean;
+  isPhoneHidden?: boolean;
   status?: "Independent" | "Agency";
   lastSeen?: string;
   hairLength?: string;
@@ -108,8 +110,8 @@ export const ESCORT_PROFILES: EscortProfile[] = [
     ethnicity: "Indian",
     languages: ["English", "Hindi", "Bengali"],
     workingHours: "11:00 AM – 02:00 AM",
-    phone: "+91 98301 24590",
-    whatsapp: "+919830124590",
+    phone: "+91 62035 40719",
+    whatsapp: "+916203540719",
     telegram: "@priya_vip_india",
     lastSeen: "Today, Online",
     hairColor: "Black",

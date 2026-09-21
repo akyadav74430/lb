@@ -4772,6 +4772,15 @@ input[type="radio"] {
   font-weight: 600;
   transition: all var(--dur-fast) ease;
   border: 1px solid transparent;
+  outline: none;
+}
+.pdv-cta-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(255, 77, 121, 0.4);
+}
+.pdv-cta-btn:active {
+  transform: scale(0.985);
 }
 .pdv-cta-icon { font-size: 18px; flex-shrink: 0; }
 .pdv-cta-text { display: flex; flex-direction: column; }
