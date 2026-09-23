@@ -659,72 +659,117 @@ input[type="radio"] {
 .ad-slot__price { font-size: 12px; color: var(--primary); font-weight: 600; }
 
 /* ============================================================
-   FILTER BAR
+   UNIFIED LOVEBITE LOGO SYSTEM
    ============================================================ */
-.filter-bar {
-  margin-bottom: 18px;
-  animation: k-enter-up var(--dur-slow) var(--ease-out) 340ms both;
+.lovebite-logo__link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  line-height: 1;
+  transition: transform var(--dur-fast) ease, opacity var(--dur-fast) ease;
 }
-.filter-bar__top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-.filter-btn-map {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 14px; background: var(--primary);
-  color: var(--text-white); font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.04em;
-  border-radius: var(--radius-sm); white-space: nowrap;
-  transition: all var(--dur-fast); flex-shrink: 0;
+.lovebite-logo__link:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
 }
-.filter-btn-map:hover { background: var(--primary-dark); transform: translateY(-1px); }
-.filter-btn-map svg { width: 14px; height: 14px; }
-.filter-dropdowns { display: flex; align-items: center; flex: 1; flex-wrap: wrap; }
-.filter-dropdown { position: relative; }
-.filter-dropdown__trigger {
-  display: flex; align-items: center; gap: 4px;
-  padding: 7px 11px; font-size: 12px; color: var(--text);
-  border: 1px solid var(--border); border-right: none;
-  background: var(--bg); cursor: pointer;
-  transition: all var(--dur-fast); white-space: nowrap;
+.lovebite-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 100%;
 }
-.filter-dropdown:first-child .filter-dropdown__trigger { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
-.filter-dropdown:last-child .filter-dropdown__trigger { border-right: 1px solid var(--border); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
-.filter-dropdown__trigger:hover { background: var(--bg-alt); color: var(--primary); }
-.filter-dropdown__trigger svg { width: 12px; height: 12px; color: var(--text-light); }
-.filter-dropdown__panel {
-  position: absolute; top: calc(100% + 4px); left: 0; min-width: 200px;
-  background: var(--bg-elevated); border: 1px solid var(--border);
-  border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 6px 0;
-  z-index: 50; display: none;
-  transform-origin: top left;
-}
-.filter-dropdown--open .filter-dropdown__panel {
+.lovebite-logo img {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
   display: block;
-  animation: k-slide-panel var(--dur-med) var(--ease-out) both;
 }
-.filter-dropdown__option {
-  display: flex; align-items: center; gap: 8px;
-  padding: 7px 14px; font-size: 12px; color: var(--text);
-  cursor: pointer; transition: background var(--dur-fast);
+.lovebite-logo__emblem-frame {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 9px;
+  background: #0a0a0d;
+  border: 1.5px solid rgba(255, 51, 102, 0.5);
+  box-shadow: 0 0 10px rgba(255, 26, 83, 0.4), 0 2px 6px rgba(0, 0, 0, 0.6);
+  transition: transform var(--dur-fast) ease, box-shadow var(--dur-fast) ease, border-color var(--dur-fast) ease;
 }
-.filter-dropdown__option:hover { background: var(--primary-ghost); }
-.filter-dropdown__option input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--primary); }
-
-/* Toggle pills */
-.filter-toggles { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.filter-toggle {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 6px 12px; border: 1px solid var(--border);
-  border-radius: var(--radius-pill); font-size: 11px;
-  font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
-  color: var(--text-muted); background: var(--bg);
-  cursor: pointer; transition: all var(--dur-fast); white-space: nowrap;
+.lovebite-logo__link:hover .lovebite-logo__emblem-frame {
+  transform: scale(1.05);
+  border-color: #ff3366;
+  box-shadow: 0 0 16px rgba(255, 26, 83, 0.75), 0 0 4px #ff3366;
 }
-.filter-toggle:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
-.filter-toggle--active {
-  background: var(--primary); border-color: var(--primary); color: var(--text-white);
-  box-shadow: 0 2px 8px rgba(196,30,58,0.3);
+.lovebite-logo__emblem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
-.filter-toggle__count { font-weight: 400; opacity: 0.7; }
-.filter-toggle__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.5; }
+.lovebite-logo--header {
+  height: 38px;
+}
+@media (max-width: 768px) {
+  .lovebite-logo--header {
+    height: 30px;
+  }
+}
+@media (max-width: 360px) {
+  .lovebite-logo--header {
+    height: 26px;
+  }
+}
+.lovebite-logo--mobile {
+  height: 30px;
+}
+.lovebite-logo--auth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto 16px;
+}
+.lovebite-logo--auth .lovebite-logo__emblem-frame {
+  border-radius: 14px;
+  box-shadow: 0 0 22px rgba(255, 26, 83, 0.6), 0 0 4px #ff3366;
+  border-color: #ff3366;
+}
+.lovebite-logo--footer {
+  height: 36px;
+}
+.lovebite-logo__fallback {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.lovebite-logo__text {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  display: inline-flex;
+  align-items: baseline;
+  user-select: none;
+}
+.lovebite-logo__text .brand-love {
+  color: #ff3b69;
+  font-style: italic;
+  font-weight: 900;
+  text-shadow: 0 0 12px rgba(255, 59, 105, 0.55);
+}
+.lovebite-logo__text .brand-bite {
+  color: #ffffff;
+  font-weight: 800;
+}
+[data-theme="light"] .lovebite-logo__text .brand-bite {
+  color: #1a1a1a;
+}
+.lovebite-logo__text .brand-dot {
+  color: #ff85a1;
+  font-size: 14px;
+  font-weight: 700;
+}
 
 /* ============================================================
    PROFILE CARDS GRID
@@ -2321,8 +2366,6 @@ input[type="radio"] {
   .page-title-actions { display: none; }
   .ad-banner-row { grid-template-columns: 1fr; }
   .ad-banner-row .ad-slot:nth-child(n+2) { display: none; }
-  .filter-dropdowns { display: none; }
-  .filter-btn-map { font-size: 10px; padding: 6px 10px; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .footer-brand { grid-column: span 2; }
   .footer-bottom { flex-direction: column; text-align: center; }
@@ -2342,8 +2385,6 @@ input[type="radio"] {
   .subnav__link { font-size: 11px; padding: 0 10px; }
   .category-tabs { overflow-x: auto; scrollbar-width: none; }
   .category-tabs::-webkit-scrollbar { display: none; }
-  .filter-toggles { gap: 4px; }
-  .filter-toggle { padding: 4px 8px; font-size: 10px; }
   .admin-stats { grid-template-columns: 1fr; }
   .admin-table-wrap { overflow-x: auto; }
 }

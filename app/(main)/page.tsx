@@ -4,7 +4,7 @@ import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import ProfileCard from "@/components/ProfileCard";
-import DirectoryFilterBar from "@/components/DirectoryFilterBar";
+import Logo from "@/components/Logo";
 import IndiaLocationSelector from "@/components/IndiaLocationSelector";
 import LeftSidebar from "@/components/LeftSidebar";
 import SidebarMobileWrapper from "@/components/SidebarMobileWrapper";
@@ -162,9 +162,6 @@ function MainDirectoryContent() {
             </Link>
           </div>
 
-          {/* Filter Bar */}
-          <DirectoryFilterBar />
-
           {/* Profile Cards Grid */}
           {displayedProfiles.length === 0 ? (
             <div className="profiles-empty-state">
@@ -235,11 +232,7 @@ function MainDirectoryContent() {
           <div className="footer-grid">
             <div className="footer-brand">
               <div className="footer-brand__logo">
-                <span className="footer-brand__name">
-                  <span className="brand-love" style={{ color: "#ff5277", fontWeight: 800, fontStyle: "italic" }}>love</span>
-                  <span className="brand-bite" style={{ color: "#ffffff", fontWeight: 800 }}>bite</span>
-                  <span className="brand-dot" style={{ color: "#ff9fb4", fontSize: "14px", fontWeight: 600 }}>.com</span>
-                </span>
+                <Logo size="footer" />
               </div>
               <p className="footer-brand__desc">
                 The premier verified adult directory and companion advertising platform.

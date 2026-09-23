@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -56,7 +57,7 @@ export default function SignUpPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-card__icon">✨</div>
+        <Logo size="auth" />
         <h1 className="auth-card__title">Create Account</h1>
         <p className="auth-card__subtitle">Join the community and share your profile.</p>
 

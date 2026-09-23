@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 export default function AdminSignInPage() {
   const router = useRouter();
@@ -39,8 +40,8 @@ export default function AdminSignInPage() {
   return (
     <div className="auth-page auth-page--admin">
       <div className="auth-card">
-        <div className="auth-card__icon">🛡️</div>
-        <h1 className="auth-card__title">Admin Portal</h1>
+        <Logo size="auth" />
+        <h1 className="auth-card__title">🛡️ Admin Portal</h1>
         <p className="auth-card__subtitle">Secure access to the administration panel.</p>
 
         <form onSubmit={handleSubmit} className="auth-form" noValidate>

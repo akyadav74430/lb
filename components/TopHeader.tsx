@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "./ThemeProvider";
 import MobileNavDrawer from "./MobileNavDrawer";
 import MobileLoginModal from "./MobileLoginModal";
+import Logo from "./Logo";
 
 function TopHeaderContent() {
   const { data: session } = useSession();
@@ -84,35 +85,7 @@ function TopHeaderContent() {
         </button>
 
         {/* Brand Logo */}
-        <Link href="/" className="top-header__logo" title="lovebite.com — Home">
-          <span className="top-header__logo-icon">
-            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="lb-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#ff4d79" />
-                  <stop offset="100%" stopColor="#c41e3a" />
-                </linearGradient>
-              </defs>
-              <rect width="40" height="40" rx="10" fill="url(#lb-grad)" />
-              <path
-                d="M12 18.5C12 14.5 15.5 12 19 15C20 15.9 20 15.9 21 15C24.5 12 28 14.5 28 18.5C28 23.5 20 28 20 28C20 28 12 23.5 12 18.5Z"
-                fill="#ffffff"
-                opacity="0.95"
-              />
-              <path
-                d="M24 16.5C25.5 17.5 26 19 25 20.5"
-                stroke="#c41e3a"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>
-          <span className="top-header__logo-text">
-            <span className="brand-love">love</span>
-            <span className="brand-bite">bite</span>
-            <span className="brand-dot">.com</span>
-          </span>
-        </Link>
+        <Logo size="header" priority />
 
         {/* Header Right Content */}
         <div className="top-header__right">

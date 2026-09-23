@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 export default function AuthPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-card__icon">🔐</div>
+        <Logo size="auth" />
         <h1 className="auth-card__title">Welcome</h1>
         <p className="auth-card__subtitle">Choose how you want to sign in.</p>
 

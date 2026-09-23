@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
 import { NAV_ITEMS } from "./SubNav";
+import Logo from "./Logo";
 
 interface MobileNavDrawerProps {
   isOpen: boolean;
@@ -89,11 +90,7 @@ export default function MobileNavDrawer({ isOpen, onClose, onOpenLogin }: Mobile
       <aside className="mobile-nav-panel">
         {/* Header with Brand & Close Button */}
         <div className="mobile-nav-panel__header">
-          <Link href="/" className="mobile-nav-panel__logo" onClick={onClose}>
-            <span className="brand-love">love</span>
-            <span className="brand-bite">bite</span>
-            <span className="brand-dot">.com</span>
-          </Link>
+          <Logo size="mobile" onClick={onClose} />
           <button
             type="button"
             className="mobile-nav-panel__close-btn"

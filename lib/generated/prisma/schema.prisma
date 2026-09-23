@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -35,16 +35,16 @@ model Profile {
   user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   status              String         @default("APPROVED") // DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED, NEEDS_CHANGES, SUSPENDED
   visibility          String         @default("PUBLIC") // PUBLIC, REGISTERED_USERS_ONLY, PRIVATE, UNPUBLISHED
-  moderationNotes     String?
-  rejectionReason     String?
+  moderationNotes     String?        @db.Text
+  rejectionReason     String?        @db.Text
   ageConfirmed        Boolean        @default(false)
   consentRecorded     Boolean        @default(false)
   consentTimestamp    DateTime?
   consentVersion      String?        @default("1.0")
-  photoUrl            String?
+  photoUrl            String?        @db.Text
   photos              ProfilePhoto[]
-  bio                 String?
-  address             String?
+  bio                 String?        @db.Text
+  address             String?        @db.Text
   city                String?
   region              String?
   district            String?
@@ -57,6 +57,7 @@ model Profile {
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
   reports             Report[]
+  rates               ProfileRate[]
 
   @@index([region])
   @@index([city])
@@ -68,7 +69,7 @@ model ProfilePhoto {
   id         String   @id @default(cuid())
   profileId  String
   profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  url        String
+  url        String   @db.Text
   sha256Hash String?
   order      Int      @default(0)
   isPrimary  Boolean  @default(false)
@@ -79,6 +80,18 @@ model ProfilePhoto {
   @@index([sha256Hash])
 }
 
+model ProfileRate {
+  id        String  @id @default(cuid())
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  duration  String
+  incall    Int
+  outcall   Int
+  order     Int     @default(0)
+
+  @@index([profileId])
+}
+
 model Report {
   id          String   @id @default(cuid())
   profileId   String
@@ -86,9 +99,9 @@ model Report {
   reporterId  String?
   reporter    User?    @relation("Reporter", fields: [reporterId], references: [id], onDelete: SetNull)
   category    String // FAKE_PROFILE, STOLEN_PHOTOS, IMPERSONATION, UNDERAGE_CONCERN, HARASSMENT, SPAM, FRAUD, NON_CONSENSUAL_CONTENT, WRONG_INFORMATION, OTHER
-  description String
+  description String   @db.Text
   status      String   @default("PENDING") // PENDING, INVESTIGATING, RESOLVED, DISMISSED
-  actionTaken String?
+  actionTaken String?  @db.Text
   ipAddress   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -115,7 +128,7 @@ model ModerationAction {
   targetType  String // PROFILE, USER, PHOTO, REPORT
   targetId    String
   action      String // APPROVE, REJECT, REQUEST_CHANGES, SUSPEND, UNPUBLISH, RESTORE
-  reason      String?
+  reason      String?  @db.Text
   createdAt   DateTime @default(now())
 
   @@index([moderatorId])
@@ -127,7 +140,7 @@ model AuditLog {
   userId    String?
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   action    String // LOGIN, FAILED_LOGIN, ROLE_CHANGE, PROFILE_APPROVE, PROFILE_REJECT, USER_DELETE, ACCOUNT_SUSPEND, REPORT_RESOLVE
-  details   String?
+  details   String?  @db.Text
   ipAddress String?
   createdAt DateTime @default(now())
 
@@ -139,7 +152,7 @@ model ContactMessage {
   id        String   @id @default(cuid())
   name      String
   email     String
-  message   String
+  message   String   @db.Text
   status    String   @default("SENT") // PENDING, SENT, FAILED
   ipAddress String?
   createdAt DateTime @default(now())

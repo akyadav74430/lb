@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
+import Logo from "@/components/Logo";
 
 function SignInForm() {
   const router = useRouter();
@@ -42,7 +43,7 @@ function SignInForm() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-card__icon">👤</div>
+        <Logo size="auth" />
         <h1 className="auth-card__title">User Sign In</h1>
         <p className="auth-card__subtitle">Welcome back — sign in to your account.</p>
 

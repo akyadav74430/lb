@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Logo from "./Logo";
 
 interface MobileLoginModalProps {
   isOpen: boolean;
@@ -97,10 +98,7 @@ export default function MobileLoginModal({ isOpen, onClose }: MobileLoginModalPr
         {/* Header */}
         <div className="mobile-login-card__header">
           <div className="mobile-login-card__title-row">
-            <span className="mobile-login-card__icon">🔐</span>
-            <h2 id="mobile-login-title" className="mobile-login-card__title">
-              Sign In to <span className="brand-love">love</span><span className="brand-bite">bite</span>
-            </h2>
+            <Logo size="compact" href="" />
           </div>
           <button
             type="button"

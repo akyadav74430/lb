@@ -1,0 +1,289 @@
+{
+  "users": [
+    {
+      "id": "cmua0ra4t0000ie9k5aj7ne9c",
+      "name": "Ankit Kumar",
+      "email": "ankitydv098@gmail.com",
+      "passwordHash": "$2b$12$9EcNpN9dEThboYfGzk2i6uxRSicwPc5M0pl52WE5IgpBSM8EHpl6.",
+      "role": "REGISTERED_USER",
+      "isSuspended": false,
+      "createdAt": "2026-09-20T16:16:54.797Z",
+      "updatedAt": "2026-09-21T07:35:11.000Z"
+    },
+    {
+      "id": "cmuaxyz040000ienw5lgw0fiw",
+      "name": "Lovebite Safety Director",
+      "email": "admin@lovebite.com",
+      "passwordHash": "$2b$10$ahyirokv.wRXrTWiuxtudumbHVXpa5Pno/5oa8.kcU..EZ5FN0G9W",
+      "role": "SUPER_ADMIN",
+      "isSuspended": false,
+      "createdAt": "2026-09-21T07:46:40.948Z",
+      "updatedAt": "2026-09-21T07:46:40.948Z"
+    },
+    {
+      "id": "cmuaxyz0h0001ienw4fdc75xo",
+      "name": "Kavita Mod",
+      "email": "moderator@lovebite.com",
+      "passwordHash": "$2b$10$ahyirokv.wRXrTWiuxtudumbHVXpa5Pno/5oa8.kcU..EZ5FN0G9W",
+      "role": "MODERATOR",
+      "isSuspended": false,
+      "createdAt": "2026-09-21T07:46:40.961Z",
+      "updatedAt": "2026-09-21T07:46:40.961Z"
+    },
+    {
+      "id": "cmuaxyz0o0002ienwhj0o6ior",
+      "name": "Ananya Sharma",
+      "email": "ananya.delhi@lovebite.com",
+      "passwordHash": "$2b$10$mAKPHjDb3Iy4sYNb3M6xFO18bg17Nfp/0nllCgQrPj5Ei38SLq1Se",
+      "role": "REGISTERED_USER",
+      "isSuspended": false,
+      "createdAt": "2026-09-21T07:46:40.969Z",
+      "updatedAt": "2026-09-21T07:46:40.969Z"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "cmua0sm5c0002ie9ksmk1peg2",
+      "userId": "cmua0ra4t0000ie9k5aj7ne9c",
+      "status": "APPROVED",
+      "visibility": "PUBLIC",
+      "moderationNotes": null,
+      "rejectionReason": null,
+      "ageConfirmed": false,
+      "consentRecorded": false,
+      "consentTimestamp": null,
+      "consentVersion": "1.0",
+      "photoUrl": null,
+      "bio": "",
+      "address": "",
+      "city": "",
+      "region": "West Bengal",
+      "district": null,
+      "localArea": null,
+      "country": "",
+      "favColor": "",
+      "phone": "",
+      "whatsapp": "",
+      "hidePhoneFromPublic": false,
+      "createdAt": "2026-09-20T16:17:57.022Z",
+      "updatedAt": "2026-09-20T16:18:09.831Z"
+    },
+    {
+      "id": "cmuaxyz0y0004ienwvqsmtlpr",
+      "userId": "cmuaxyz0o0002ienwhj0o6ior",
+      "status": "NEEDS_CHANGES",
+      "visibility": "PUBLIC",
+      "moderationNotes": "[REQUEST_CHANGES by Lovebite Safety Director]: gfhj",
+      "rejectionReason": "gfhj",
+      "ageConfirmed": true,
+      "consentRecorded": true,
+      "consentTimestamp": "2026-09-21T07:46:40.970Z",
+      "consentVersion": "1.0",
+      "photoUrl": "/profiles/ananya.jpg",
+      "bio": "Sophisticated companion available for upscale dinner dates and cultural events in Delhi NCR.",
+      "address": null,
+      "city": "New Delhi",
+      "region": "Delhi",
+      "district": "South Delhi",
+      "localArea": "Hauz Khas",
+      "country": "India",
+      "favColor": null,
+      "phone": null,
+      "whatsapp": null,
+      "hidePhoneFromPublic": false,
+      "createdAt": "2026-09-21T07:46:40.978Z",
+      "updatedAt": "2026-09-21T18:36:46.592Z"
+    }
+  ],
+  "photos": [
+    {
+      "id": "cmuaxyz190005ienwdehg2bcd",
+      "profileId": "cmuaxyz0y0004ienwvqsmtlpr",
+      "url": "/profiles/ananya.jpg",
+      "sha256Hash": "d8e8fca2dc0f896fd7cb4cb0031ba24900e3e609756fbab6f2b84cf633a2fe21",
+      "order": 0,
+      "isPrimary": true,
+      "status": "APPROVED",
+      "createdAt": "2026-09-21T07:46:40.989Z"
+    },
+    {
+      "id": "cmuaxyz190006ienwja8fogc6",
+      "profileId": "cmuaxyz0y0004ienwvqsmtlpr",
+      "url": "/profiles/ananya-2.jpg",
+      "sha256Hash": "9a2f1b4c3e5d6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b",
+      "order": 1,
+      "isPrimary": false,
+      "status": "APPROVED",
+      "createdAt": "2026-09-21T07:46:40.989Z"
+    }
+  ],
+  "rates": [],
+  "reports": [
+    {
+      "id": "cmuaxyz1i0008ienw7v6b3k67",
+      "profileId": "cmuaxyz0y0004ienwvqsmtlpr",
+      "reporterId": "cmuaxyz0h0001ienw4fdc75xo",
+      "category": "STOLEN_PHOTOS",
+      "description": "Checking image copyright authenticity on social media platforms.",
+      "status": "PENDING",
+      "actionTaken": null,
+      "ipAddress": null,
+      "createdAt": "2026-09-21T07:46:40.998Z",
+      "updatedAt": "2026-09-21T07:46:40.998Z"
+    }
+  ],
+  "blocks": [],
+  "modActions": [
+    {
+      "id": "cmubl6zyu0005ienckw0f1gfq",
+      "moderatorId": "cmuaxyz040000ienw5lgw0fiw",
+      "targetType": "PROFILE",
+      "targetId": "cmuaxyz0y0004ienwvqsmtlpr",
+      "action": "REQUEST_CHANGES",
+      "reason": "gfhj",
+      "createdAt": "2026-09-21T18:36:46.614Z"
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "cmuaxyz1s000aienw6dg0lab7",
+      "userId": "cmuaxyz040000ienw5lgw0fiw",
+      "action": "ADMIN_BOOTSTRAP",
+      "details": "Database initialized with secure RBAC and Trust & Safety moderation schemas.",
+      "ipAddress": null,
+      "createdAt": "2026-09-21T07:46:41.008Z"
+    },
+    {
+      "id": "cmuaztmm20001ieq0vndycwy4",
+      "userId": "cmuaxyz040000ienw5lgw0fiw",
+      "action": "LOGIN",
+      "details": "User logged in with role SUPER_ADMIN",
+      "ipAddress": null,
+      "createdAt": "2026-09-21T08:38:30.842Z"
+    },
+    {
+      "id": "cmub4d3vy0002iefcmdc27hsz",
+      "userId": "cmuaxyz040000ienw5lgw0fiw",
+      "action": "LOGIN",
+      "details": "User logged in with role SUPER_ADMIN",
+      "ipAddress": null,
+      "createdAt": "2026-09-21T10:45:38.158Z"
+    },
+    {
+      "id": "cmubjbx520001ienco1wopp0a",
+      "userId": "cmuaxyz040000ienw5lgw0fiw",
+      "action": "LOGIN",
+      "details": "User logged in with role SUPER_ADMIN",
+      "ipAddress": null,
+      "createdAt": "2026-09-21T17:44:36.994Z"
+    },
+    {
+      "id": "cmubl5ste0003iencuzmjcoiy",
+      "userId": "cmuaxyz040000ienw5lgw0fiw",
+      "action": "LOGIN",
+      "details": "User logged in with role SUPER_ADMIN",
+      "ipAddress": null,
+      "createdAt": "2026-09-21T18:35:50.690Z"
+    },
+    {
+      "id": "cmubl6zz30007iencyaj9vuth",
+      "userId": "cmuaxyz040000ienw5lgw0fiw",
+      "action": "MOD_PROFILE_REQUEST_CHANGES",
+      "details": "Action: REQUEST_CHANGES on PROFILE cmuaxyz0y0004ienwvqsmtlpr. Reason: gfhj",
+      "ipAddress": "::1",
+      "createdAt": "2026-09-21T18:36:46.623Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": "cmuav6w080000ieawg6g3ggcd",
+      "name": "Rahul Sharma",
+      "email": "rahul.sharma@example.com",
+      "message": "Hello, I have a question regarding profile verification in Mumbai.",
+      "status": "SENT",
+      "ipAddress": "::1",
+      "createdAt": "2026-09-21T06:28:51.463Z"
+    },
+    {
+      "id": "cmuav85du0001ieaw078acv5i",
+      "name": "Elena Rostova",
+      "email": "elena@example.com",
+      "message": "Hello support, I need assistance verifying my directory listing.",
+      "status": "SENT",
+      "ipAddress": "::1",
+      "createdAt": "2026-09-21T06:29:50.275Z"
+    },
+    {
+      "id": "cmuav9ahs0002ieaw80ktspk2",
+      "name": "Elena Rostova",
+      "email": "elena@example.com",
+      "message": "Hello support, I need assistance verifying my directory listing.",
+      "status": "SENT",
+      "ipAddress": "10.0.0.1",
+      "createdAt": "2026-09-21T06:30:43.552Z"
+    },
+    {
+      "id": "cmuav9alq0003ieaw8lg0dtat",
+      "name": "Elena",
+      "email": "elena@example.com",
+      "message": "Test burst message",
+      "status": "SENT",
+      "ipAddress": "10.0.0.6",
+      "createdAt": "2026-09-21T06:30:43.694Z"
+    },
+    {
+      "id": "cmuav9amq0004ieawad675i98",
+      "name": "Elena",
+      "email": "elena@example.com",
+      "message": "Test burst message",
+      "status": "SENT",
+      "ipAddress": "10.0.0.6",
+      "createdAt": "2026-09-21T06:30:43.731Z"
+    },
+    {
+      "id": "cmuav9anm0005ieawptma24tb",
+      "name": "Elena",
+      "email": "elena@example.com",
+      "message": "Test burst message",
+      "status": "SENT",
+      "ipAddress": "10.0.0.6",
+      "createdAt": "2026-09-21T06:30:43.762Z"
+    },
+    {
+      "id": "cmuav9aoj0006ieawvobd5q5m",
+      "name": "Elena",
+      "email": "elena@example.com",
+      "message": "Test burst message",
+      "status": "SENT",
+      "ipAddress": "10.0.0.6",
+      "createdAt": "2026-09-21T06:30:43.795Z"
+    },
+    {
+      "id": "cmuav9apf0007ieawbvs3qq3p",
+      "name": "Elena",
+      "email": "elena@example.com",
+      "message": "Test burst message",
+      "status": "SENT",
+      "ipAddress": "10.0.0.6",
+      "createdAt": "2026-09-21T06:30:43.827Z"
+    },
+    {
+      "id": "cmuavkils0008ieawpvgsilc0",
+      "name": "Aarav Patel",
+      "email": "aarav.patel@example.com",
+      "message": "Hello support, I would like to inquire about booking advertising space and profile verification on Euro Girls Escort.",
+      "status": "SENT",
+      "ipAddress": "::1",
+      "createdAt": "2026-09-21T06:39:27.280Z"
+    },
+    {
+      "id": "cmub495fq0000iefc4as9227f",
+      "name": "Ankit Kumar",
+      "email": "ankitydv098@gmail.com",
+      "message": "hjvhjvhyyhyuhu/;",
+      "status": "SENT",
+      "ipAddress": "::1",
+      "createdAt": "2026-09-21T10:42:33.542Z"
+    }
+  ]
+}

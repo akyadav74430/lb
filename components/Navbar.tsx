@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import Logo from "./Logo";
 
 const CITIES = [
   "Bangalore", "Mumbai", "Delhi", "Chennai", "Pune",
@@ -14,11 +15,7 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <div className="navbar__top">
-        <Link href="/" className="navbar__logo">
-          <span className="brand-love" style={{ color: "#ff5277", fontWeight: 800, fontStyle: "italic" }}>love</span>
-          <span className="brand-bite" style={{ color: "#ffffff", fontWeight: 800 }}>bite</span>
-          <span className="brand-dot" style={{ color: "#ff9fb4", fontSize: "14px", fontWeight: 600 }}>.com</span>
-        </Link>
+        <Logo size="header" />
 
         <div className="navbar__actions">
           {status !== "loading" && (
