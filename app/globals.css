@@ -589,32 +589,14 @@ input[type="radio"] {
   transition: background var(--dur-slow) var(--ease);
 }
 
-/* Page Title Row */
-.page-title-row {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; margin-bottom: 14px; flex-wrap: wrap;
-  animation: k-enter-up var(--dur-slow) var(--ease-out) 200ms both;
-}
+/* Page Title */
 .page-title {
   font-size: 23px; font-weight: 800; text-transform: uppercase;
   color: var(--primary-dark); letter-spacing: -0.01em;
+  margin-bottom: 14px;
+  animation: k-enter-up var(--dur-slow) var(--ease-out) 200ms both;
 }
 [data-theme="dark"] .page-title { color: var(--primary-light); }
-
-.page-title-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-.action-pill {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 7px 14px; border-radius: var(--radius-pill);
-  font-size: 11px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.03em; white-space: nowrap;
-  transition: all var(--dur-fast); box-shadow: var(--shadow-xs); cursor: pointer;
-}
-.action-pill--gold { background: linear-gradient(135deg, #F5A623, #e6b800); color: #1a1a1a; }
-.action-pill--gold:hover { box-shadow: 0 3px 12px rgba(245,166,35,0.4); transform: translateY(-2px); }
-.action-pill--gold:active { transform: translateY(0) scale(0.97); box-shadow: none; }
-.action-pill--gray { background: var(--bg-alt); color: var(--text); border: 1px solid var(--border); }
-.action-pill--gray:hover { background: var(--border); transform: translateY(-2px); }
-.action-pill--gray:active { transform: translateY(0) scale(0.97); }
 
 /* Category Tabs */
 .category-tabs {
@@ -2363,7 +2345,6 @@ input[type="radio"] {
   .main-content { padding: 14px 12px 24px; }
   .profiles-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .page-title { font-size: 18px; }
-  .page-title-actions { display: none; }
   .ad-banner-row { grid-template-columns: 1fr; }
   .ad-banner-row .ad-slot:nth-child(n+2) { display: none; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
@@ -2399,8 +2380,7 @@ input[type="radio"] {
   .profile-card__name { font-size: 12px; }
   .profile-card__location { font-size: 10px; }
   .badge { font-size: 8px; padding: 1px 5px; }
-  .page-title-row { margin-bottom: 10px; }
-  .page-title { font-size: 16px; }
+  .page-title { font-size: 16px; margin-bottom: 8px; }
   .auth-card { padding: 28px 20px; border-radius: var(--radius-lg); }
   .auth-card__title { font-size: 20px; }
   .auth-card__icon { width: 44px; height: 44px; font-size: 22px; }

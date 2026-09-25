@@ -26,6 +26,7 @@ export async function GET(
     include: {
       user: { select: { id: true, name: true, email: true } },
       photos: { orderBy: { order: "asc" } },
+      rates: { orderBy: { order: "asc" } },
     },
   });
 
@@ -71,6 +72,25 @@ export async function PUT(
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
   }
 
+  // Synchronize rates relation if provided
+  if (parsed.data.rates && Array.isArray(parsed.data.rates)) {
+    await prisma.profileRate.deleteMany({
+      where: { profileId: id },
+    });
+
+    if (parsed.data.rates.length > 0) {
+      await prisma.profileRate.createMany({
+        data: parsed.data.rates.map((r, idx: number) => ({
+          profileId: id,
+          duration: r.duration,
+          incall: typeof r.incall === "string" ? parseInt((r.incall as string).replace(/\D/g, "")) || 0 : r.incall || 0,
+          outcall: typeof r.outcall === "string" ? parseInt((r.outcall as string).replace(/\D/g, "")) || 0 : r.outcall || 0,
+          order: idx,
+        })),
+      });
+    }
+  }
+
   const updated = await prisma.profile.update({
     where: { id },
     data: {
@@ -88,7 +108,11 @@ export async function PUT(
       visibility: parsed.data.visibility,
       hidePhoneFromPublic: parsed.data.hidePhoneFromPublic,
     },
-    include: { photos: true, user: { select: { id: true, name: true } } },
+    include: {
+      photos: { orderBy: { order: "asc" } },
+      rates: { orderBy: { order: "asc" } },
+      user: { select: { id: true, name: true } },
+    },
   });
 
   return NextResponse.json(updated);

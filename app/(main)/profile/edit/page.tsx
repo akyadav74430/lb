@@ -23,6 +23,11 @@ export default async function EditProfilePage() {
           order: "asc",
         },
       },
+      rates: {
+        orderBy: {
+          order: "asc",
+        },
+      },
       user: true,
     },
   });
@@ -72,6 +77,7 @@ export default async function EditProfilePage() {
                     whatsapp: profile.whatsapp || "",
                     photoUrl: profile.photoUrl,
                     photos: profile.photos || [],
+                    rates: profile.rates || [],
                     visibility: (profile.visibility as "PUBLIC" | "REGISTERED_USERS_ONLY" | "PRIVATE" | "UNPUBLISHED") || "PUBLIC",
                     hidePhoneFromPublic: profile.hidePhoneFromPublic,
                     ageConfirmed: profile.ageConfirmed,

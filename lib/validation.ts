@@ -1,17 +1,32 @@
 import { z } from "zod";
 
 export const signUpSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters").max(100),
-  email: z.string().email("Invalid email address"),
+  name: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name cannot exceed 100 characters"),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Invalid email address")
+    .max(150, "Email cannot exceed 150 characters"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
-    .max(100),
+    .max(100, "Password cannot exceed 100 characters"),
 });
 
 export const signInSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Invalid email address"),
+  password: z
+    .string()
+    .min(1, "Password is required"),
 });
 
 export const photoItemSchema = z.object({
@@ -25,8 +40,8 @@ export const photoItemSchema = z.object({
 export const profileRateSchema = z.object({
   id: z.string().optional(),
   duration: z.string().min(1),
-  incall: z.union([z.string(), z.number()]).optional().transform(v => typeof v === 'string' ? parseInt(v.replace(/\\D/g, '')) || 0 : v || 0),
-  outcall: z.union([z.string(), z.number()]).optional().transform(v => typeof v === 'string' ? parseInt(v.replace(/\\D/g, '')) || 0 : v || 0),
+  incall: z.union([z.string(), z.number()]).optional().transform(v => typeof v === 'string' ? parseInt(v.replace(/\D/g, '')) || 0 : v || 0),
+  outcall: z.union([z.string(), z.number()]).optional().transform(v => typeof v === 'string' ? parseInt(v.replace(/\D/g, '')) || 0 : v || 0),
   order: z.number().int().min(0).default(0),
 });
 

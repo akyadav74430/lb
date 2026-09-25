@@ -128,11 +128,12 @@ export const ESCORT_PROFILES: EscortProfile[] = [
     availableFor: ["Incall", "Outcall"],
     meetingWith: ["Man", "Couple"],
     rates: [
-      { duration: "1 Hour", incall: "₹2,000" },
-      { duration: "2 Hours", incall: "₹2,500" },
-      { duration: "3 Hours", incall: "₹3,000" },
-      { duration: "Full Night", incall: "₹4,000" },
-      { duration: "Full Day", incall: "₹5,000" }
+      { duration: "1 Hour", incall: "₹12,500", outcall: "₹16,500" },
+      { duration: "2 Hours", incall: "₹22,000", outcall: "₹28,000" },
+      { duration: "3 Hours", incall: "₹30,000", outcall: "₹38,000" },
+      { duration: "Dinner Date (4 Hours)", incall: "₹40,000", outcall: "₹50,000" },
+      { duration: "Overnight (10 Hours)", incall: "₹75,000", outcall: "₹90,000" },
+      { duration: "Weekend Getaway", incall: "₹1,50,000", outcall: "₹1,80,000" },
     ],
     services: [
       { name: "Girlfriend Experience (GFE)", category: "Classic", available: true },
@@ -177,10 +178,101 @@ Hygiene, mutual respect, and 100% verified real photos are guaranteed. Contact m
   }
 ];
 
+export const STANDARD_PRICING_TIERS: ProfileRate[] = [
+  { duration: "1 Hour", incall: "₹12,500", outcall: "₹16,500" },
+  { duration: "2 Hours", incall: "₹22,000", outcall: "₹28,000" },
+  { duration: "3 Hours", incall: "₹30,000", outcall: "₹38,000" },
+  { duration: "Dinner Date (4 Hours)", incall: "₹40,000", outcall: "₹50,000" },
+  { duration: "Overnight (10 Hours)", incall: "₹75,000", outcall: "₹90,000" },
+  { duration: "Weekend Getaway", incall: "₹1,50,000", outcall: "₹1,80,000" },
+];
+
 export function getProfileById(id: string): EscortProfile | undefined {
-  return ESCORT_PROFILES.find((p) => p.id === id) || ESCORT_PROFILES[0];
+  return ESCORT_PROFILES.find((p) => p.id === id);
 }
 
 export function getAllProfiles(): EscortProfile[] {
   return ESCORT_PROFILES;
+}
+
+export function dbProfileToEscortProfile(p: {
+  id: string;
+  user?: { name: string | null };
+  bio?: string | null;
+  city?: string | null;
+  region?: string | null;
+  district?: string | null;
+  localArea?: string | null;
+  country?: string | null;
+  gender?: string | null;
+  category?: string | null;
+  photoUrl?: string | null;
+  photos?: { url: string; isPrimary?: boolean }[];
+  phone?: string | null;
+  whatsapp?: string | null;
+  hidePhoneFromPublic?: boolean | null;
+  rates?: { duration: string; incall?: number | string | null; outcall?: number | string | null }[];
+}): EscortProfile {
+  const primaryPhoto =
+    p.photos?.find((ph) => ph.isPrimary)?.url ||
+    p.photoUrl ||
+    (p.photos && p.photos[0]?.url) ||
+    "/profiles/priya-1.jpg";
+
+  const gallery =
+    p.photos && p.photos.length > 0
+      ? p.photos.map((ph) => ph.url)
+      : [primaryPhoto];
+
+  return {
+    id: p.id,
+    name: p.user?.name || "Verified Companion",
+    tagline: p.bio ? (p.bio.length > 90 ? p.bio.substring(0, 90) + "..." : p.bio) : "Sensual luxury independent companion with genuine elegance & discretion",
+    location: p.city ? `Escorts ${p.city}` : "Escorts India",
+    city: p.city || "Kolkata",
+    district: p.district || undefined,
+    state: p.region || undefined,
+    localArea: p.localArea || undefined,
+    country: p.country || "India",
+    gender: (p.gender as "female" | "male" | "trans") || "female",
+    category: (p.category as EscortProfile["category"]) || "girls",
+    topBadge: null,
+    status: "Independent",
+    badges: ["Independent", "Verified"],
+    photoUrl: primaryPhoto,
+    gallery,
+    age: 24,
+    height: "168 cm / 5'6\"",
+    weight: "52 kg / 115 lbs",
+    bust: "34C / Natural",
+    hair: "Long Black, Silky",
+    eyes: "Deep Brown",
+    ethnicity: "Indian",
+    languages: ["English", "Hindi"],
+    workingHours: "11:00 AM – 02:00 AM",
+    phone: p.hidePhoneFromPublic ? "" : (p.phone || "+91 62035 40719"),
+    whatsapp: p.whatsapp || "+916203540719",
+    telegram: "@lovebite_india",
+    lastSeen: "Today, Online",
+    rates:
+      p.rates && p.rates.length > 0
+        ? p.rates.map((r) => ({
+            duration: r.duration,
+            incall: typeof r.incall === "number" ? `₹${r.incall.toLocaleString("en-IN")}` : (r.incall ? String(r.incall) : "—"),
+            outcall: typeof r.outcall === "number" ? `₹${r.outcall.toLocaleString("en-IN")}` : (r.outcall ? String(r.outcall) : "—"),
+          }))
+        : STANDARD_PRICING_TIERS,
+    services: [
+      { name: "Girlfriend Experience (GFE)", category: "Classic", available: true },
+      { name: "French Kissing (Sensual)", category: "Classic", available: true },
+      { name: "Sensual Erotic Massage", category: "Massage & Wellness", available: true },
+      { name: "Dinner Date Companion", category: "Social", available: true },
+    ],
+    about: p.bio || "Namaste and welcome to my official profile. Available for elite rendezvous.",
+    reviews: [],
+    views: 150,
+    verifiedAt: "September 2026",
+    hidePhoneFromPublic: Boolean(p.hidePhoneFromPublic),
+    isPhoneHidden: Boolean(p.hidePhoneFromPublic),
+  };
 }

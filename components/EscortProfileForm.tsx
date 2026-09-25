@@ -275,10 +275,88 @@ export default function EscortProfileForm({ initialData, mode = "add" }: EscortP
       return;
     }
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setSaving(false);
-    alert(draft ? "Draft saved!" : "Profile published successfully!");
-    router.push("/");
+    try {
+      const uploadedPhotos: { url: string; sha256Hash?: string; order: number; isPrimary: boolean }[] = [];
+      for (let i = 0; i < photos.length; i++) {
+        const ph = photos[i];
+        if (ph.file) {
+          const fd = new FormData();
+          fd.append("file", ph.file);
+          const upRes = await fetch("/api/upload", { method: "POST", body: fd });
+          if (upRes.ok) {
+            const upData = await upRes.json();
+            uploadedPhotos.push({
+              url: upData.url,
+              sha256Hash: upData.sha256,
+              order: i,
+              isPrimary: ph.isMain || i === 0,
+            });
+          } else {
+            uploadedPhotos.push({
+              url: ph.preview,
+              order: i,
+              isPrimary: ph.isMain || i === 0,
+            });
+          }
+        } else {
+          uploadedPhotos.push({
+            url: ph.preview,
+            order: i,
+            isPrimary: ph.isMain || i === 0,
+          });
+        }
+      }
+
+      const formattedRates = form.rates.map((r, i) => ({
+        duration: r.duration,
+        incall: parseInt(String(r.incall).replace(/\D/g, "")) || 0,
+        outcall: parseInt(String(r.outcall).replace(/\D/g, "")) || 0,
+        order: i,
+      }));
+
+      const body = {
+        bio: form.about,
+        city: form.city,
+        region: form.state,
+        district: form.district,
+        localArea: form.localArea,
+        country: form.country || "India",
+        phone: form.phone,
+        whatsapp: form.whatsapp,
+        photoUrl: uploadedPhotos.find((p) => p.isPrimary)?.url || uploadedPhotos[0]?.url || null,
+        photos: uploadedPhotos,
+        rates: formattedRates,
+        visibility: draft ? "UNPUBLISHED" : "PUBLIC",
+        hidePhoneFromPublic: false,
+        ageConfirmed: true,
+        consentRecorded: true,
+      };
+
+      const res = await fetch("/api/profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (res.status === 401) {
+        alert("Please sign in or create an account to publish your profile.");
+        router.push("/signin?callbackUrl=/profile/add");
+        return;
+      }
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(typeof data.error === "string" ? data.error : "Failed to publish profile. Please check required fields.");
+        return;
+      }
+
+      alert(draft ? "Draft saved successfully!" : "Profile submitted and published successfully!");
+      router.push(data.id ? `/profile/${data.id}` : "/");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "An error occurred while saving.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   /* ─── Height / Weight display ─── */
@@ -831,7 +909,14 @@ export default function EscortProfileForm({ initialData, mode = "add" }: EscortP
             <span>Standard Rate</span>
             <span>Premium Rate</span>
           </div>
-          {["1 Hour", "2 Hours", "3 Hours", "Full Night", "Full Day"].map((duration) => {
+          {[
+            { duration: "1 Hour", stdPlaceholder: "12,500", premPlaceholder: "16,500" },
+            { duration: "2 Hours", stdPlaceholder: "22,000", premPlaceholder: "28,000" },
+            { duration: "3 Hours", stdPlaceholder: "30,000", premPlaceholder: "38,000" },
+            { duration: "Dinner Date (4 Hours)", stdPlaceholder: "40,000", premPlaceholder: "50,000" },
+            { duration: "Overnight (10 Hours)", stdPlaceholder: "75,000", premPlaceholder: "90,000" },
+            { duration: "Weekend Getaway", stdPlaceholder: "1,50,000", premPlaceholder: "1,80,000" },
+          ].map(({ duration, stdPlaceholder, premPlaceholder }) => {
             const currentRate = form.rates?.find(r => r.duration === duration) || { duration, incall: "", outcall: "" };
             return (
               <div key={duration} style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: 8, alignItems: "center" }}>
@@ -839,7 +924,7 @@ export default function EscortProfileForm({ initialData, mode = "add" }: EscortP
                 <input
                   type="number"
                   className="epf-input"
-                  placeholder="Standard (₹)"
+                  placeholder={`₹${stdPlaceholder}`}
                   value={currentRate.incall || ""}
                   onChange={(e) => {
                     const newRates = [...(form.rates || [])];
@@ -852,7 +937,7 @@ export default function EscortProfileForm({ initialData, mode = "add" }: EscortP
                 <input
                   type="number"
                   className="epf-input"
-                  placeholder="Premium (₹)"
+                  placeholder={`₹${premPlaceholder}`}
                   value={currentRate.outcall || ""}
                   onChange={(e) => {
                     const newRates = [...(form.rates || [])];

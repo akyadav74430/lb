@@ -28,13 +28,21 @@ export default function SignUpPage() {
       body: JSON.stringify(formData),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      if (typeof data.error === "object") {
+      if (data.errors && typeof data.errors === "object") {
+        setErrors(data.errors);
+      } else if (typeof data.error === "object" && data.error !== null) {
         setErrors(data.error);
-      } else {
-        setServerError(data.error || "Something went wrong");
+      }
+
+      if (typeof data.error === "string") {
+        setServerError(data.error);
+      } else if (typeof data.message === "string") {
+        setServerError(data.message);
+      } else if (!data.errors && typeof data.error !== "object") {
+        setServerError("Registration failed. Please try again.");
       }
       setSubmitting(false);
       return;

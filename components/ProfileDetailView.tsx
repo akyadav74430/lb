@@ -54,22 +54,21 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
   const nextId = currentIndex < allProfileIds.length - 1 ? allProfileIds[currentIndex + 1] : null;
 
   // Check if contact info is restricted / hidden by profile privacy settings
-  const isContactRestricted = Boolean(profile.isPhoneHidden);
+  const isContactRestricted = Boolean(profile.isPhoneHidden || profile.hidePhoneFromPublic);
 
   // Normalize phone for tel: protocol (e.g., "+91 62035 40719" -> "+916203540719")
-  const rawDigits = profile.phone ? profile.phone.replace(/[^\d+]/g, "") : "";
-  const telHref = rawDigits ? `tel:${rawDigits}` : "#";
+  const defaultPhone = "+916203540719";
+  const rawDigits = profile.phone ? profile.phone.replace(/[^\d+]/g, "") : defaultPhone;
+  const telHref = isContactRestricted ? "#" : (rawDigits.startsWith("+") ? `tel:${rawDigits}` : `tel:+${rawDigits}`);
 
   // Normalize WhatsApp number (international digits only without '+' or spaces -> "916203540719")
   const waDigits = profile.whatsapp
     ? profile.whatsapp.replace(/\D/g, "")
-    : (profile.phone ? profile.phone.replace(/\D/g, "") : "");
+    : (profile.phone ? profile.phone.replace(/\D/g, "") : "916203540719");
 
   // Prefilled WhatsApp message correctly URL-encoded
-  const waPrefill = "Hello, I am interested in your profile on Lovebite.com.";
-  const waHref = waDigits
-    ? `https://wa.me/${waDigits}?text=${encodeURIComponent(waPrefill)}`
-    : "#";
+  const waPrefill = `Hello, I am interested in your profile on Lovebite.com (${profile.name}).`;
+  const waHref = isContactRestricted ? "#" : `https://wa.me/${waDigits}?text=${encodeURIComponent(waPrefill)}`;
 
   const handleCopyPhone = () => {
     if (!profile.phone || isContactRestricted) return;

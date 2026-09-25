@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { getProfileById } from "@/lib/profiles-data";
+import { prisma } from "@/lib/db";
+import { getProfileById, dbProfileToEscortProfile } from "@/lib/profiles-data";
 import EscortProfileForm from "@/components/EscortProfileForm";
 
 interface Props {
@@ -8,7 +9,14 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const { id } = await params;
-  const profile = getProfileById(id);
+  let profile = getProfileById(id);
+  if (!profile) {
+    const dbProfile = await prisma.profile.findUnique({
+      where: { id },
+      include: { user: { select: { name: true } } },
+    });
+    if (dbProfile) profile = dbProfileToEscortProfile(dbProfile);
+  }
   return {
     title: profile
       ? `Edit Profile: ${profile.name} — lovebite.com`
@@ -18,7 +26,21 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function EditProfilePage({ params }: Props) {
   const { id } = await params;
-  const profile = getProfileById(id);
+  let profile = getProfileById(id);
+
+  if (!profile) {
+    const dbProfile = await prisma.profile.findUnique({
+      where: { id },
+      include: {
+        user: { select: { name: true } },
+        photos: { orderBy: { order: "asc" } },
+        rates: { orderBy: { order: "asc" } },
+      },
+    });
+    if (dbProfile) {
+      profile = dbProfileToEscortProfile(dbProfile);
+    }
+  }
 
   if (!profile) {
     notFound();
@@ -42,8 +64,8 @@ export default async function EditProfilePage({ params }: Props) {
     pubicHair: profile.pubicHair || "",
     bustSize: profile.bustSize || "",
     bustType: (profile.bustType === "Natural" || profile.bustType === "Enhanced" ? profile.bustType : "") as "Natural" | "Enhanced" | "",
-    weightKg: profile.weight.split(" ")[0],
-    heightCm: profile.height.split(" ")[0],
+    weightKg: profile.weight ? profile.weight.split(" ")[0] : "",
+    heightCm: profile.height ? profile.height.split(" ")[0] : "",
     ethnicity: profile.ethnicity,
     orientation: profile.orientation || "",
     smoker: (profile.smoker === "No" || profile.smoker === "Sometimes" || profile.smoker === "Yes" ? profile.smoker : "") as "No" | "Sometimes" | "Yes" | "",
@@ -58,6 +80,11 @@ export default async function EditProfilePage({ params }: Props) {
     phone: profile.phone,
     whatsapp: profile.whatsapp,
     telegram: profile.telegram,
+    rates: profile.rates?.map(r => ({
+      duration: r.duration,
+      incall: String(r.incall).replace(/\D/g, ""),
+      outcall: String(r.outcall).replace(/\D/g, ""),
+    })) || [],
   };
 
   return (

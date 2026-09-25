@@ -27,10 +27,10 @@ export default function AdvertisePage() {
       desc: "Prime position at the top of every Indian directory page above category navigation.",
       badge: "Maximum Visibility",
     },
-    sidebar_ad: {
-      title: "Right Sidebar Premium Showcase",
+    featured_card: {
+      title: "Featured Directory Spotlight",
       pricePerMonth: 7999,
-      desc: "High-CTR animated card on the right desktop column, shown on all Indian city pages.",
+      desc: "Prime highlighted showcase card prominently positioned in your target Indian city directories.",
       badge: "High Conversion",
     },
     city_priority: {

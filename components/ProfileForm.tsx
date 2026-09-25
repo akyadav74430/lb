@@ -495,7 +495,14 @@ export default function ProfileForm({ initialData = {}, onSuccess }: ProfileForm
               <span>Standard Rate</span>
               <span>Premium Rate</span>
             </div>
-            {["1 Hour", "2 Hours", "3 Hours", "Full Night", "Full Day"].map((duration, i) => {
+            {[
+              { duration: "1 Hour", stdPlaceholder: "12,500", premPlaceholder: "16,500" },
+              { duration: "2 Hours", stdPlaceholder: "22,000", premPlaceholder: "28,000" },
+              { duration: "3 Hours", stdPlaceholder: "30,000", premPlaceholder: "38,000" },
+              { duration: "Dinner Date (4 Hours)", stdPlaceholder: "40,000", premPlaceholder: "50,000" },
+              { duration: "Overnight (10 Hours)", stdPlaceholder: "75,000", premPlaceholder: "90,000" },
+              { duration: "Weekend Getaway", stdPlaceholder: "1,50,000", premPlaceholder: "1,80,000" },
+            ].map(({ duration, stdPlaceholder, premPlaceholder }, i) => {
               const currentRate = form.rates?.find((r) => r.duration === duration) || { duration, incall: 0, outcall: 0, order: i };
               return (
                 <div key={duration} style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: 8, alignItems: "center" }}>
@@ -503,7 +510,7 @@ export default function ProfileForm({ initialData = {}, onSuccess }: ProfileForm
                   <input
                     type="number"
                     className="form-input"
-                    placeholder="Standard (₹)"
+                    placeholder={`₹${stdPlaceholder}`}
                     value={currentRate.incall || ""}
                     onChange={(e) => {
                       const newRates = [...(form.rates || [])];
@@ -517,7 +524,7 @@ export default function ProfileForm({ initialData = {}, onSuccess }: ProfileForm
                   <input
                     type="number"
                     className="form-input"
-                    placeholder="Premium (₹)"
+                    placeholder={`₹${premPlaceholder}`}
                     value={currentRate.outcall || ""}
                     onChange={(e) => {
                       const newRates = [...(form.rates || [])];

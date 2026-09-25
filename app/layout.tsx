@@ -12,9 +12,40 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "LoveBite - Verified Escorts & Companions",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://lovebite.com"),
+  title: {
+    default: "lovebite.com — Verified Escorts & Companions India",
+    template: "%s | lovebite.com",
+  },
   description:
-    "Browse verified escort profiles, read real reviews, and connect with premium companions on LoveBite.com.",
+    "Discover verified independent escorts, VIP companions, and premium wellness services across India on lovebite.com. Genuine reviews, authentic photos, and instant WhatsApp booking.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://lovebite.com",
+    siteName: "lovebite.com",
+    title: "lovebite.com — Verified Escorts & Companions India",
+    description:
+      "Browse verified independent escorts, VIP companions, and reviews across major cities in India.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "lovebite.com Verified Escorts Directory",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "lovebite.com — Verified Escorts & Companions India",
+    description:
+      "Browse verified independent escorts, VIP companions, and reviews across major cities in India.",
+    images: ["/og-image.png"],
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

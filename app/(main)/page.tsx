@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import ProfileCard from "@/components/ProfileCard";
@@ -8,19 +8,7 @@ import Logo from "@/components/Logo";
 import IndiaLocationSelector from "@/components/IndiaLocationSelector";
 import LeftSidebar from "@/components/LeftSidebar";
 import SidebarMobileWrapper from "@/components/SidebarMobileWrapper";
-import { getAllProfiles } from "@/lib/profiles-data";
-
-/* Silhouette icon for ad slots */
-function AdSilhouette() {
-  return (
-    <div className="ad-slot__icon">
-      <svg viewBox="0 0 48 60" fill="currentColor">
-        <circle cx="24" cy="15" r="10" opacity="0.3" />
-        <ellipse cx="24" cy="46" rx="18" ry="14" opacity="0.2" />
-      </svg>
-    </div>
-  );
-}
+import { getAllProfiles, dbProfileToEscortProfile, EscortProfile } from "@/lib/profiles-data";
 
 function MainDirectoryContent() {
   const searchParams = useSearchParams();
@@ -34,7 +22,28 @@ function MainDirectoryContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const profilesPerPage = 12;
 
-  const allProfiles = useMemo(() => getAllProfiles(), []);
+  const [allProfiles, setAllProfiles] = useState<EscortProfile[]>(() => getAllProfiles());
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch("/api/profiles?page=1")
+      .then((r) => r.json())
+      .then((data) => {
+        if (isMounted && data.profiles && Array.isArray(data.profiles) && data.profiles.length > 0) {
+          const dbMapped: EscortProfile[] = data.profiles.map(dbProfileToEscortProfile);
+          setAllProfiles((prev) => {
+            const dbIds = new Set(dbMapped.map((p) => p.id));
+            const filteredPrev = prev.filter((p) => !dbIds.has(p.id));
+            return [...dbMapped, ...filteredPrev];
+          });
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Filter profiles based on Indian location params and category filters
   const filteredProfiles = useMemo(() => {
@@ -97,17 +106,8 @@ function MainDirectoryContent() {
           {/* Top Indian Location Filter Bar */}
           <IndiaLocationSelector />
 
-          {/* Page Title + Action Buttons */}
-          <div className="page-title-row">
-            <h1 className="page-title">{dynamicTitle}</h1>
-            <div className="page-title-actions">
-              <Link href="/?filter=vip" className="action-pill action-pill--gold">🔥 VIP Escorts</Link>
-              <Link href="/reviews" className="action-pill action-pill--gray">⭐ Verified Reviews</Link>
-              <Link href="/?filter=videos" className="action-pill action-pill--gray">📹 Video Models</Link>
-              <Link href="/advertise" className="action-pill action-pill--gray">📢 Advertise</Link>
-              <Link href="/blacklist" className="action-pill action-pill--gray">🛡️ Safety Registry</Link>
-            </div>
-          </div>
+          {/* Page Title */}
+          <h1 className="page-title">{dynamicTitle}</h1>
 
           {/* Category Tabs */}
           <div className="category-tabs">
@@ -141,25 +141,6 @@ function MainDirectoryContent() {
             >
               Trans escorts<span className="category-tab__count">({transCount})</span>
             </button>
-          </div>
-
-          {/* Ad Banner Row (INR Pricing) */}
-          <div className="ad-banner-row">
-            <Link href="/advertise" className="ad-slot">
-              <AdSilhouette />
-              <div className="ad-slot__text">Top Banner Ad</div>
-              <div className="ad-slot__price">₹1,499 / Month</div>
-            </Link>
-            <Link href="/advertise" className="ad-slot">
-              <AdSilhouette />
-              <div className="ad-slot__text">VIP Profile Slot</div>
-              <div className="ad-slot__price">₹1,499 / Month</div>
-            </Link>
-            <Link href="/advertise" className="ad-slot">
-              <AdSilhouette />
-              <div className="ad-slot__text">Sponsor Placement</div>
-              <div className="ad-slot__price">₹1,499 / Month</div>
-            </Link>
           </div>
 
           {/* Profile Cards Grid */}
