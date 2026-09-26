@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     });
 
     // Convert processed buffer back to File for upload
-    const processedFile = new File([processed.buffer], `${randomUUID()}${processed.extension}`, {
+    const processedFile = new File([new Uint8Array(processed.buffer)], `${randomUUID()}${processed.extension}`, {
       type: processed.mimeType,
     });
 
