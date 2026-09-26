@@ -177,6 +177,7 @@ export async function POST(request: Request) {
     consentTimestamp: data.consentRecorded ? new Date() : null,
     consentVersion: "1.0",
     status: statusToSet,
+    gender: data.gender || null,
   };
 
   // Upsert profile
