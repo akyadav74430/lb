@@ -1,22 +1,10 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import { existsSync } from "fs";
-import { join } from "path";
 import { randomUUID } from "crypto";
 import { processAndSanitizeImage } from "@/lib/image-processor";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/security";
-
-function getUploadsDir() {
-  if (process.env.UPLOADS_DIR) {
-    return process.env.UPLOADS_DIR;
-  }
-  if (existsSync("/app/data/uploads")) {
-    return "/app/data/uploads";
-  }
-  return join(process.cwd(), "public", "uploads");
-}
+import { uploadImage } from "@/lib/supabase-storage";
 
 export const dynamic = "force-dynamic";
 
@@ -65,14 +53,15 @@ export async function POST(request: Request) {
       quality: 85,
     });
 
-    const filename = `${randomUUID()}${processed.extension}`;
-    const uploadsDir = getUploadsDir();
+    // Convert processed buffer back to File for upload
+    const processedFile = new File([processed.buffer], `${randomUUID()}${processed.extension}`, {
+      type: processed.mimeType,
+    });
 
-    await mkdir(uploadsDir, { recursive: true });
-    await writeFile(join(uploadsDir, filename), processed.buffer);
+    const { url } = await uploadImage(processedFile, "profiles");
 
     return NextResponse.json({
-      url: `/api/files/${filename}`,
+      url,
       sha256: processed.sha256Hash,
       width: processed.width,
       height: processed.height,
@@ -86,4 +75,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
