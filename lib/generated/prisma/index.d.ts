@@ -2981,6 +2981,7 @@ export namespace Prisma {
     phone: string | null
     whatsapp: string | null
     hidePhoneFromPublic: boolean | null
+    gender: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -3008,6 +3009,7 @@ export namespace Prisma {
     phone: string | null
     whatsapp: string | null
     hidePhoneFromPublic: boolean | null
+    gender: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -3035,6 +3037,7 @@ export namespace Prisma {
     phone: number
     whatsapp: number
     hidePhoneFromPublic: number
+    gender: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -3064,6 +3067,7 @@ export namespace Prisma {
     phone?: true
     whatsapp?: true
     hidePhoneFromPublic?: true
+    gender?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -3091,6 +3095,7 @@ export namespace Prisma {
     phone?: true
     whatsapp?: true
     hidePhoneFromPublic?: true
+    gender?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -3118,6 +3123,7 @@ export namespace Prisma {
     phone?: true
     whatsapp?: true
     hidePhoneFromPublic?: true
+    gender?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -3218,6 +3224,7 @@ export namespace Prisma {
     phone: string | null
     whatsapp: string | null
     hidePhoneFromPublic: boolean
+    gender: string | null
     createdAt: Date
     updatedAt: Date
     _count: ProfileCountAggregateOutputType | null
@@ -3262,6 +3269,7 @@ export namespace Prisma {
     phone?: boolean
     whatsapp?: boolean
     hidePhoneFromPublic?: boolean
+    gender?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -3294,6 +3302,7 @@ export namespace Prisma {
     phone?: boolean
     whatsapp?: boolean
     hidePhoneFromPublic?: boolean
+    gender?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -3322,6 +3331,7 @@ export namespace Prisma {
     phone?: boolean
     whatsapp?: boolean
     hidePhoneFromPublic?: boolean
+    gender?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -3350,11 +3360,12 @@ export namespace Prisma {
     phone?: boolean
     whatsapp?: boolean
     hidePhoneFromPublic?: boolean
+    gender?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "status" | "visibility" | "moderationNotes" | "rejectionReason" | "ageConfirmed" | "consentRecorded" | "consentTimestamp" | "consentVersion" | "photoUrl" | "bio" | "address" | "city" | "region" | "district" | "localArea" | "country" | "favColor" | "phone" | "whatsapp" | "hidePhoneFromPublic" | "createdAt" | "updatedAt", ExtArgs["result"]["profile"]>
+  export type ProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "status" | "visibility" | "moderationNotes" | "rejectionReason" | "ageConfirmed" | "consentRecorded" | "consentTimestamp" | "consentVersion" | "photoUrl" | "bio" | "address" | "city" | "region" | "district" | "localArea" | "country" | "favColor" | "phone" | "whatsapp" | "hidePhoneFromPublic" | "gender" | "createdAt" | "updatedAt", ExtArgs["result"]["profile"]>
   export type ProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     photos?: boolean | Profile$photosArgs<ExtArgs>
@@ -3400,6 +3411,7 @@ export namespace Prisma {
       phone: string | null
       whatsapp: string | null
       hidePhoneFromPublic: boolean
+      gender: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["profile"]>
@@ -3851,6 +3863,7 @@ export namespace Prisma {
     readonly phone: FieldRef<"Profile", 'String'>
     readonly whatsapp: FieldRef<"Profile", 'String'>
     readonly hidePhoneFromPublic: FieldRef<"Profile", 'Boolean'>
+    readonly gender: FieldRef<"Profile", 'String'>
     readonly createdAt: FieldRef<"Profile", 'DateTime'>
     readonly updatedAt: FieldRef<"Profile", 'DateTime'>
   }
@@ -12032,6 +12045,7 @@ export namespace Prisma {
     phone: 'phone',
     whatsapp: 'whatsapp',
     hidePhoneFromPublic: 'hidePhoneFromPublic',
+    gender: 'gender',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -12335,6 +12349,7 @@ export namespace Prisma {
     phone?: StringNullableFilter<"Profile"> | string | null
     whatsapp?: StringNullableFilter<"Profile"> | string | null
     hidePhoneFromPublic?: BoolFilter<"Profile"> | boolean
+    gender?: StringNullableFilter<"Profile"> | string | null
     createdAt?: DateTimeFilter<"Profile"> | Date | string
     updatedAt?: DateTimeFilter<"Profile"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -12366,6 +12381,7 @@ export namespace Prisma {
     phone?: SortOrderInput | SortOrder
     whatsapp?: SortOrderInput | SortOrder
     hidePhoneFromPublic?: SortOrder
+    gender?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -12400,6 +12416,7 @@ export namespace Prisma {
     phone?: StringNullableFilter<"Profile"> | string | null
     whatsapp?: StringNullableFilter<"Profile"> | string | null
     hidePhoneFromPublic?: BoolFilter<"Profile"> | boolean
+    gender?: StringNullableFilter<"Profile"> | string | null
     createdAt?: DateTimeFilter<"Profile"> | Date | string
     updatedAt?: DateTimeFilter<"Profile"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -12431,6 +12448,7 @@ export namespace Prisma {
     phone?: SortOrderInput | SortOrder
     whatsapp?: SortOrderInput | SortOrder
     hidePhoneFromPublic?: SortOrder
+    gender?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ProfileCountOrderByAggregateInput
@@ -12464,6 +12482,7 @@ export namespace Prisma {
     phone?: StringNullableWithAggregatesFilter<"Profile"> | string | null
     whatsapp?: StringNullableWithAggregatesFilter<"Profile"> | string | null
     hidePhoneFromPublic?: BoolWithAggregatesFilter<"Profile"> | boolean
+    gender?: StringNullableWithAggregatesFilter<"Profile"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Profile"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Profile"> | Date | string
   }
@@ -13049,6 +13068,7 @@ export namespace Prisma {
     phone?: string | null
     whatsapp?: string | null
     hidePhoneFromPublic?: boolean
+    gender?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutProfileInput
@@ -13080,6 +13100,7 @@ export namespace Prisma {
     phone?: string | null
     whatsapp?: string | null
     hidePhoneFromPublic?: boolean
+    gender?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: ProfilePhotoUncheckedCreateNestedManyWithoutProfileInput
@@ -13109,6 +13130,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     hidePhoneFromPublic?: BoolFieldUpdateOperationsInput | boolean
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutProfileNestedInput
@@ -13140,6 +13162,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     hidePhoneFromPublic?: BoolFieldUpdateOperationsInput | boolean
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: ProfilePhotoUncheckedUpdateManyWithoutProfileNestedInput
@@ -13170,6 +13193,7 @@ export namespace Prisma {
     phone?: string | null
     whatsapp?: string | null
     hidePhoneFromPublic?: boolean
+    gender?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13196,6 +13220,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     hidePhoneFromPublic?: BoolFieldUpdateOperationsInput | boolean
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13223,6 +13248,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     hidePhoneFromPublic?: BoolFieldUpdateOperationsInput | boolean
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13930,6 +13956,7 @@ export namespace Prisma {
     phone?: SortOrder
     whatsapp?: SortOrder
     hidePhoneFromPublic?: SortOrder
+    gender?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -13957,6 +13984,7 @@ export namespace Prisma {
     phone?: SortOrder
     whatsapp?: SortOrder
     hidePhoneFromPublic?: SortOrder
+    gender?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -13984,6 +14012,7 @@ export namespace Prisma {
     phone?: SortOrder
     whatsapp?: SortOrder
     hidePhoneFromPublic?: SortOrder
+    gender?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15011,6 +15040,7 @@ export namespace Prisma {
     phone?: string | null
     whatsapp?: string | null
     hidePhoneFromPublic?: boolean
+    gender?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: ProfilePhotoCreateNestedManyWithoutProfileInput
@@ -15040,6 +15070,7 @@ export namespace Prisma {
     phone?: string | null
     whatsapp?: string | null
     hidePhoneFromPublic?: boolean
+    gender?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: ProfilePhotoUncheckedCreateNestedManyWithoutProfileInput
@@ -15217,6 +15248,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     hidePhoneFromPublic?: BoolFieldUpdateOperationsInput | boolean
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: ProfilePhotoUpdateManyWithoutProfileNestedInput
@@ -15246,6 +15278,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     hidePhoneFromPublic?: BoolFieldUpdateOperationsInput | boolean
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: ProfilePhotoUncheckedUpdateManyWithoutProfileNestedInput
@@ -15650,6 +15683,7 @@ export namespace Prisma {
     phone?: string | null
     whatsapp?: string | null
     hidePhoneFromPublic?: boolean
+    gender?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutProfileInput
@@ -15680,6 +15714,7 @@ export namespace Prisma {
     phone?: string | null
     whatsapp?: string | null
     hidePhoneFromPublic?: boolean
+    gender?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     reports?: ReportUncheckedCreateNestedManyWithoutProfileInput
@@ -15724,6 +15759,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     hidePhoneFromPublic?: BoolFieldUpdateOperationsInput | boolean
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutProfileNestedInput
@@ -15754,6 +15790,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     hidePhoneFromPublic?: BoolFieldUpdateOperationsInput | boolean
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reports?: ReportUncheckedUpdateManyWithoutProfileNestedInput
@@ -15782,6 +15819,7 @@ export namespace Prisma {
     phone?: string | null
     whatsapp?: string | null
     hidePhoneFromPublic?: boolean
+    gender?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutProfileInput
@@ -15812,6 +15850,7 @@ export namespace Prisma {
     phone?: string | null
     whatsapp?: string | null
     hidePhoneFromPublic?: boolean
+    gender?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: ProfilePhotoUncheckedCreateNestedManyWithoutProfileInput
@@ -15856,6 +15895,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     hidePhoneFromPublic?: BoolFieldUpdateOperationsInput | boolean
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutProfileNestedInput
@@ -15886,6 +15926,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     hidePhoneFromPublic?: BoolFieldUpdateOperationsInput | boolean
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: ProfilePhotoUncheckedUpdateManyWithoutProfileNestedInput
@@ -15914,6 +15955,7 @@ export namespace Prisma {
     phone?: string | null
     whatsapp?: string | null
     hidePhoneFromPublic?: boolean
+    gender?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutProfileInput
@@ -15944,6 +15986,7 @@ export namespace Prisma {
     phone?: string | null
     whatsapp?: string | null
     hidePhoneFromPublic?: boolean
+    gender?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     photos?: ProfilePhotoUncheckedCreateNestedManyWithoutProfileInput
@@ -16025,6 +16068,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     hidePhoneFromPublic?: BoolFieldUpdateOperationsInput | boolean
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutProfileNestedInput
@@ -16055,6 +16099,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     hidePhoneFromPublic?: BoolFieldUpdateOperationsInput | boolean
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: ProfilePhotoUncheckedUpdateManyWithoutProfileNestedInput

@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Suspense } from "react";
 import Logo from "@/components/Logo";
 
-export default function AdminSignInPage() {
+function AdminSignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/admin/dashboard";
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -29,26 +32,26 @@ export default function AdminSignInPage() {
     });
 
     if (result?.error) {
-      setError("Invalid admin credentials.");
+      setError("Invalid email or password.");
       setSubmitting(false);
     } else {
-      router.push("/admin/dashboard");
+      router.push(callbackUrl);
       router.refresh();
     }
   };
 
   return (
-    <div className="auth-page auth-page--admin">
-      <div className="auth-card">
+    <div className="auth-page">
+      <div className="auth-card" style={{ maxWidth: 420 }}>
         <Logo size="auth" />
-        <h1 className="auth-card__title">🛡️ Admin Portal</h1>
-        <p className="auth-card__subtitle">Secure access to the administration panel.</p>
+        <h1 className="auth-card__title">Admin Sign In</h1>
+        <p className="auth-card__subtitle">Superuser access to lovebite.com administration</p>
 
         <form onSubmit={handleSubmit} className="auth-form" noValidate>
           {error && <div className="auth-form__error-banner">{error}</div>}
 
           <div className="auth-form__group">
-            <label htmlFor="admin-email" className="auth-form__label">Admin Email</label>
+            <label htmlFor="admin-email" className="auth-form__label">Email</label>
             <input
               id="admin-email"
               name="email"
@@ -77,22 +80,21 @@ export default function AdminSignInPage() {
             />
           </div>
 
-          <button type="submit" className="auth-btn auth-btn--primary auth-btn--admin" disabled={submitting}>
+          <button type="submit" className="auth-btn auth-btn--primary" disabled={submitting}>
             {submitting ? (
               <>
                 <span className="auth-btn__spinner" />
-                Authenticating…
+                Signing in…
               </>
             ) : (
-              "Admin Sign In"
+              "Sign In"
             )}
           </button>
         </form>
 
         <div className="auth-footer">
           <p className="auth-footer__text">
-            Not an admin?{" "}
-            <Link href="/signin" className="auth-footer__link">User Sign In</Link>
+            <Link href="/signin" className="auth-footer__link">← User Sign In</Link>
           </p>
         </div>
 
@@ -107,5 +109,13 @@ export default function AdminSignInPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function AdminSignInPage() {
+  return (
+    <Suspense>
+      <AdminSignInForm />
+    </Suspense>
   );
 }

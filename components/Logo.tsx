@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export interface LogoProps {
   /** Size variant tailored for different UI locations */
-  size?: "header" | "mobile" | "auth" | "footer" | "compact";
+  size?: "header" | "mobile" | "auth" | "footer" | "compact" | "nav";
   /** Optional custom CSS class name */
   className?: string;
   /** Link target (defaults to "/") */
@@ -51,6 +51,12 @@ const SIZE_CONFIGS = {
     emblemSize: 24,
     height: 26,
     textSize: "17px",
+    className: "lovebite-logo--compact",
+  },
+  nav: {
+    emblemSize: 28,
+    height: 32,
+    textSize: "19px",
     className: "lovebite-logo--compact",
   },
 };

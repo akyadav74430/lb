@@ -56,6 +56,7 @@ export default function ProfileForm({ initialData = {}, onSuccess }: ProfileForm
     hidePhoneFromPublic: Boolean(initialData.hidePhoneFromPublic),
     ageConfirmed: Boolean(initialData.ageConfirmed),
     consentRecorded: Boolean(initialData.consentRecorded),
+    gender: (initialData.gender as "female" | "male" | "trans") || "",
     status: initialData.status || "DRAFT",
     rejectionReason: initialData.rejectionReason || null,
   });
@@ -187,6 +188,7 @@ export default function ProfileForm({ initialData = {}, onSuccess }: ProfileForm
       hidePhoneFromPublic: form.hidePhoneFromPublic,
       ageConfirmed: form.ageConfirmed,
       consentRecorded: form.consentRecorded,
+      gender: form.gender,
     };
 
     const res = await fetch("/api/profiles", {
@@ -389,6 +391,23 @@ export default function ProfileForm({ initialData = {}, onSuccess }: ProfileForm
             maxLength={1000}
           />
           {errors.bio?.map((e) => <span key={e} className="form-field-error">{e}</span>)}
+        </div>
+
+        {/* Gender */}
+        <div className="form-group">
+          <label htmlFor="gender" className="form-label">Gender</label>
+          <select
+            id="gender"
+            name="gender"
+            value={form.gender}
+            onChange={handleChange}
+            className="form-input"
+          >
+            <option value="">Select Gender…</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="trans">Trans</option>
+          </select>
         </div>
 
         {/* Location Navigation Fields (State -> District -> City -> Local Area) */}

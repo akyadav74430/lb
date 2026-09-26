@@ -63,6 +63,7 @@ export const profileSchema = z.object({
   hidePhoneFromPublic: z.boolean().default(false),
   ageConfirmed: z.boolean().default(false),
   consentRecorded: z.boolean().default(false),
+  gender: z.enum(["female", "male", "trans"]).optional(),
 });
 
 export const reportCategories = [
