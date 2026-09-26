@@ -14,7 +14,23 @@ export async function PATCH(
   const { id } = await params;
   const body = await request.json();
 
-  const allowedFields = ["status", "visibility", "moderationNotes", "rejectionReason"];
+  const allowedFields = [
+    "status",
+    "visibility",
+    "moderationNotes",
+    "rejectionReason",
+    "bio",
+    "city",
+    "region",
+    "district",
+    "localArea",
+    "country",
+    "phone",
+    "whatsapp",
+    "gender",
+    "hidePhoneFromPublic",
+    "favColor",
+  ];
   const data: Record<string, unknown> = {};
 
   for (const key of allowedFields) {

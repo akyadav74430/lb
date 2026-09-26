@@ -11,6 +11,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search") || "";
   const status = searchParams.get("status") || "";
+  const visibility = searchParams.get("visibility") || "";
 
   const where: Record<string, unknown> = {};
 
@@ -18,11 +19,17 @@ export async function GET(request: Request) {
     where.status = status;
   }
 
+  if (visibility) {
+    where.visibility = visibility;
+  }
+
   if (search) {
     where.OR = [
       { bio: { contains: search, mode: "insensitive" } },
       { city: { contains: search, mode: "insensitive" } },
       { region: { contains: search, mode: "insensitive" } },
+      { phone: { contains: search, mode: "insensitive" } },
+      { whatsapp: { contains: search, mode: "insensitive" } },
       { user: { name: { contains: search, mode: "insensitive" } } },
       { user: { email: { contains: search, mode: "insensitive" } } },
     ];
