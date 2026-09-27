@@ -10,7 +10,7 @@ import Logo from "./Logo";
 interface MobileNavDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onOpenLogin: () => void;
+  onOpenLogin?: () => void;
 }
 
 const ICONS: Record<string, string> = {
@@ -138,7 +138,7 @@ export default function MobileNavDrawer({ isOpen, onClose, onOpenLogin }: Mobile
                   className="mobile-nav-panel__btn mobile-nav-panel__btn--primary"
                   onClick={() => {
                     onClose();
-                    onOpenLogin();
+                    onOpenLogin?.();
                   }}
                 >
                   🔑 Sign In
