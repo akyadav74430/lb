@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -44,19 +44,7 @@ export default function AdminDashboard() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<Profile>>({});
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      if (session?.user?.role !== "SUPER_ADMIN" && session?.user?.role !== "ADMIN") {
-        router.push("/");
-      } else {
-        fetchProfiles();
-      }
-    } else if (status === "unauthenticated") {
-      router.push("/admin/signin");
-    }
-  }, [status, session, router]);
-
-  const fetchProfiles = async () => {
+  const fetchProfiles = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
@@ -70,7 +58,19 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, statusFilter, visibilityFilter]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      if (session?.user?.role !== "SUPER_ADMIN" && session?.user?.role !== "ADMIN") {
+        router.push("/");
+      } else {
+        fetchProfiles();
+      }
+    } else if (status === "unauthenticated") {
+      router.push("/admin/signin");
+    }
+  }, [status, session, router, fetchProfiles]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this profile permanently?")) return;

@@ -181,7 +181,7 @@ export default function AdminSettings() {
           {/* Reset Any User's Password (Super Admin only) */}
           {session?.user?.role === "SUPER_ADMIN" && (
             <section className="admin-card" id="reset-password-section">
-              <h3 style={{ margin: "0 0 20px", fontSize: 16, fontWeight: 700 }}>Reset Any User's Password (Super Admin)</h3>
+              <h3 style={{ margin: "0 0 20px", fontSize: 16, fontWeight: 700 }}>Reset Any User&apos;s Password (Super Admin)</h3>
               <form onSubmit={handleResetPassword} style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 500 }}>
                 <div className="form-row">
                   <div className="form-group" style={{ flex: 1 }}>

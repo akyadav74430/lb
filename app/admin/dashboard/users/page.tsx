@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -25,19 +25,7 @@ export default function AdminUsers() {
   const [roleFilter, setRoleFilter] = useState("");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      if (session?.user?.role !== "SUPER_ADMIN" && session?.user?.role !== "ADMIN") {
-        router.push("/");
-      } else {
-        fetchUsers();
-      }
-    } else if (status === "unauthenticated") {
-      router.push("/admin/signin");
-    }
-  }, [status, session, router]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
@@ -50,7 +38,19 @@ export default function AdminUsers() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, roleFilter]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      if (session?.user?.role !== "SUPER_ADMIN" && session?.user?.role !== "ADMIN") {
+        router.push("/");
+      } else {
+        fetchUsers();
+      }
+    } else if (status === "unauthenticated") {
+      router.push("/admin/signin");
+    }
+  }, [status, session, router, fetchUsers]);
 
   const handleRoleChange = async (id: string, newRole: string) => {
     setUpdatingId(id);
