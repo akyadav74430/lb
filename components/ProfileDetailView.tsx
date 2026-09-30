@@ -3,9 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { EscortProfile, ProfileReview } from "@/lib/profiles-data";
+import { EscortProfile } from "@/lib/profiles-data";
 import { citySlug } from "@/lib/seo/site";
-import ReportModal from "./ReportModal";
 
 interface Props {
   profile: EscortProfile;
@@ -17,11 +16,6 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
   const [photoIndex, setPhotoIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [phoneRevealed, setPhoneRevealed] = useState(false);
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
-  const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [reviews, setReviews] = useState<ProfileReview[]>(profile.reviews);
-  const [newReview, setNewReview] = useState({ author: "", rating: 5, comment: "", city: profile.city });
-  const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const gallery = profile.gallery.length > 0 ? profile.gallery : [profile.photoUrl];
@@ -77,27 +71,6 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
     setPhoneRevealed(true);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleSubmitReview = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newReview.author.trim() || !newReview.comment.trim()) return;
-    const review: ProfileReview = {
-      id: `user-${Date.now()}`,
-      author: newReview.author.trim(),
-      rating: newReview.rating,
-      date: "Just now",
-      city: newReview.city || profile.city,
-      verified: true,
-      comment: newReview.comment.trim(),
-    };
-    setReviews([review, ...reviews]);
-    setReviewSubmitted(true);
-    setTimeout(() => {
-      setReviewSubmitted(false);
-      setReviewModalOpen(false);
-      setNewReview({ author: "", rating: 5, comment: "", city: profile.city });
-    }, 1500);
   };
 
   // Build attribute rows for the table
@@ -374,56 +347,7 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
               >
                 {copied ? "✓ Number Copied!" : "📋 Copy Number"}
               </button>
-              <button
-                type="button"
-                className="pdv-action-link"
-                onClick={() => setReviewModalOpen(true)}
-                id="btn-write-review"
-              >
-                ⭐ Write Review
-              </button>
-              <button
-                type="button"
-                className="pdv-action-link"
-                onClick={() => setReportModalOpen(true)}
-                id="btn-report-profile"
-                style={{ color: "#ef4444" }}
-              >
-                🚩 Report
-              </button>
             </div>
-          </div>
-
-          {/* Safety & Moderation Trust Notice */}
-          <div className="pdv-verified-card">
-            <div className="pdv-verified-card__icon">🛡️</div>
-            <div className="pdv-verified-card__content">
-              <strong>100% Real Photos Verified</strong>
-              <p>Real photographs verified by India directory moderators in {profile.verifiedAt}.</p>
-            </div>
-          </div>
-
-          {/* Trust & Safety Direct Report Box */}
-          <div style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed #3f3f46", borderRadius: 8, padding: 12, marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-              Suspicious activity or stolen images?
-            </span>
-            <button
-              type="button"
-              onClick={() => setReportModalOpen(true)}
-              style={{
-                background: "none",
-                border: "1px solid #ef4444",
-                color: "#ef4444",
-                fontSize: 11,
-                fontWeight: 600,
-                borderRadius: 4,
-                padding: "4px 8px",
-                cursor: "pointer",
-              }}
-            >
-              🚩 Report Profile
-            </button>
           </div>
         </div>
 
@@ -560,53 +484,6 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
               ))}
             </div>
           </div>
-
-          {/* Reviews Section */}
-          <div className="pdv-card-section">
-            <div className="reviews-header">
-              <h2 className="pdv-card-section__title" style={{ margin: 0 }}>
-                Verified Client Reviews ({reviews.length})
-              </h2>
-              <button
-                type="button"
-                className="btn-leave-review"
-                onClick={() => setReviewModalOpen(true)}
-              >
-                + Write a Review
-              </button>
-            </div>
-
-            {reviews.length === 0 ? (
-              <p className="no-reviews-text">No reviews yet. Be the first to leave a verified review for {profile.name}!</p>
-            ) : (
-              <div className="reviews-list">
-                {reviews.map((r) => (
-                  <div key={r.id} className="review-card">
-                    <div className="review-card__top">
-                      <div className="review-author">
-                        <span className="review-avatar">👤</span>
-                        <div>
-                          <strong>{r.author}</strong>
-                          <span className="review-city"> in {r.city}</span>
-                        </div>
-                      </div>
-                      <div className="review-meta">
-                        <div className="review-stars">
-                          {"★".repeat(r.rating)}
-                          {"☆".repeat(5 - r.rating)}
-                        </div>
-                        <span className="review-date">{r.date}</span>
-                      </div>
-                    </div>
-                    {r.verified && (
-                      <span className="review-verified-badge">✓ Verified Meeting</span>
-                    )}
-                    <p className="review-comment">{r.comment}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
@@ -693,68 +570,8 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
         </div>
       )}
 
-      {/* Review Modal */}
-      {reviewModalOpen && (
-        <div className="modal-backdrop" onClick={() => setReviewModalOpen(false)}>
-          <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="modal-close-btn" onClick={() => setReviewModalOpen(false)}>✕</button>
-            <h3 className="modal-title">Write a Review for {profile.name}</h3>
-            <p className="modal-subtitle">Share your experience with other gentlemen. Authentic reviews only.</p>
-
-            {reviewSubmitted ? (
-              <div className="review-success-banner">🎉 Thank you! Your review has been submitted and verified.</div>
-            ) : (
-              <form onSubmit={handleSubmitReview} className="modal-form">
-                <div className="modal-form-group">
-                  <label className="modal-form-label">Your Nickname</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Marcus_Gent"
-                    value={newReview.author}
-                    onChange={(e) => setNewReview({ ...newReview, author: e.target.value })}
-                    className="modal-form-input"
-                  />
-                </div>
-                <div className="modal-form-group">
-                  <label className="modal-form-label">Rating</label>
-                  <select
-                    value={newReview.rating}
-                    onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}
-                    className="modal-form-input"
-                  >
-                    <option value={5}>★★★★★ (5/5) Exceptional Experience</option>
-                    <option value={4}>★★★★☆ (4/5) Very Good</option>
-                    <option value={3}>★★★☆☆ (3/5) Average</option>
-                  </select>
-                </div>
-                <div className="modal-form-group">
-                  <label className="modal-form-label">Review Details</label>
-                  <textarea
-                    rows={4}
-                    required
-                    placeholder="Describe her appearance, attitude, massage, and overall experience..."
-                    value={newReview.comment}
-                    onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                    className="modal-form-textarea"
-                  />
-                </div>
-                <button type="submit" className="modal-submit-btn">Submit Review</button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Report Profile Modal */}
-      <ReportModal
-        profileId={profile.id}
-        profileName={profile.name}
-        isOpen={reportModalOpen}
-        onClose={() => setReportModalOpen(false)}
-      />
-
       {/* Sticky Mobile Bar */}
+
       {!isContactRestricted && (
         <div className="mobile-sticky-bar">
           <a href={telHref} className="mobile-bar-btn mobile-bar-btn--call" aria-label={`Call ${profile.name}`}>📞 Call</a>

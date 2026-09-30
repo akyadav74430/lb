@@ -390,21 +390,6 @@ input[type="radio"] {
   transform: translateY(0) scale(0.96);
   box-shadow: none;
 }
-.top-header__lang {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: rgba(255,255,255,0.85);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.08);
-  transition: all var(--dur-fast);
-  cursor: pointer;
-  user-select: none;
-}
-.top-header__lang:hover { background: rgba(255,255,255,0.16); color: var(--text-white); }
 
 /* ============================================================
    THEME TOGGLE
@@ -2326,8 +2311,7 @@ input[type="radio"] {
   .top-header__desktop-login { display: none !important; }
   .top-header__mobile-login-btn { display: inline-flex !important; }
   .top-header__link--desktop,
-  .top-header__sep--desktop,
-  .top-header__lang--desktop { display: none !important; }
+  .top-header__sep--desktop { display: none !important; }
   
   .sidebar-left {
     position: fixed; left: 0; top: 0; height: 100vh; z-index: 999;
@@ -2966,71 +2950,6 @@ input[type="radio"] {
 }
 .btn-leave-review:hover {
   background: var(--primary-light);
-}
-
-.reviews-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.review-card {
-  padding: 14px 16px;
-  background: var(--bg-alt);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-}
-.review-card__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.review-card__author-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.review-card__avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--primary);
-  color: #fff;
-  font-weight: 700;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.review-card__author-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-heading);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.verified-client-badge {
-  font-size: 10px;
-  font-weight: 600;
-  color: #10b981;
-  background: rgba(16,185,129,0.1);
-  padding: 1px 6px;
-  border-radius: 3px;
-}
-.review-card__date {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-.review-card__rating {
-  color: #f59e0b;
-  font-size: 14px;
-  letter-spacing: 1px;
-}
-.review-card__body {
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--text);
 }
 
 /* Similar Profiles */

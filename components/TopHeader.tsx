@@ -60,14 +60,6 @@ function TopHeaderContent() {
               {theme === "light" ? "☀️" : "🌙"}
             </span>
           </button>
-
-          {/* Language Selector */}
-          <span className="top-header__lang">
-            EN
-            <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10">
-              <path d="M4 6l4 4 4-4z" />
-            </svg>
-          </span>
         </div>
       </header>
 
