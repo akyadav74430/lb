@@ -63,6 +63,23 @@ export function displayCityName(city: string): string {
     .join(" ");
 }
 
+/**
+ * "Delhi" + "Delhi" -> "Delhi".
+ *
+ * Several Indian states share a name with their capital, and the directory
+ * stores the value in both `city` and `region`, so naive joining renders
+ * "Delhi, Delhi" in titles and body copy. Used everywhere the pair is shown.
+ */
+export function cityRegionLabel(
+  city: string,
+  region: string | null | undefined
+): string {
+  const name = displayCityName(city);
+  const area = region ? displayCityName(region) : "";
+  if (!area) return name;
+  return area.toLowerCase() === name.toLowerCase() ? name : `${name}, ${area}`;
+}
+
 /** Collapse whitespace and hard-truncate meta text on a word boundary. */
 export function clampMeta(text: string, max: number): string {
   const clean = text.replace(/\s+/g, " ").trim();

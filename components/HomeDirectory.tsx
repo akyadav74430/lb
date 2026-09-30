@@ -78,7 +78,9 @@ export default function HomeDirectory() {
     if (stateParam) return `${stateParam} Escorts`;
     if (filterParam === "vip") return "VIP Escorts Directory India";
     if (filterParam === "massages") return "Sensual Massage & Wellness India";
-    return "All India Escorts Directory";
+    // The unfiltered homepage is the site's head-term entry point, so the H1
+    // names the query it is meant to win rather than saying "directory".
+    return "Call Girls in India — Verified Escorts & Companions";
   }, [localAreaParam, cityParam, districtParam, stateParam, filterParam]);
 
   return (

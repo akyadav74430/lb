@@ -3331,6 +3331,71 @@ input[type="radio"] {
   max-width: 1100px;
   margin: 0 auto;
 }
+
+/* Homepage SEO body copy. Sits under the directory grid, is server rendered,
+   and stays visually quieter than the grid so it does not compete with it. */
+.seo-intro {
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-alt);
+  margin-top: 32px;
+  padding: 36px 16px 44px;
+}
+.seo-intro__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.seo-intro__title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-heading);
+  margin-bottom: 12px;
+  line-height: 1.25;
+}
+.seo-intro__subtitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin: 22px 0 10px;
+}
+.seo-intro__text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  margin-bottom: 12px;
+  max-width: 78ch;
+}
+.seo-intro__text--muted {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 18px;
+}
+.seo-intro__text a,
+.seo-intro__cities a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.seo-intro__cities {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  padding: 0;
+  margin: 0 0 4px;
+}
+.seo-intro__cities a {
+  display: inline-block;
+  font-size: 13px;
+  padding: 6px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  background: var(--bg);
+  text-decoration: none;
+}
+.seo-intro__cities a:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
 .info-page-hero {
   margin-bottom: 28px;
 }

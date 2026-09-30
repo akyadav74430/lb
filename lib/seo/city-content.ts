@@ -1,4 +1,4 @@
-import { BRAND } from "@/lib/seo/site";
+import { BRAND, cityRegionLabel } from "@/lib/seo/site";
 import type { CityAggregates } from "@/lib/seo/profiles";
 import { CITY_EDITORIAL } from "@/content/city-editorial";
 
@@ -70,8 +70,7 @@ export function buildCityBody(
   const region = city.region ? titleCase(city.region) : null;
   // Some states are also cities ("Delhi", "Chandigarh"), and the directory
   // stores both, so guard against rendering "Delhi, Delhi".
-  const where =
-    region && region.toLowerCase() !== name.toLowerCase() ? `${name}, ${region}` : name;
+  const where = cityRegionLabel(city.name, city.region);
   const regionOrName = region ?? name;
 
   const many = city.count > 1;
