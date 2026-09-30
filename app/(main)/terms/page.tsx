@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { absoluteUrl } from "@/lib/seo/site";
 
 export const metadata = {
   title: "Terms of Service — lovebite.live",
   description: "Terms and conditions of use for lovebite.live directory.",
+  alternates: { canonical: absoluteUrl("/terms") },
 };
 
 export default function TermsPage() {

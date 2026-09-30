@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { absoluteUrl } from "@/lib/seo/site";
 
 export const metadata = {
   title: "About Us — lovebite.live Directory",
   description: "Learn about lovebite.live, the premier verified adult companion directory operating across India and Asia.",
+  alternates: { canonical: absoluteUrl("/about") },
 };
 
 export default function AboutPage() {

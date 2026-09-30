@@ -68,14 +68,14 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   }
 
   return {
-    title: "Call Girls in India — Verified Escorts & Companions",
+    title: "Call Girls in India — Verified Escorts",
     description: clampMeta(
       "Browse verified call girls, escorts and companions across India. Filter by city or state, then open any profile for real photos, published rates and direct contact.",
       160
     ),
     alternates: { canonical: absoluteUrl("/") },
     openGraph: {
-      title: "Call Girls in India — Verified Escorts & Companions",
+      title: "Call Girls in India — Verified Escorts",
       description:
         "Browse verified call girls, escorts and companions across India by city, state or category.",
       url: absoluteUrl("/"),

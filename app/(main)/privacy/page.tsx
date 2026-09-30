@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { absoluteUrl } from "@/lib/seo/site";
 
 export const metadata = {
   title: "Privacy & Cookie Policy — lovebite.live",
   description: "Privacy policy, data protection, and cookie disclosures for lovebite.live.",
+  alternates: { canonical: absoluteUrl("/privacy") },
 };
 
 export default function PrivacyPage() {

@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { absoluteUrl } from "@/lib/seo/site";
 
 export const metadata = {
-  title: "DMCA Notice & 18 U.S.C. § 2257 Compliance — lovebite.live",
+  title: "DMCA & 18 U.S.C. § 2257 Compliance Statement",
   description: "DMCA copyright takedown procedure and 18 U.S.C. 2257 record-keeping statement for lovebite.live.",
+  alternates: { canonical: absoluteUrl("/dmca") },
 };
 
 export default function DmcaPage() {

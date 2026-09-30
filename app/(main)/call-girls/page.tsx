@@ -17,11 +17,11 @@ export async function generateMetadata(): Promise<Metadata> {
   );
 
   return {
-    title: "Call Girls in India — Verified Escorts & Companions",
+    title: "Call Girls in India — Verified Escorts",
     description,
     alternates: { canonical: absoluteUrl("/call-girls") },
     openGraph: {
-      title: "Call Girls in India — Verified Escorts & Companions",
+      title: "Call Girls in India — Verified Escorts",
       description,
       url: absoluteUrl("/call-girls"),
       type: "website",
