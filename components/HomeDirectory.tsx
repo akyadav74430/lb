@@ -113,7 +113,7 @@ export default function HomeDirectory() {
           </div>
         ) : (
           <div className="profiles-grid">
-            {displayedProfiles.map((p) => (
+            {displayedProfiles.map((p, index) => (
               <ProfileCard
                 key={p.id}
                 name={p.name}
@@ -125,6 +125,8 @@ export default function HomeDirectory() {
                 phone={p.phone}
                 whatsapp={p.whatsapp}
                 hidePhone={Boolean(p.isPhoneHidden || p.hidePhoneFromPublic)}
+                // The first row sits above the fold and is the LCP candidate.
+                priority={index < 4}
               />
             ))}
           </div>

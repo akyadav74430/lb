@@ -8,7 +8,9 @@ import { BRAND, SITE_URL } from "@/lib/seo/site";
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-inter",
+  // next/font self-hosts the family, so the CSS @import for Google Fonts that
+  // used to sit in globals.css is gone. `swap` keeps text visible while the
+  // woff2 loads instead of blocking first paint on it.
   display: "swap",
 });
 
@@ -70,7 +72,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={inter.className}>
       <body>
         <Providers>
           <TopHeader />

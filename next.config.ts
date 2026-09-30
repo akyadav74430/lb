@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
     remotePatterns: [],
     // Allow serving local /uploads images
     unoptimized: true,
+    // Profile photos are the LCP element on every listing page, so declare a
+    // minimum intrinsic size. Without it the browser cannot reserve space
+    // before the bytes arrive, which shows up as CLS on slow connections.
+    deviceSizes: [360, 480, 640, 750, 828, 1080, 1200, 1920],
   },
   experimental: {
     serverActions: {

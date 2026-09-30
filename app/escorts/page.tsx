@@ -132,7 +132,7 @@ export default async function EscortsPage() {
               <div className="info-card-content">
                 <h2 className="info-section__title">Public profiles across India</h2>
                 <div className="profiles-grid">
-                  {profiles.map((profile) => (
+                  {profiles.map((profile, index) => (
                     <ProfileCard
                       key={profile.id}
                       name={profile.name}
@@ -144,6 +144,7 @@ export default async function EscortsPage() {
                       phone={profile.phone}
                       whatsapp={profile.whatsapp}
                       hidePhone={Boolean(profile.isPhoneHidden || profile.hidePhoneFromPublic)}
+                      priority={index < 4}
                     />
                   ))}
                 </div>

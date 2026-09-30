@@ -2,7 +2,10 @@
    lovebite.live Directory — Production UI System
    Dark mode + Responsive + Animation System
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* Inter is loaded through next/font in app/layout.tsx, which self-hosts the
+   woff2 files and emits a preload. A CSS @import for the same family here
+   would be a second, render-blocking request to a third-party origin on every
+   page, so it is intentionally not used. */
 
 /* ============================================================
    DESIGN TOKENS — Light (default)

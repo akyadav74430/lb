@@ -16,6 +16,12 @@ interface ProfileCardProps {
   whatsapp?: string | null;
   /** Owner hid the numbers — show a sign-in prompt instead of live links. */
   hidePhone?: boolean;
+  /**
+   * Eager-load the photo. Only set this on cards that are near the top of the
+   * viewport on a listing page, where the photo is the likely LCP element.
+   * Every other card must stay lazy or the browser queues dozens of images.
+   */
+  priority?: boolean;
 }
 
 /* SVG silhouette for cards with no photo */
@@ -66,6 +72,7 @@ export default function ProfileCard({
   phone,
   whatsapp,
   hidePhone,
+  priority = false,
 }: ProfileCardProps) {
   const [imgError, setImgError] = useState(false);
 
@@ -82,7 +89,9 @@ export default function ProfileCard({
             alt={`${name} profile photo`}
             fill
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : "auto"}
+            decoding={priority ? "sync" : "async"}
             style={{ objectFit: "cover" }}
             onError={() => setImgError(true)}
           />
