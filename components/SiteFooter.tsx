@@ -55,7 +55,8 @@ export default async function SiteFooter() {
           <div className="footer-col">
             <h4 className="footer-col__title">Services</h4>
             <div className="footer-col__list">
-              <Link href="/escorts" className="footer-col__link">Escorts &amp; Call Girls</Link>
+              <Link href="/call-girls" className="footer-col__link">Call Girls</Link>
+              <Link href="/escorts" className="footer-col__link">Escorts &amp; Companions</Link>
               <Link href="/?filter=vip" className="footer-col__link">VIP Escorts</Link>
               <Link href="/?filter=massages" className="footer-col__link">Sensual Massage</Link>
             </div>

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import HomeDirectory from "@/components/HomeDirectory";
+import SeoHomeIntro from "@/components/SeoHomeIntro";
 import SiteFooter from "@/components/SiteFooter";
 import { getCityListing } from "@/lib/seo/profiles";
 import { buildCityMetadata } from "@/lib/seo/metadata";
@@ -67,16 +68,16 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   }
 
   return {
-    title: "Escort Directory India — Browse Verified Profiles",
+    title: "Call Girls in India — Verified Escorts & Companions",
     description: clampMeta(
-      "Browse escorts, call girls and companions across India. Filter by city, state or category, then open any profile for real photos, published rates and direct contact.",
+      "Browse verified call girls, escorts and companions across India. Filter by city or state, then open any profile for real photos, published rates and direct contact.",
       160
     ),
     alternates: { canonical: absoluteUrl("/") },
     openGraph: {
-      title: "Escort Directory India — Browse Verified Profiles",
+      title: "Call Girls in India — Verified Escorts & Companions",
       description:
-        "Browse escorts, call girls and companions across India by city, state or category.",
+        "Browse verified call girls, escorts and companions across India by city, state or category.",
       url: absoluteUrl("/"),
       type: "website",
       images: ["/opengraph-image"],
@@ -91,6 +92,7 @@ export default function HomePage() {
       <Suspense fallback={<div style={{ minHeight: "80vh" }} />}>
         <HomeDirectory />
       </Suspense>
+      <SeoHomeIntro />
       <SiteFooter />
     </>
   );

@@ -21,6 +21,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const coreRoutes: MetadataRoute.Sitemap = [
     { url: absoluteUrl("/"), changeFrequency: "daily", priority: 1 },
+    // The head-term landing page. Kept separate from "/" so the two can target
+    // different queries ("call girls" vs. the browsable directory) without
+    // competing as duplicates.
+    {
+      url: absoluteUrl("/call-girls"),
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.95,
+    },
     {
       url: absoluteUrl("/escorts"),
       lastModified: now,
