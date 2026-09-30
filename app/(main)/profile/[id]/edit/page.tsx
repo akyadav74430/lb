@@ -49,9 +49,11 @@ export default async function EditProfilePage({ params }: Props) {
 
   const initialData = {
     displayName: profile.name,
-    status: (profile.status || "Independent") as "Independent" | "Agency" | "",
+    // status is left undefined when not set by the owner — no default
+    // to "Independent" because that would be an unverified claim.
+    status: (profile.status || "") as "Independent" | "Agency" | "",
     gender: profile.gender,
-    age: String(profile.age),
+    age: profile.age != null ? String(profile.age) : "",
     state: profile.state || "",
     district: profile.district || "",
     city: profile.city,
@@ -59,15 +61,15 @@ export default async function EditProfilePage({ params }: Props) {
     country: profile.country || "India",
     nationality: profile.nationality || "Indian",
     languages: profile.languages,
-    eyes: profile.eyes,
-    hairColor: profile.hairColor || profile.hair,
+    eyes: profile.eyes || "",
+    hairColor: profile.hairColor || profile.hair || "",
     hairLength: profile.hairLength || "",
     pubicHair: profile.pubicHair || "",
-    bustSize: profile.bustSize || "",
+    bustSize: profile.bustSize || profile.bust || "",
     bustType: (profile.bustType === "Natural" || profile.bustType === "Enhanced" ? profile.bustType : "") as "Natural" | "Enhanced" | "",
     weightKg: profile.weight ? profile.weight.split(" ")[0] : "",
     heightCm: profile.height ? profile.height.split(" ")[0] : "",
-    ethnicity: profile.ethnicity,
+    ethnicity: profile.ethnicity || "",
     orientation: profile.orientation || "",
     smoker: (profile.smoker === "No" || profile.smoker === "Sometimes" || profile.smoker === "Yes" ? profile.smoker : "") as "No" | "Sometimes" | "Yes" | "",
     tattoo: (profile.tattoo === "Yes" || profile.tattoo === "No" ? profile.tattoo : "") as "Yes" | "No" | "",

@@ -72,10 +72,17 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Attributes the owner never filled in are left undefined by the DB mapper.
+  // Render them as a dash rather than inventing a value.
+  const attr = (label: string, value: string | undefined | null) => ({
+    label,
+    value: value ? value : "—",
+  });
+
   // Build attribute rows for the table
   const attrRows: { label: string; value: React.ReactNode }[] = [
     { label: "Gender", value: profile.gender === "female" ? "Female" : profile.gender === "male" ? "Male" : "Trans" },
-    { label: "Age", value: `${profile.age}` },
+    attr("Age", profile.age != null ? `${profile.age}` : null),
     {
       label: "Location",
       value: (
@@ -84,24 +91,24 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
         </Link>
       ),
     },
-    { label: "Eyes", value: profile.eyes },
-    { label: "Hair color", value: profile.hairColor || profile.hair },
-    { label: "Hair length", value: profile.hairLength || "—" },
-    { label: "Pubic hair", value: profile.pubicHair || "—" },
-    { label: "Bust size", value: profile.bustSize || profile.bust },
-    { label: "Bust type", value: profile.bustType || "—" },
-    { label: "Travel", value: profile.travel ? profile.travel.join(", ") : "—" },
-    { label: "Weight", value: profile.weight },
-    { label: "Height", value: profile.height },
-    { label: "Ethnicity", value: profile.ethnicity },
-    { label: "Orientation", value: profile.orientation || "—" },
-    { label: "Smoker", value: profile.smoker || "—" },
-    { label: "Tattoo", value: profile.tattoo || "—" },
-    { label: "Piercing", value: profile.piercing || "—" },
-    { label: "Nationality", value: profile.nationality || profile.country },
-    { label: "Languages", value: profile.languages.join(", ") },
-    { label: "Available for", value: profile.availableFor ? profile.availableFor.join(" + ") : "Incall + Outcall" },
-    { label: "Meeting with", value: profile.meetingWith ? profile.meetingWith.join(", ") : "Man" },
+    attr("Eyes", profile.eyes),
+    attr("Hair color", profile.hairColor || profile.hair),
+    attr("Hair length", profile.hairLength),
+    attr("Pubic hair", profile.pubicHair),
+    attr("Bust size", profile.bustSize || profile.bust),
+    attr("Bust type", profile.bustType),
+    attr("Travel", profile.travel?.join(", ")),
+    attr("Weight", profile.weight),
+    attr("Height", profile.height),
+    attr("Ethnicity", profile.ethnicity),
+    attr("Orientation", profile.orientation),
+    attr("Smoker", profile.smoker),
+    attr("Tattoo", profile.tattoo),
+    attr("Piercing", profile.piercing),
+    attr("Nationality", profile.nationality || profile.country),
+    attr("Languages", profile.languages.length > 0 ? profile.languages.join(", ") : null),
+    attr("Available for", profile.availableFor?.join(" + ")),
+    attr("Meeting with", profile.meetingWith?.join(", ")),
   ];
 
   return (
@@ -283,52 +290,60 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
               </>
             ) : (
               <div className="pdv-contact-btns">
-                <a
-                  href={telHref}
-                  id="btn-call"
-                  className="pdv-cta-btn pdv-cta-btn--call"
-                  onClick={() => setPhoneRevealed(true)}
-                  aria-label={`Call ${profile.name} at ${phoneRevealed ? contact.displayPhone : "show phone number"}`}
-                  title={phoneRevealed ? contact.displayPhone : "Call Now / Show Phone Number"}
-                >
-                  <span className="pdv-cta-icon">📞</span>
-                  <span className="pdv-cta-text">
-                    <strong>Call Now</strong>
-                    <span>{phoneRevealed ? contact.displayPhone : "Show Phone Number"}</span>
-                  </span>
-                </a>
+                {contact.callHref && (
+                  <a
+                    href={contact.callHref}
+                    id="btn-call"
+                    className="pdv-cta-btn pdv-cta-btn--call"
+                    onClick={() => setPhoneRevealed(true)}
+                    aria-label={`Call ${profile.name} at ${phoneRevealed ? contact.displayPhone : "show phone number"}`}
+                    title={phoneRevealed ? contact.displayPhone : "Call Now / Show Phone Number"}
+                  >
+                    <span className="pdv-cta-icon">📞</span>
+                    <span className="pdv-cta-text">
+                      <strong>Call Now</strong>
+                      <span>{phoneRevealed ? contact.displayPhone : "Show Phone Number"}</span>
+                    </span>
+</a>
+                )}
+                {contact.whatsappHref && (
+                  <a
+                    href={contact.whatsappHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    id="btn-whatsapp"
+                    className="pdv-cta-btn pdv-cta-btn--wa"
+                    aria-label={`WhatsApp chat with ${profile.name}`}
+                    title="WhatsApp Instant Chat & Booking"
+                  >
+                    <span className="pdv-cta-icon">💬</span>
+                    <span className="pdv-cta-text">
+                      <strong>WhatsApp</strong>
+                      <span>Instant Chat & Booking</span>
+                    </span>
+                  </a>
+                )}
 
-                <a
-                  href={waHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  id="btn-whatsapp"
-                  className="pdv-cta-btn pdv-cta-btn--wa"
-                  aria-label={`WhatsApp chat with ${profile.name}`}
-                  title="WhatsApp Instant Chat & Booking"
-                >
-                  <span className="pdv-cta-icon">💬</span>
-                  <span className="pdv-cta-text">
-                    <strong>WhatsApp</strong>
-                    <span>Instant Chat &amp; Booking</span>
-                  </span>
-                </a>
-
-                <a
-                  href={`https://t.me/${profile.telegram.replace("@", "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  id="btn-telegram"
-                  className="pdv-cta-btn pdv-cta-btn--tg"
-                  aria-label={`Telegram chat with ${profile.name}`}
-                  title="Telegram Chat"
-                >
-                  <span className="pdv-cta-icon">✈️</span>
-                  <span className="pdv-cta-text">
-                    <strong>Telegram</strong>
-                    <span>{profile.telegram}</span>
-                  </span>
-                </a>
+                {/* Telegram is optional: the DB has no telegram column, so a
+                    database-backed profile must not render a link to the
+                    site's own handle as if it were the person's. */}
+                {profile.telegram && (
+                  <a
+                    href={`https://t.me/${profile.telegram.replace("@", "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    id="btn-telegram"
+                    className="pdv-cta-btn pdv-cta-btn--tg"
+                    aria-label={`Telegram chat with ${profile.name}`}
+                    title="Telegram Chat"
+                  >
+                    <span className="pdv-cta-icon">✈️</span>
+                    <span className="pdv-cta-text">
+                      <strong>Telegram</strong>
+                      <span>{profile.telegram}</span>
+                    </span>
+                  </a>
+                )}
               </div>
             )}
 
@@ -385,17 +400,26 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
               </div>
             </div>
 
-            {/* Meta Row: Views, Working Hours, Status */}
+            {/* Meta Row: Views, Working Hours, Status.
+                `views` has no DB column, so for database-backed profiles it is
+                undefined and the counter is omitted rather than showing a
+                hardcoded 150. */}
             <div className="pdv-meta-row">
-              <span className="pdv-meta-item">
-                <span className="pdv-meta-icon">👁</span>
-                <strong>{profile.views.toLocaleString()}</strong> views
-              </span>
-              <span className="pdv-meta-dot">•</span>
-              <span className="pdv-meta-item">
-                <span className="pdv-meta-icon">🕒</span>
-                {profile.workingHours}
-              </span>
+              {profile.views != null && (
+                <span className="pdv-meta-item">
+                  <span className="pdv-meta-icon">👁</span>
+                  <strong>{profile.views.toLocaleString()}</strong> views
+                </span>
+              )}
+              {profile.views != null && profile.workingHours && (
+                <span className="pdv-meta-dot">•</span>
+              )}
+              {profile.workingHours && (
+                <span className="pdv-meta-item">
+                  <span className="pdv-meta-icon">🕒</span>
+                  {profile.workingHours}
+                </span>
+              )}
               <span className="pdv-meta-dot">•</span>
               <span className="pdv-meta-item pdv-meta-item--online">
                 <span className="pdv-status-dot" />
@@ -619,21 +643,27 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
         </div>
       ) : (
         <div className="mobile-sticky-bar">
-          <a href={telHref} className="mobile-bar-btn mobile-bar-btn--call" aria-label={`Call ${profile.name}`}>📞 Call</a>
-          <a
-            href={waHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mobile-bar-btn mobile-bar-btn--wa"
-            aria-label={`WhatsApp chat with ${profile.name}`}
-          >💬 WhatsApp</a>
-          <a
-            href={`https://t.me/${profile.telegram.replace("@", "")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mobile-bar-btn mobile-bar-btn--tg"
-            aria-label={`Telegram chat with ${profile.name}`}
-          >✈️ Telegram</a>
+          {contact.callHref && (
+            <a href={contact.callHref} className="mobile-bar-btn mobile-bar-btn--call" aria-label={`Call ${profile.name}`}>📞 Call</a>
+          )}
+          {contact.whatsappHref && (
+            <a
+              href={contact.whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mobile-bar-btn mobile-bar-btn--wa"
+              aria-label={`WhatsApp chat with ${profile.name}`}
+            >💬 WhatsApp</a>
+          )}
+          {profile.telegram && (
+            <a
+              href={`https://t.me/${profile.telegram.replace("@", "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mobile-bar-btn mobile-bar-btn--tg"
+              aria-label={`Telegram chat with ${profile.name}`}
+            >✈️ Telegram</a>
+          )}
         </div>
       )}
     </div>

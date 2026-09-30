@@ -38,24 +38,24 @@ export interface EscortProfile {
   badges: string[];
   photoUrl: string;
   gallery: string[];
-  age: number;
-  height: string;
-  weight: string;
-  bust: string;
-  hair: string;
-  eyes: string;
-  ethnicity: string;
+  age?: number;
+  height?: string;
+  weight?: string;
+  bust?: string;
+  hair?: string;
+  eyes?: string;
+  ethnicity?: string;
   languages: string[];
-  workingHours: string;
+  workingHours?: string;
   phone: string;
   whatsapp: string;
-  telegram: string;
+  telegram?: string;
   rates: ProfileRate[];
   services: ProfileService[];
   about: string;
   reviews: ProfileReview[];
-  views: number;
-  verifiedAt: string;
+  views?: number;
+  verifiedAt?: string;
   // Extended attributes
   hidePhoneFromPublic?: boolean;
   isPhoneHidden?: boolean;
@@ -227,9 +227,12 @@ export function dbProfileToEscortProfile(p: {
   return {
     id: p.id,
     name: p.user?.name || "Verified Companion",
-    tagline: p.bio ? (p.bio.length > 90 ? p.bio.substring(0, 90) + "..." : p.bio) : "Sensual luxury independent companion with genuine elegance & discretion",
+    // Copy is only ever derived from what the owner actually wrote. There is
+    // deliberately no fallback bio: inventing a tagline in someone's voice is
+    // the same defect as publishing a phone number they never gave.
+    tagline: p.bio ? (p.bio.length > 90 ? p.bio.substring(0, 90) + "..." : p.bio) : "",
     location: p.city ? `Escorts ${p.city}` : "Escorts India",
-    city: p.city || "Kolkata",
+    city: p.city || "",
     district: p.district || undefined,
     state: p.region || undefined,
     localArea: p.localArea || undefined,
@@ -237,23 +240,20 @@ export function dbProfileToEscortProfile(p: {
     gender: (p.gender as "female" | "male" | "trans") || "female",
     category: (p.category as EscortProfile["category"]) || "girls",
     topBadge: null,
-    status: "Independent",
-    badges: ["Independent", "Verified"],
+    // `status` is a real field the owner sets in the edit form. It is left
+    // undefined rather than defaulted, because "Independent" is a claim about
+    // how someone does business and there is no data source to back it.
+    badges: ["Verified"],
     photoUrl: primaryPhoto,
     gallery,
-    age: 24,
-    height: "168 cm / 5'6\"",
-    weight: "52 kg / 115 lbs",
-    bust: "34C / Natural",
-    hair: "Long Black, Silky",
-    eyes: "Deep Brown",
-    ethnicity: "Indian",
-    languages: ["English", "Hindi"],
-    workingHours: "11:00 AM – 02:00 AM",
-    phone: p.hidePhoneFromPublic ? "" : (p.phone || "+91 62035 40719"),
-    whatsapp: p.whatsapp || "+916203540719",
-    telegram: "@lovebite_india",
-    lastSeen: "Today, Online",
+    // Physical attributes are omitted, not guessed. The DB has columns for
+    // none of them, so any value here would be invented.
+    languages: [],
+    // Contact details are passed through only when the row actually holds one.
+    // The previous `|| "+91 62035 40719"` fallback published a different real
+    // person's number against anyone who left the field blank.
+    phone: p.hidePhoneFromPublic ? "" : (p.phone || ""),
+    whatsapp: p.whatsapp || "",
     rates:
       p.rates && p.rates.length > 0
         ? p.rates.map((r) => ({
@@ -261,17 +261,13 @@ export function dbProfileToEscortProfile(p: {
             incall: typeof r.incall === "number" ? `₹${r.incall.toLocaleString("en-IN")}` : (r.incall ? String(r.incall) : "—"),
             outcall: typeof r.outcall === "number" ? `₹${r.outcall.toLocaleString("en-IN")}` : (r.outcall ? String(r.outcall) : "—"),
           }))
-        : STANDARD_PRICING_TIERS,
-    services: [
-      { name: "Girlfriend Experience (GFE)", category: "Classic", available: true },
-      { name: "French Kissing (Sensual)", category: "Classic", available: true },
-      { name: "Sensual Erotic Massage", category: "Massage & Wellness", available: true },
-      { name: "Dinner Date Companion", category: "Social", available: true },
-    ],
-    about: p.bio || "Namaste and welcome to my official profile. Available for elite rendezvous.",
+        // No default price sheet: publishing STANDARD_PRICING_TIERS against a
+        // real listing would assert rates its owner never agreed to.
+        : [],
+    // Same reasoning for services and the "verified" date / view count.
+    services: [],
+    about: p.bio || "",
     reviews: [],
-    views: 150,
-    verifiedAt: "September 2026",
     hidePhoneFromPublic: Boolean(p.hidePhoneFromPublic),
     isPhoneHidden: Boolean(p.hidePhoneFromPublic),
   };

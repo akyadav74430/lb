@@ -103,11 +103,13 @@ export function buildProfileMetadata(profile: EscortProfile): Metadata {
   const city = displayCityName(profile.city);
   const url = absoluteUrl(`/profile/${profile.id}`);
 
-  const agency = profile.status === "Agency";
   const description = clampMeta(
     usableBioSentence(profile) ??
-      `${profile.name} is ${agency ? "an agency" : "an independent"} companion listed in ${city}. ` +
-        `View photos, services and published rates, and contact ${BRAND} directly.`,
+      (() => {
+        if (profile.status === "Agency") return `${profile.name} is an agency companion listed in ${city}.`;
+        if (profile.status === "Independent") return `${profile.name} is an independent companion listed in ${city}.`;
+        return `${profile.name} is a companion listed in ${city}.`;
+      })() + ` View photos, services and published rates, and contact ${BRAND} directly.`,
     160
   );
 
