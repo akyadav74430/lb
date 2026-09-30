@@ -17,15 +17,6 @@ const ICONS: Record<string, string> = {
   vip: "🔥",
   girls: "💃",
   massages: "💆",
-  pornstars: "⭐",
-  citytour: "✈️",
-  agencies: "🏢",
-  boys: "🕺",
-  trans: "🏳️‍⚧️",
-  videos: "📹",
-  advertise: "📢",
-  reviews: "📝",
-  blacklist: "🛡️",
 };
 
 export default function MobileNavDrawer({ isOpen, onClose, onOpenLogin }: MobileNavDrawerProps) {
@@ -36,9 +27,6 @@ export default function MobileNavDrawer({ isOpen, onClose, onOpenLogin }: Mobile
   const currentFilter = searchParams.get("filter");
 
   const isActive = (item: (typeof NAV_ITEMS)[0]) => {
-    if (item.key === "advertise") return pathname === "/advertise";
-    if (item.key === "reviews") return pathname === "/reviews";
-    if (item.key === "blacklist") return pathname === "/blacklist";
     if (pathname === "/") {
       if (!currentFilter && item.key === "girls") return true;
       return currentFilter === item.key;
@@ -191,16 +179,6 @@ export default function MobileNavDrawer({ isOpen, onClose, onOpenLogin }: Mobile
             <li>
               <Link href="/faq" className="mobile-nav-panel__sublink" onClick={onClose}>
                 ❓ Help &amp; FAQ
-              </Link>
-            </li>
-            <li>
-              <Link href="/blacklist" className="mobile-nav-panel__sublink" onClick={onClose}>
-                🛡️ Safety &amp; Blacklist
-              </Link>
-            </li>
-            <li>
-              <Link href="/advertise" className="mobile-nav-panel__sublink" onClick={onClose}>
-                📢 Advertise on Lovebite
               </Link>
             </li>
             <li>

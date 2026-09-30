@@ -18,7 +18,7 @@ const FAQS: FAQItem[] = [
   {
     category: "clients",
     q: "Are the photos real?",
-    a: "Profiles with the green '✓ Verified' or 'Video' badge have submitted official photo timestamp proofs inspected by our staff. If you ever suspect a profile is using stolen or misleading photos, use our Blacklist / Report button to notify moderators immediately.",
+    a: "Profiles with the green '✓ Verified' or 'Video' badge have submitted official photo timestamp proofs inspected by our staff. If you ever suspect a profile is using stolen or misleading photos, use the Report option on the profile to notify moderators immediately.",
   },
   {
     category: "clients",
@@ -38,7 +38,7 @@ const FAQS: FAQItem[] = [
   {
     category: "advertising",
     q: "What advertising options are available?",
-    a: "We offer Top VIP Profile Pins, Header Mega Banners (970x90), Sidebar Ad Showcases, and Telegram Channel Broadcasts to 35,000+ members. Visit our Advertise page for instant quotes and packages.",
+    a: "We offer Top VIP Profile Pins, Header Mega Banners (970x90), Sidebar Ad Showcases, and Telegram Channel Broadcasts to 35,000+ members. Contact our team for instant quotes and packages.",
   },
   {
     category: "safety",

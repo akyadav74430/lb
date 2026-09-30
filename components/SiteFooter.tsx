@@ -58,8 +58,6 @@ export default async function SiteFooter() {
               <Link href="/escorts" className="footer-col__link">Escorts &amp; Call Girls</Link>
               <Link href="/?filter=vip" className="footer-col__link">VIP Escorts</Link>
               <Link href="/?filter=massages" className="footer-col__link">Sensual Massage</Link>
-              <Link href="/?filter=citytour" className="footer-col__link">City Tours</Link>
-              <Link href="/?filter=videos" className="footer-col__link">Video Verified</Link>
             </div>
           </div>
 
@@ -67,11 +65,8 @@ export default async function SiteFooter() {
             <h4 className="footer-col__title">Information</h4>
             <div className="footer-col__list">
               <Link href="/about" className="footer-col__link">About Us</Link>
-              <Link href="/advertise" className="footer-col__link">Advertise (INR)</Link>
               <Link href="/contact" className="footer-col__link">Contact</Link>
               <Link href="/faq" className="footer-col__link">FAQ</Link>
-              <Link href="/reviews" className="footer-col__link">Reviews</Link>
-              <Link href="/blacklist" className="footer-col__link">Blacklist</Link>
             </div>
           </div>
 

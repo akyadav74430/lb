@@ -161,9 +161,8 @@ export default async function EscortsPage() {
               make contact.
             </p>
             <p className="info-text">
-              Please read our <Link href="/terms">terms</Link> before contacting anyone, and
-              check the <Link href="/blacklist">blacklist</Link> if a profile you visited looks
-              wrong. Reports can be filed from any profile page.
+              Please read our <Link href="/terms">terms</Link> before contacting anyone.
+              Reports can be filed from any profile page.
             </p>
           </div>
         </div>

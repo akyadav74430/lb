@@ -41,12 +41,6 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     const label: Record<string, string> = {
       vip: "VIP Escorts in India",
       massages: "Sensual Massage & Wellness Escorts in India",
-      citytour: "Escorts Available on City Tour in India",
-      videos: "Video Verified Escorts in India",
-      pornstars: "Pornstar Escorts in India",
-      agencies: "Escort Agencies in India",
-      boys: "Male Escorts in India",
-      trans: "Trans Escorts in India",
     };
     const heading = label[filter] ?? "Escorts in India";
     return {

@@ -158,8 +158,8 @@ export default async function CityPage({ params }: Props) {
               </Link>
             </p>
             <p className="info-text">
-              Before you contact anyone, read the <Link href="/terms">terms of service</Link>{" "}
-              and check the <Link href="/blacklist">blacklist</Link>.
+              Before you contact anyone, read the{" "}
+              <Link href="/terms">terms of service</Link>.
             </p>
           </div>
         </div>

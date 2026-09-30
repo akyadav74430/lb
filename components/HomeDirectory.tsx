@@ -17,7 +17,6 @@ export default function HomeDirectory() {
   const cityParam = searchParams.get("city") || "";
   const localAreaParam = searchParams.get("localArea") || "";
 
-  const [activeGenderTab, setActiveGenderTab] = useState<"female" | "male" | "trans">("female");
   const [currentPage, setCurrentPage] = useState(1);
   const profilesPerPage = 12;
 
@@ -47,16 +46,12 @@ export default function HomeDirectory() {
   // Filter profiles based on Indian location params and category filters
   const filteredProfiles = useMemo(() => {
     return allProfiles.filter((p) => {
-      // Gender tab
-      if (p.gender !== activeGenderTab) return false;
+      // Directory lists female profiles only.
+      if (p.gender !== "female") return false;
 
-      // URL Filter (vip, massages, etc.)
+      // URL Filter (vip, massages)
       if (filterParam === "vip" && !p.badges.includes("VIP") && p.topBadge !== "top") return false;
       if (filterParam === "massages" && p.category !== "massages") return false;
-      if (filterParam === "citytour" && p.category !== "citytour") return false;
-      if (filterParam === "videos" && !p.badges.includes("Video")) return false;
-      if (filterParam === "boys" && p.gender !== "male") return false;
-      if (filterParam === "trans" && p.gender !== "trans") return false;
 
       // Indian Location Filter
       if (stateParam && p.state && p.state.toLowerCase() !== stateParam.toLowerCase()) return false;
@@ -66,7 +61,7 @@ export default function HomeDirectory() {
 
       return true;
     });
-  }, [allProfiles, activeGenderTab, filterParam, stateParam, districtParam, cityParam, localAreaParam]);
+  }, [allProfiles, filterParam, stateParam, districtParam, cityParam, localAreaParam]);
 
   // Pagination calculation
   const totalPages = Math.max(1, Math.ceil(filteredProfiles.length / profilesPerPage));
@@ -83,14 +78,10 @@ export default function HomeDirectory() {
     if (stateParam) return `${stateParam} Escorts`;
     if (filterParam === "vip") return "VIP Escorts Directory India";
     if (filterParam === "massages") return "Sensual Massage & Wellness India";
-    if (filterParam === "citytour") return "Escorts on City Tour";
-    if (filterParam === "videos") return "Video Verified Indian Escorts";
     return "All India Escorts Directory";
   }, [localAreaParam, cityParam, districtParam, stateParam, filterParam]);
 
   const femaleCount = allProfiles.filter((p) => p.gender === "female").length;
-  const maleCount = allProfiles.filter((p) => p.gender === "male").length;
-  const transCount = allProfiles.filter((p) => p.gender === "trans").length;
 
   return (
     <div className="page-body">
@@ -107,38 +98,11 @@ export default function HomeDirectory() {
         {/* Page Title */}
         <h1 className="page-title">{dynamicTitle}</h1>
 
-        {/* Category Tabs */}
+        {/* Directory label */}
         <div className="category-tabs">
-          <button
-            className={`category-tab ${activeGenderTab === "female" ? "category-tab--active" : ""}`}
-            type="button"
-            onClick={() => {
-              setActiveGenderTab("female");
-              setCurrentPage(1);
-            }}
-          >
+          <span className="category-tab category-tab--active">
             Female escorts<span className="category-tab__count">({femaleCount})</span>
-          </button>
-          <button
-            className={`category-tab ${activeGenderTab === "male" ? "category-tab--active" : ""}`}
-            type="button"
-            onClick={() => {
-              setActiveGenderTab("male");
-              setCurrentPage(1);
-            }}
-          >
-            Male escorts<span className="category-tab__count">({maleCount})</span>
-          </button>
-          <button
-            className={`category-tab ${activeGenderTab === "trans" ? "category-tab--active" : ""}`}
-            type="button"
-            onClick={() => {
-              setActiveGenderTab("trans");
-              setCurrentPage(1);
-            }}
-          >
-            Trans escorts<span className="category-tab__count">({transCount})</span>
-          </button>
+          </span>
         </div>
 
         {/* Profile Cards Grid */}
