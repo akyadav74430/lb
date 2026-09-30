@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Privacy & Cookie Policy — lovebite.com",
-  description: "Privacy policy, data protection, and cookie disclosures for lovebite.com.",
+  title: "Privacy & Cookie Policy — lovebite.live",
+  description: "Privacy policy, data protection, and cookie disclosures for lovebite.live.",
 };
 
 export default function PrivacyPage() {
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
           <section className="info-section">
             <h2 className="info-section__title">1. Information We Collect</h2>
             <p className="info-text">
-              We collect minimal personal data essential to service delivery: account credentials (email and encrypted password hash) for registered advertisers, and profile details submitted willingly by advertisers on lovebite.com.
+              We collect minimal personal data essential to service delivery: account credentials (email and encrypted password hash) for registered advertisers, and profile details submitted willingly by advertisers on lovebite.live.
             </p>
           </section>
 

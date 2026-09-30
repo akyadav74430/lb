@@ -1085,7 +1085,7 @@ export default function EscortProfileForm({ initialData, mode = "add" }: EscortP
         <p className="epf-page-subtitle">
           {mode === "edit"
             ? "Update your companion profile details below."
-            : "Create your professional companion profile on lovebite.com."}
+            : "Create your professional companion profile on lovebite.live."}
         </p>
       </div>
 

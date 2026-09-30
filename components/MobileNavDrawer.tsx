@@ -119,7 +119,7 @@ export default function MobileNavDrawer({ isOpen, onClose, onOpenLogin }: Mobile
             </div>
           ) : (
             <div className="mobile-nav-panel__auth-cta">
-              <p className="mobile-nav-panel__cta-text">Welcome to lovebite.com</p>
+              <p className="mobile-nav-panel__cta-text">Welcome to lovebite.live</p>
               <div className="mobile-nav-panel__auth-buttons">
                 <button
                   type="button"

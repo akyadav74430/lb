@@ -90,7 +90,7 @@ export default function Logo({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={src}
-          alt="lovebite.com"
+          alt="lovebite.live"
           height={config.height}
           style={{
             height: config.height,
@@ -110,8 +110,8 @@ export default function Logo({
           href={href}
           className="lovebite-logo__link"
           onClick={onClick}
-          title="lovebite.com — Verified Escorts & Companions"
-          aria-label="lovebite.com Home"
+          title="lovebite.live — Verified Escorts & Companions"
+          aria-label="lovebite.live Home"
         >
           {customContent}
         </Link>
@@ -202,7 +202,7 @@ export default function Logo({
         >
           <span className="brand-love">love</span>
           <span className="brand-bite">bite</span>
-          <span className="brand-dot">.com</span>
+          <span className="brand-dot">.live</span>
         </span>
       )}
     </div>
@@ -214,8 +214,8 @@ export default function Logo({
         href={href}
         className="lovebite-logo__link"
         onClick={onClick}
-        title="lovebite.com — Verified Escorts & Companions"
-        aria-label="lovebite.com Home"
+        title="lovebite.live — Verified Escorts & Companions"
+        aria-label="lovebite.live Home"
       >
         {content}
       </Link>

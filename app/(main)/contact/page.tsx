@@ -162,7 +162,7 @@ export default function ContactPage() {
         <div className="info-page-hero">
           <h1 className="info-page-title">Contact Support</h1>
           <p className="info-page-subtitle">
-            Need help or have questions about lovebite.com? Reach out to our customer support team.
+            Need help or have questions about lovebite.live? Reach out to our customer support team.
           </p>
         </div>
 

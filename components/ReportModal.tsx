@@ -62,7 +62,7 @@ export default function ReportModal({ profileId, profileName, isOpen, onClose }:
         return;
       }
 
-      setSuccessMsg("✓ Your report has been submitted to the lovebite.com Trust & Safety moderation team for investigation.");
+      setSuccessMsg("✓ Your report has been submitted to the lovebite.live Trust & Safety moderation team for investigation.");
       setSubmitting(false);
       setTimeout(() => {
         onClose();

@@ -265,7 +265,7 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
           {/* Contact Card */}
           <div className="pdv-contact-box">
             <h3 className="pdv-contact-box__title">Contact {profile.name}</h3>
-            <p className="pdv-contact-box__desc">Mention lovebite.com when contacting for VIP rate</p>
+            <p className="pdv-contact-box__desc">Mention lovebite.live when contacting for VIP rate</p>
 
             {isContactRestricted ? (
               <>

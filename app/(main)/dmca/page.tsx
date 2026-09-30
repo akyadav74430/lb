@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "DMCA Notice & 18 U.S.C. § 2257 Compliance — lovebite.com",
-  description: "DMCA copyright takedown procedure and 18 U.S.C. 2257 record-keeping statement for lovebite.com.",
+  title: "DMCA Notice & 18 U.S.C. § 2257 Compliance — lovebite.live",
+  description: "DMCA copyright takedown procedure and 18 U.S.C. 2257 record-keeping statement for lovebite.live.",
 };
 
 export default function DmcaPage() {
@@ -17,7 +17,7 @@ export default function DmcaPage() {
 
         <div className="info-page-hero">
           <h1 className="info-page-title">DMCA Takedown &amp; 18 U.S.C. § 2257 Statement</h1>
-          <p className="info-page-subtitle">Copyright enforcement and adult age verification compliance on lovebite.com.</p>
+          <p className="info-page-subtitle">Copyright enforcement and adult age verification compliance on lovebite.live.</p>
         </div>
 
         <div className="info-card-content legal-text-content">
@@ -34,7 +34,7 @@ export default function DmcaPage() {
           <section className="info-section">
             <h2 className="info-section__title">DMCA Copyright Infringement Claims</h2>
             <p className="info-text">
-              lovebite.com respects intellectual property rights. If you are a copyright owner or authorized representative and believe that content hosted on our website infringes your rights, you may submit a formal DMCA notification containing:
+              lovebite.live respects intellectual property rights. If you are a copyright owner or authorized representative and believe that content hosted on our website infringes your rights, you may submit a formal DMCA notification containing:
             </p>
             <ul className="legal-list">
               <li>Identification of the copyrighted work claimed to have been infringed.</li>

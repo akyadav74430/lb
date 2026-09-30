@@ -50,7 +50,7 @@ function getTransporter() {
 
 export async function sendContactEmail(payload: ContactEmailPayload): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const supportEmail = process.env.SUPPORT_EMAIL || DEFAULT_SUPPORT_EMAIL;
-  const mailFrom = process.env.MAIL_FROM || `lovebite.com Support <support@lovebite.com>`;
+  const mailFrom = process.env.MAIL_FROM || `lovebite.live Support <support@lovebite.com>`;
 
   const cleanName = sanitizeHeader(payload.name);
   const cleanEmail = sanitizeHeader(payload.email);
@@ -111,7 +111,7 @@ ${timestamp}`;
       </div>
     </div>
     <div class="footer">
-      This inquiry was submitted via the lovebite.com Contact Support form and addressed to ${escapeHtml(supportEmail)}.
+      This inquiry was submitted via the lovebite.live Contact Support form and addressed to ${escapeHtml(supportEmail)}.
     </div>
   </div>
 </body>

@@ -81,8 +81,6 @@ export default function HomeDirectory() {
     return "All India Escorts Directory";
   }, [localAreaParam, cityParam, districtParam, stateParam, filterParam]);
 
-  const femaleCount = allProfiles.filter((p) => p.gender === "female").length;
-
   return (
     <div className="page-body">
       {/* LEFT SIDEBAR — Indian Location Nav */}
@@ -97,13 +95,6 @@ export default function HomeDirectory() {
 
         {/* Page Title */}
         <h1 className="page-title">{dynamicTitle}</h1>
-
-        {/* Directory label */}
-        <div className="category-tabs">
-          <span className="category-tab category-tab--active">
-            Female escorts<span className="category-tab__count">({femaleCount})</span>
-          </span>
-        </div>
 
         {/* Profile Cards Grid */}
         {displayedProfiles.length === 0 ? (

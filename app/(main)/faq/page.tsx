@@ -12,7 +12,7 @@ interface FAQItem {
 const FAQS: FAQItem[] = [
   {
     category: "clients",
-    q: "How do I contact an escort on lovebite.com?",
+    q: "How do I contact an escort on lovebite.live?",
     a: "Every escort profile provides direct contact details—such as phone number, WhatsApp link, and Telegram handle. You communicate directly with the companion or her direct booking assistant. There are no middleman fees paid to our directory.",
   },
   {
@@ -42,7 +42,7 @@ const FAQS: FAQItem[] = [
   },
   {
     category: "safety",
-    q: "How does lovebite.com protect user privacy?",
+    q: "How does lovebite.live protect user privacy?",
     a: "We never store browsing history, logs of contact link clicks, or personal messages. All connections are secured via 256-bit TLS encryption.",
   },
 ];
@@ -65,7 +65,7 @@ export default function FAQPage() {
         <div className="info-page-hero">
           <h1 className="info-page-title">Frequently Asked Questions (FAQ)</h1>
           <p className="info-page-subtitle">
-            Find answers to common questions about booking companions, verification, safety guidelines, and advertising on lovebite.com.
+            Find answers to common questions about booking companions, verification, safety guidelines, and advertising on lovebite.live.
           </p>
         </div>
 

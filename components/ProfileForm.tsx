@@ -231,7 +231,7 @@ export default function ProfileForm({ initialData = {}, onSuccess }: ProfileForm
             <span>⏳ Profile Under Review</span>
           </div>
           <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--text)" }}>
-            Our moderation team is reviewing your profile photos &amp; details. Once approved, your advertisement will appear on the lovebite.com directory.
+            Our moderation team is reviewing your profile photos &amp; details. Once approved, your advertisement will appear on the lovebite.live directory.
           </p>
         </div>
       )}
@@ -242,7 +242,7 @@ export default function ProfileForm({ initialData = {}, onSuccess }: ProfileForm
             <span>⚠️ Action Required: Profile Not Approved</span>
           </div>
           <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--text)" }}>
-            <strong>Reason:</strong> {form.rejectionReason || "Please update your photos or text to meet lovebite.com quality standards."}
+            <strong>Reason:</strong> {form.rejectionReason || "Please update your photos or text to meet lovebite.live quality standards."}
           </p>
         </div>
       )}
@@ -605,7 +605,7 @@ export default function ProfileForm({ initialData = {}, onSuccess }: ProfileForm
               className="form-input"
             >
               <option value="PUBLIC">Public — Visible to all visitors</option>
-              <option value="REGISTERED_USERS_ONLY">Members Only — Visible only to registered lovebite.com users</option>
+              <option value="REGISTERED_USERS_ONLY">Members Only — Visible only to registered lovebite.live users</option>
               <option value="PRIVATE">Private — Visible only to you</option>
               <option value="UNPUBLISHED">Unpublished (Draft)</option>
             </select>
@@ -657,7 +657,7 @@ export default function ProfileForm({ initialData = {}, onSuccess }: ProfileForm
               style={{ width: 18, height: 18, marginTop: 2, cursor: "pointer", accentColor: "var(--primary)" }}
             />
             <label htmlFor="consentRecorded" style={{ fontSize: 13, cursor: "pointer", color: "var(--text)" }}>
-              <strong>Photo Rights &amp; Consent Declaration:</strong> I confirm that I have the lawful right to upload these photos and that all depicted individuals have provided explicit, voluntary consent to publish these images on lovebite.com.
+              <strong>Photo Rights &amp; Consent Declaration:</strong> I confirm that I have the lawful right to upload these photos and that all depicted individuals have provided explicit, voluntary consent to publish these images on lovebite.live.
             </label>
           </div>
           {errors.consentRecorded?.map((e) => <span key={e} className="form-field-error" style={{ display: "block", marginTop: 4 }}>{e}</span>)}

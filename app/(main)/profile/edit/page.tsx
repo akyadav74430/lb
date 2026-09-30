@@ -48,7 +48,7 @@ export default async function EditProfilePage() {
           {profile ? "Edit your companion profile" : "Create companion profile"}
         </h1>
         <p className="page-subtitle">
-          Manage your verified photos, pricing, Indian location, and privacy settings on lovebite.com.
+          Manage your verified photos, pricing, Indian location, and privacy settings on lovebite.live.
         </p>
       </div>
 

@@ -45,7 +45,7 @@ function AdminSignInForm() {
       <div className="auth-card" style={{ maxWidth: 420 }}>
         <Logo size="auth" />
         <h1 className="auth-card__title">Admin Sign In</h1>
-        <p className="auth-card__subtitle">Superuser access to lovebite.com administration</p>
+        <p className="auth-card__subtitle">Superuser access to lovebite.live administration</p>
 
         <form onSubmit={handleSubmit} className="auth-form" noValidate>
           {error && <div className="auth-form__error-banner">{error}</div>}

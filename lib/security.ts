@@ -37,7 +37,7 @@ export function sanitizeProfileDTO(
       region: profile.region,
       visibility: profile.visibility,
       isRestricted: true,
-      restrictedMessage: "This profile is visible to registered lovebite.com members only. Please sign in to view full details.",
+      restrictedMessage: "This profile is visible to registered lovebite.live members only. Please sign in to view full details.",
     };
   }
 
