@@ -241,3 +241,98 @@ export async function getProfilesForCity(
 
   return [...fromStatic, ...fromDb];
 }
+
+/**
+ * Genuine, per-city facts used to write the landing page body copy.
+ *
+ * This deliberately reads Prisma directly instead of going through
+ * `dbProfileToEscortProfile`, because that mapper substitutes site-wide
+ * defaults (a standard price table, a fixed service list, a default language
+ * pair) whenever a real value is missing. Summing those defaults would make
+ * every city page claim the same invented facts, so only values a companion
+ * actually published are aggregated here.
+ */
+export interface CityAggregates {
+  /** Districts or local areas a listed companion actually gave. */
+  areas: string[];
+  /** Lowest published rate across the city's listings, in whole rupees. */
+  rateMin: number | null;
+  /** Highest published rate across the city's listings, in whole rupees. */
+  rateMax: number | null;
+  /** Listings that carry a real published rate. */
+  profilesWithRates: number;
+}
+
+const EMPTY_AGGREGATES: CityAggregates = {
+  areas: [],
+  rateMin: null,
+  rateMax: null,
+  profilesWithRates: 0,
+};
+
+/**
+ * Rupee amounts below this are treated as keying errors, not real prices.
+ *
+ * The listings table holds hand-entered figures, and short keys are common
+ * enough that single-digit and two-digit values show up (2, 55, 222). Printing
+ * a range built from those would be literally true and completely useless, so
+ * they are discarded and logged. Real companion rates start well above this.
+ */
+const MIN_PLAUSIBLE_RATE = 1000;
+
+export async function getCityAggregates(
+  city: CityListing
+): Promise<CityAggregates> {
+  try {
+    const rows = await prisma.profile.findMany({
+      where: { ...publicProfileWhere, city: { in: city.storedCities } },
+      select: {
+        district: true,
+        localArea: true,
+        rates: { select: { incall: true, outcall: true } },
+      },
+    });
+
+    const areas = new Set<string>();
+    const amounts: number[] = [];
+    const discarded: number[] = [];
+    let profilesWithRates = 0;
+
+    for (const row of rows) {
+      for (const value of [row.district, row.localArea]) {
+        const trimmed = value?.trim();
+        // Guard against placeholder text that carries no location meaning.
+        if (trimmed && trimmed.length > 1) areas.add(trimmed);
+      }
+
+      if (row.rates.length > 0) {
+        profilesWithRates += 1;
+        for (const rate of row.rates) {
+          for (const amount of [rate.incall, rate.outcall]) {
+            if (!Number.isFinite(amount) || amount <= 0) continue;
+            if (amount < MIN_PLAUSIBLE_RATE) discarded.push(amount);
+            else amounts.push(amount);
+          }
+        }
+      }
+    }
+
+    if (discarded.length > 0) {
+      console.warn(
+        `[seo] ${discarded.length} implausible rate value(s) ignored for "${city.slug}": ` +
+          `${[...new Set(discarded)].sort((a, b) => a - b).join(", ")}. ` +
+          `Fix these in the listings table; they are below the ${MIN_PLAUSIBLE_RATE} floor.`
+      );
+    }
+
+    return {
+      areas: [...areas].sort((a, b) => a.localeCompare(b)),
+      rateMin: amounts.length ? Math.min(...amounts) : null,
+      rateMax: amounts.length ? Math.max(...amounts) : null,
+      profilesWithRates,
+    };
+  } catch (err) {
+    console.error("City aggregate query failed:", err);
+    return EMPTY_AGGREGATES;
+  }
+}

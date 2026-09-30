@@ -4,14 +4,16 @@ import { notFound } from "next/navigation";
 import ProfileCard from "@/components/ProfileCard";
 import SiteFooter from "@/components/SiteFooter";
 import {
+  getCityAggregates,
   getCityListing,
   getProfilesForCity,
   listCitiesWithListings,
   type CityListing,
 } from "@/lib/seo/profiles";
 import { buildCityMetadata } from "@/lib/seo/metadata";
+import { buildCityBody } from "@/lib/seo/city-content";
 import { breadcrumbJsonLd, profileListJsonLd, JsonLd } from "@/lib/seo/jsonld";
-import { BRAND } from "@/lib/seo/site";
+import { BRAND, displayCityName } from "@/lib/seo/site";
 
 interface Props {
   params: Promise<{ city: string }>;
@@ -43,13 +45,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CityPage({ params }: Props) {
   const { city: slug } = await params;
   const city = await resolveCity(slug);
-  const [profiles, allCities] = await Promise.all([
+  const [profiles, allCities, aggregates] = await Promise.all([
     getProfilesForCity(city),
     listCitiesWithListings(),
+    getCityAggregates(city),
   ]);
   const otherCities = allCities.filter((c) => c.slug !== city.slug);
-  const regionSuffix = city.region ? ` in ${city.region}` : "";
+  const regionSuffix = city.region ? ` in ${displayCityName(city.region)}` : "";
   const countText = `${city.count} public ${city.count === 1 ? "profile" : "profiles"}`;
+  const body = buildCityBody(city, aggregates);
 
   return (
     <>
@@ -111,21 +115,26 @@ export default async function CityPage({ params }: Props) {
 
           <div className="info-card-content">
             <h2 className="info-section__title">About escorts in {city.name}</h2>
+            {body.intro.map((paragraph, index) => (
+              <p key={index} className="info-text">
+                {paragraph}
+              </p>
+            ))}
+            {body.ratesNote && <p className="info-text">{body.ratesNote}</p>}
             <p className="info-text">
-              If you are looking for escorts in {city.name}, this page lists the companions who
-              have chosen to be listed publicly in that city{regionSuffix} — nothing imported,
-              nothing invented. Every profile is checked before it goes live, and each one
-              carries its own photos, services and rates so you can compare before contacting
-              anyone.
-            </p>
-            <p className="info-text">
-              Availability changes often, which is why rates and timings live on the profile
-              rather than on this page. If you are searching for escorts near you and nothing
-              here fits, the neighbouring city pages below usually carry more listings, and{" "}
-              <Link href="/escorts">the main escort service page</Link> lists everything
-              published across India.
+              Availability and timings change often, which is why they live on each profile
+              rather than on this page. If nothing here fits what you need,{" "}
+              <Link href="/escorts">the full India escort directory</Link> lists everything
+              published nationwide, and the city pages above cover the neighbouring listings.
             </p>
           </div>
+
+          {body.areasNote && body.areasHeading && (
+            <div className="info-card-content">
+              <h2 className="info-section__title">{body.areasHeading}</h2>
+              <p className="info-text">{body.areasNote}</p>
+            </div>
+          )}
 
           {otherCities.length > 0 && (
             <div className="info-card-content">
