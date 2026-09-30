@@ -18,9 +18,10 @@ export async function generateMetadata({ params }: Props) {
     if (dbProfile) profile = dbProfileToEscortProfile(dbProfile);
   }
   return {
-    title: profile
-      ? `Edit Profile: ${profile.name} — lovebite.com`
-      : "Edit Profile — lovebite.com",
+    // The title still names the profile for the owner's benefit, but this route
+    // is owner-only, so it is marked noindex and never canonicalised.
+    title: profile ? `Edit Profile: ${profile.name}` : "Edit Profile",
+    robots: { index: false, follow: false },
   };
 }
 

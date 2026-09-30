@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { EscortProfile, ProfileReview } from "@/lib/profiles-data";
+import { citySlug } from "@/lib/seo/site";
 import ReportModal from "./ReportModal";
 
 interface Props {
@@ -145,7 +146,7 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
             <span className="profile-breadcrumb__sep">›</span>
           </>
         )}
-        <Link href={`/?city=${encodeURIComponent(profile.city)}`} className="profile-breadcrumb__link">
+        <Link href={`/city/${citySlug(profile.city)}`} className="profile-breadcrumb__link">
           {profile.city} Escorts
         </Link>
         <span className="profile-breadcrumb__sep">›</span>

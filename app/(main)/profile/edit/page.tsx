@@ -4,7 +4,11 @@ import { prisma } from "@/lib/db";
 import ProfileForm from "@/components/ProfileForm";
 import AccountForm from "@/components/AccountForm";
 
-export const metadata = { title: "Edit Profile — lovebite.com" };
+export const metadata = {
+  title: "Edit Profile",
+  // Owner-only surface: never index it.
+  robots: { index: false, follow: false },
+};
 
 export default async function EditProfilePage() {
   const session = await auth();

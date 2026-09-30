@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { NO_INDEX } from "@/lib/seo/site";
-import "./admin.css";
 
 export const metadata: Metadata = {
-  // Nothing under /admin should ever appear in an index.
   robots: NO_INDEX,
 };
 
-export default function AdminLayout({
+export default function AuthBridgeLayout({
   children,
 }: {
   children: React.ReactNode;

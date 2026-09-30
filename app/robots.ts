@@ -1,24 +1,34 @@
 import type { MetadataRoute } from "next";
+import { absoluteUrl } from "@/lib/seo/site";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lovebite.com";
-
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
         disallow: [
+          // Dashboards and admin APIs.
           "/admin",
-          "/admin/*",
+          "/admin/",
           "/api/admin",
-          "/api/admin/*",
-          "/profile/edit",
+          "/api/admin/",
+          // Authentication and account management.
           "/api/auth",
-          "/api/auth/*",
+          "/api/auth/",
+          "/signin",
+          "/signup",
+          "/auth",
+          // Profile authoring: /profile/add, /profile/edit, /profile/<id>/edit
+          // stay open, the two owner-only prefixes do not.
+          "/profile/edit",
+          "/profile/add",
+          // Internal/API surfaces that are not pages.
+          "/api/",
         ],
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: absoluteUrl("/sitemap.xml"),
+    host: absoluteUrl("/"),
   };
 }

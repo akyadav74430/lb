@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { NO_INDEX } from "@/lib/seo/site";
-import "./admin.css";
 
 export const metadata: Metadata = {
-  // Nothing under /admin should ever appear in an index.
+  title: "Add New Profile",
+  description: "Create your escort profile on Lovebite.",
+  // Authoring surface: useful to users, worthless in an index.
   robots: NO_INDEX,
 };
 
-export default function AdminLayout({
+export default function AddProfileLayout({
   children,
 }: {
   children: React.ReactNode;

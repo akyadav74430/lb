@@ -4456,6 +4456,40 @@ input[type="radio"] {
   gap: 18px;
   margin-top: 14px;
 }
+
+/* City links on the /escorts hub and /city/<slug> pages. A flat list of real,
+   crawlable city landing pages — no filter URLs, no generated extras. */
+.city-link-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+}
+.city-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-weight: 600;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.city-link:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.city-link__meta {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
 .pillar-box {
   background: var(--bg-alt);
   border: 1px solid var(--border);
@@ -4599,6 +4633,7 @@ input[type="radio"] {
   .ad-packages-grid { grid-template-columns: 1fr 1fr; }
   .ad-calc-grid { grid-template-columns: 1fr; }
   .info-pillars-grid { grid-template-columns: 1fr; }
+  .city-link-list { grid-template-columns: 1fr; }
   .similar-profiles-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
