@@ -72,9 +72,9 @@ export default async function SeoHomeIntro() {
         )}
 
         <p className="seo-intro__text seo-intro__text--muted">
-          Read the <Link href="/faq">frequently asked questions</Link> before your first
-          booking — particularly the section on advance-payment scams, which are the single
-          most common way clients get targeted.
+          Review the frequently asked questions before your first booking —
+          particularly the section on advance-payment scams, which are the single most
+          common way clients get targeted.
         </p>
       </div>
     </section>

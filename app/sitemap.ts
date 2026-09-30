@@ -43,11 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // the whole site changed on every request.
   const infoRoutes: MetadataRoute.Sitemap = [
     { url: absoluteUrl("/about"), changeFrequency: "yearly", priority: 0.4 },
-    { url: absoluteUrl("/faq"), changeFrequency: "monthly", priority: 0.5 },
     { url: absoluteUrl("/contact"), changeFrequency: "yearly", priority: 0.4 },
-    { url: absoluteUrl("/terms"), changeFrequency: "yearly", priority: 0.3 },
-    { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.3 },
-    { url: absoluteUrl("/dmca"), changeFrequency: "yearly", priority: 0.3 },
   ];
 
   // City landing pages: only cities that currently have public listings, so the

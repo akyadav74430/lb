@@ -67,18 +67,12 @@ export default async function SiteFooter() {
             <div className="footer-col__list">
               <Link href="/about" className="footer-col__link">About Us</Link>
               <Link href="/contact" className="footer-col__link">Contact</Link>
-              <Link href="/faq" className="footer-col__link">FAQ</Link>
             </div>
           </div>
 
           <div className="footer-col">
             <h4 className="footer-col__title">Legal</h4>
             <div className="footer-col__list">
-              <Link href="/terms" className="footer-col__link">Terms of Service</Link>
-              <Link href="/privacy" className="footer-col__link">Privacy Policy</Link>
-              <Link href="/privacy" className="footer-col__link">Cookie Policy</Link>
-              <Link href="/dmca" className="footer-col__link">DMCA Compliance</Link>
-              <Link href="/dmca" className="footer-col__link">18+ Statement</Link>
             </div>
           </div>
         </div>
@@ -86,9 +80,6 @@ export default async function SiteFooter() {
         <div className="footer-bottom">
           <span>© 2012–2026 Lovebite. All rights reserved. 18+ Adult Directory.</span>
           <div className="footer-bottom__links">
-            <Link href="/terms" className="footer-bottom__link">Terms</Link>
-            <Link href="/privacy" className="footer-bottom__link">Privacy</Link>
-            <Link href="/dmca" className="footer-bottom__link">DMCA</Link>
             <Link href="/sitemap.xml" className="footer-bottom__link">Sitemap</Link>
           </div>
         </div>
