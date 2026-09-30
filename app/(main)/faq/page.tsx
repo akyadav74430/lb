@@ -101,16 +101,20 @@ export default function FAQPage() {
                 <button
                   type="button"
                   className="faq-question-btn"
+                  aria-expanded={isOpen}
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
                 >
                   <span className="faq-q-text">{item.q}</span>
                   <span className="faq-q-toggle">{isOpen ? "−" : "+"}</span>
                 </button>
-                {isOpen && (
-                  <div className="faq-answer-body">
-                    <p>{item.a}</p>
-                  </div>
-                )}
+                {/* Always in the DOM: a crawler that does not run JS still gets
+                    the answer text, which is the only body copy this page has. */}
+                <div
+                  className="faq-answer-body"
+                  data-open={isOpen ? "true" : "false"}
+                >
+                  <p>{item.a}</p>
+                </div>
               </div>
             );
           })}

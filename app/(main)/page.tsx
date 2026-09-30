@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { getCityListing } from "@/lib/seo/profiles";
 import { buildCityMetadata } from "@/lib/seo/metadata";
 import { absoluteUrl, clampMeta } from "@/lib/seo/site";
+import { JsonLd, siteJsonLd } from "@/lib/seo/jsonld";
 
 interface Props {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -86,6 +87,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 export default function HomePage() {
   return (
     <>
+      <JsonLd data={siteJsonLd()} />
       <Suspense fallback={<div style={{ minHeight: "80vh" }} />}>
         <HomeDirectory />
       </Suspense>

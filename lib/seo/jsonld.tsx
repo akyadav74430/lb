@@ -1,4 +1,4 @@
-import { absoluteUrl } from "@/lib/seo/site";
+import { absoluteUrl, SITE_NAME } from "@/lib/seo/site";
 
 /**
  * Renders schema.org JSON-LD.
@@ -6,7 +6,11 @@ import { absoluteUrl } from "@/lib/seo/site";
  * Only describes facts that are actually present on the page (names, URLs,
  * image URLs). No ratings, reviews or prices are emitted anywhere.
  */
-export function JsonLd({ data }: { data: Record<string, unknown> }) {
+export function JsonLd({
+  data,
+}: {
+  data: Record<string, unknown> | Record<string, unknown>[];
+}) {
   return (
     <script
       type="application/ld+json"
@@ -51,4 +55,43 @@ export function profileListJsonLd(
       url: absoluteUrl(`/profile/${profile.id}`),
     })),
   };
+}
+
+/**
+ * Site-level entity graph for the homepage.
+ *
+ * Ties the Organization to the WebSite node via `publisher`/`isPartOf` so the
+ * brand, domain and logo are unambiguous to a crawler. No ratings, prices or
+ * review counts are emitted — those are reserved for data the site can prove.
+ */
+export function siteJsonLd() {
+  const logo = absoluteUrl("/icon-512.png");
+
+  const organization = {
+    "@type": "Organization",
+    "@id": `${absoluteUrl("/")}#organization`,
+    name: SITE_NAME,
+    url: absoluteUrl("/"),
+    logo,
+    image: logo,
+    description:
+      "City-wise directory of independent escorts, call girls and companions in India.",
+  };
+
+  return [
+    {
+      ...organization,
+      "@type": "WebSite",
+      "@id": `${absoluteUrl("/")}#website`,
+      url: absoluteUrl("/"),
+      name: SITE_NAME,
+      publisher: { "@id": organization["@id"] },
+      inLanguage: "en-IN",
+    },
+    {
+      "@context": "https://schema.org",
+      ...organization,
+      isPartOf: { "@id": `${absoluteUrl("/")}#website` },
+    },
+  ];
 }
