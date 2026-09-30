@@ -165,6 +165,9 @@ export default function HomeDirectory() {
                 topBadge={p.topBadge}
                 badges={p.badges}
                 href={`/profile/${p.id}`}
+                phone={p.phone}
+                whatsapp={p.whatsapp}
+                hidePhone={Boolean(p.isPhoneHidden || p.hidePhoneFromPublic)}
               />
             ))}
           </div>

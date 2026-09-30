@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { EscortProfile } from "@/lib/profiles-data";
 import { citySlug } from "@/lib/seo/site";
+import { buildContactLinks } from "@/lib/contact-visibility";
 
 interface Props {
   profile: EscortProfile;
@@ -51,22 +52,20 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
   // Check if contact info is restricted / hidden by profile privacy settings
   const isContactRestricted = Boolean(profile.isPhoneHidden || profile.hidePhoneFromPublic);
 
-  // Normalize phone for tel: protocol (e.g., "+91 62035 40719" -> "+916203540719")
-  const defaultPhone = "+916203540719";
-  const rawDigits = profile.phone ? profile.phone.replace(/[^\d+]/g, "") : defaultPhone;
-  const telHref = isContactRestricted ? "#" : (rawDigits.startsWith("+") ? `tel:${rawDigits}` : `tel:+${rawDigits}`);
-
-  // Normalize WhatsApp number (international digits only without '+' or spaces -> "916203540719")
-  const waDigits = profile.whatsapp
-    ? profile.whatsapp.replace(/\D/g, "")
-    : (profile.phone ? profile.phone.replace(/\D/g, "") : "916203540719");
-
-  // Prefilled WhatsApp message correctly URL-encoded
-  const waPrefill = `Hello, I am interested in your profile on Lovebite.com (${profile.name}).`;
-  const waHref = isContactRestricted ? "#" : `https://wa.me/${waDigits}?text=${encodeURIComponent(waPrefill)}`;
+  // All Call / WhatsApp links come from the shared helper, so cards and this
+  // page can never drift apart.
+  const contact = buildContactLinks({
+    phone: profile.phone,
+    whatsapp: profile.whatsapp,
+    profileName: profile.name,
+    gated: isContactRestricted,
+  });
+  const telHref = contact.callHref;
+  const waHref = contact.whatsappHref;
+  const signInHref = `/signin?callbackUrl=${encodeURIComponent(`/profile/${profile.id}`)}`;
 
   const handleCopyPhone = () => {
-    if (!profile.phone || isContactRestricted) return;
+    if (!contact.phone || isContactRestricted) return;
     navigator.clipboard.writeText(profile.phone);
     setPhoneRevealed(true);
     setCopied(true);
@@ -269,21 +268,19 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
             <p className="pdv-contact-box__desc">Mention lovebite.com when contacting for VIP rate</p>
 
             {isContactRestricted ? (
-              <div
-                className="pdv-contact-restricted"
-                style={{
-                  padding: "14px",
-                  background: "rgba(255, 255, 255, 0.03)",
-                  border: "1px dashed var(--border)",
-                  borderRadius: "var(--radius-sm)",
-                  marginBottom: "14px",
-                  fontSize: "12px",
-                  color: "var(--text-muted)",
-                  lineHeight: 1.5,
-                }}
-              >
-                🔒 Contact details are restricted by the profile owner for unauthenticated users. Please sign in to view phone and WhatsApp info.
-              </div>
+              <>
+                <div className="pdv-contact-restricted">
+                  🔒 Contact details are restricted by the profile owner for unauthenticated users.
+                  Please sign in to view phone and WhatsApp info.
+                </div>
+                <Link href={signInHref} className="pdv-cta-btn pdv-cta-btn--signin" id="btn-signin-to-contact">
+                  <span className="pdv-cta-icon">🔑</span>
+                  <span className="pdv-cta-text">
+                    <strong>Sign in to view contact</strong>
+                    <span>Call &amp; WhatsApp unlock after sign in</span>
+                  </span>
+                </Link>
+              </>
             ) : (
               <div className="pdv-contact-btns">
                 <a
@@ -291,13 +288,13 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
                   id="btn-call"
                   className="pdv-cta-btn pdv-cta-btn--call"
                   onClick={() => setPhoneRevealed(true)}
-                  aria-label={`Call ${profile.name} at ${phoneRevealed ? profile.phone : "show phone number"}`}
-                  title={phoneRevealed ? profile.phone : "Call Now / Show Phone Number"}
+                  aria-label={`Call ${profile.name} at ${phoneRevealed ? contact.displayPhone : "show phone number"}`}
+                  title={phoneRevealed ? contact.displayPhone : "Call Now / Show Phone Number"}
                 >
                   <span className="pdv-cta-icon">📞</span>
                   <span className="pdv-cta-text">
                     <strong>Call Now</strong>
-                    <span>{phoneRevealed ? profile.phone : "Show Phone Number"}</span>
+                    <span>{phoneRevealed ? contact.displayPhone : "Show Phone Number"}</span>
                   </span>
                 </a>
 
@@ -342,7 +339,7 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
                 className="pdv-action-link"
                 onClick={handleCopyPhone}
                 id="btn-copy-phone"
-                disabled={isContactRestricted || !profile.phone}
+                disabled={isContactRestricted || !contact.phone}
                 aria-label="Copy phone number to clipboard"
               >
                 {copied ? "✓ Number Copied!" : "📋 Copy Number"}
@@ -492,27 +489,70 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
         <section className="similar-section">
           <h3 className="similar-title">Similar Escorts in {profile.city}</h3>
           <div className="similar-grid">
-            {similarProfiles.map((p) => (
-              <Link key={p.id} href={`/profile/${p.id}`} className="similar-card">
-                <div className="similar-card__img-wrap">
-                  <Image
-                    src={p.photoUrl || gallery[0]}
-                    alt={p.name}
-                    fill
-                    sizes="180px"
-                    className="similar-card__img"
-                  />
-                  {p.badges.includes("VIP") && (
-                    <span className="similar-badge similar-badge--vip">VIP</span>
-                  )}
-                </div>
-                <div className="similar-card__body">
-                  <h4 className="similar-card__name">{p.name}</h4>
-                  <p className="similar-card__loc">{p.location}</p>
-                  <span className="similar-card__rate">{p.rates[0]?.incall} / hr</span>
-                </div>
-              </Link>
-            ))}
+            {similarProfiles.map((p) => {
+              const pContact = buildContactLinks({
+                phone: p.phone,
+                whatsapp: p.whatsapp,
+                profileName: p.name,
+                gated: Boolean(p.isPhoneHidden || p.hidePhoneFromPublic),
+              });
+              return (
+                <article key={p.id} className="similar-card">
+                  <div className="similar-card__img-wrap">
+                    <Image
+                      src={p.photoUrl || gallery[0]}
+                      alt={p.name}
+                      fill
+                      sizes="180px"
+                      className="similar-card__img"
+                    />
+                    {p.badges.includes("VIP") && (
+                      <span className="similar-badge similar-badge--vip">VIP</span>
+                    )}
+                  </div>
+
+                  <Link
+                    href={`/profile/${p.id}`}
+                    className="similar-card__link"
+                    aria-label={`View ${p.name}'s profile`}
+                  >
+                    <div className="similar-card__body">
+                      <h4 className="similar-card__name">{p.name}</h4>
+                      <p className="similar-card__loc">{p.location}</p>
+                      <span className="similar-card__rate">{p.rates[0]?.incall} / hr</span>
+                    </div>
+                  </Link>
+
+                  <div className="similar-card__actions">
+                    {pContact.gated ? (
+                      <Link
+                        href={`/signin?callbackUrl=${encodeURIComponent(`/profile/${p.id}`)}`}
+                        className="similar-card__action similar-card__action--locked"
+                      >
+                        🔑 Sign in
+                      </Link>
+                    ) : (
+                      <>
+                        <a
+                          href={pContact.callHref}
+                          className="similar-card__action similar-card__action--call"
+                          aria-label={`Call ${p.name}`}
+                          title={`Call ${pContact.displayPhone}`}
+                        >📞 Call</a>
+                        <a
+                          href={pContact.whatsappHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="similar-card__action similar-card__action--wa"
+                          aria-label={`WhatsApp ${p.name}`}
+                          title={`WhatsApp ${pContact.displayPhone}`}
+                        >💬 WhatsApp</a>
+                      </>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
       )}
@@ -570,9 +610,14 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
         </div>
       )}
 
-      {/* Sticky Mobile Bar */}
-
-      {!isContactRestricted && (
+      {/* Sticky Mobile Bar — always reachable Call / WhatsApp */}
+      {isContactRestricted ? (
+        <div className="mobile-sticky-bar">
+          <Link href={signInHref} className="mobile-bar-btn mobile-bar-btn--signin" aria-label="Sign in to view contact details">
+            🔑 Sign in to view contact
+          </Link>
+        </div>
+      ) : (
         <div className="mobile-sticky-bar">
           <a href={telHref} className="mobile-bar-btn mobile-bar-btn--call" aria-label={`Call ${profile.name}`}>📞 Call</a>
           <a

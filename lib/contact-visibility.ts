@@ -101,3 +101,113 @@ export function telHref(phone: string): string {
 export function whatsappHref(whatsapp: string): string {
   return `https://wa.me/${whatsapp.replace(/\D/g, "")}`;
 }
+
+/**
+ * Desk number used when a profile has not published its own number yet, so that
+ * every listed profile still exposes a working Call / WhatsApp button.
+ */
+export const DEFAULT_CONTACT_NUMBER = "+916203540719";
+
+/** India dialling code — this directory is India-only. */
+const DEFAULT_COUNTRY_CODE = "91";
+
+/**
+ * Digits-only international form for `tel:` / `wa.me` links. Numbers stored
+ * without a country code are normalised with the Indian dialling code, and a
+ * domestic trunk prefix (`098765 43210`) is dropped rather than kept — keeping
+ * it produces dead links like `wa.me/09876543210`.
+ */
+function toInternationalDigits(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.length === 10) return `${DEFAULT_COUNTRY_CODE}${digits}`;
+  if (digits.length === 11 && digits.startsWith("0")) {
+    return `${DEFAULT_COUNTRY_CODE}${digits.slice(1)}`;
+  }
+  return digits;
+}
+
+/** Message pre-filled in the WhatsApp chat. */
+export function whatsappPrefill(profileName?: string | null): string {
+  const name = (profileName ?? "").trim();
+  return name
+    ? `Hello, I am interested in your profile on Lovebite.com (${name}).`
+    : "Hello, I am interested in your profile on Lovebite.com.";
+}
+
+/** `https://wa.me/<digits>?text=<encoded prefill>` */
+export function whatsappUrl(whatsapp: string, profileName?: string | null): string {
+  return `${whatsappHref(whatsapp)}?text=${encodeURIComponent(whatsappPrefill(profileName))}`;
+}
+
+/** Human-readable rendering, e.g. `+91 62035 40719`. */
+export function formatPhone(value?: string | null): string {
+  let digits = (value ?? "").replace(/\D/g, "");
+  if (!digits) return "";
+  // A leading `0` is a trunk prefix, not a country code.
+  if (digits.length > 10 && digits.startsWith("0")) digits = digits.replace(/^0+/, "");
+  if (digits.length <= 10) return digits;
+  const local = digits.slice(-10);
+  return `+${digits.slice(0, digits.length - 10)} ${local.slice(0, 5)} ${local.slice(5)}`;
+}
+
+export interface ContactLinksInput {
+  phone?: string | null;
+  whatsapp?: string | null;
+  profileName?: string | null;
+  /** Owner withheld the numbers — render a sign-in prompt instead of links. */
+  gated?: boolean;
+}
+
+export interface ContactLinks {
+  /** Normalized profile phone, when the owner published one. */
+  phone?: string;
+  /** Normalized WhatsApp number, falling back to the phone, then to the desk number. */
+  whatsapp: string;
+  callHref: string;
+  whatsappHref: string;
+  /** Pretty number to show once revealed; falls back to the desk number. */
+  displayPhone: string;
+  /** True when the number shown is the desk number rather than the profile's own. */
+  usingFallback: boolean;
+  gated: boolean;
+}
+
+/**
+ * Builds every Call / WhatsApp link for a profile in one place so directory
+ * cards and profile detail pages can never drift apart.
+ */
+export function buildContactLinks({
+  phone,
+  whatsapp,
+  profileName,
+  gated,
+}: ContactLinksInput = {}): ContactLinks {
+  if (gated) {
+    return {
+      whatsapp: "",
+      callHref: "#",
+      whatsappHref: "#",
+      displayPhone: "",
+      usingFallback: false,
+      gated: true,
+    };
+  }
+
+  const ownPhone = normalizePhone(phone);
+  const ownWhatsApp = normalizePhone(whatsapp) ?? ownPhone;
+  const fallback = normalizePhone(DEFAULT_CONTACT_NUMBER) as string;
+
+  const callNumber = ownPhone ?? fallback;
+  const waNumber = ownWhatsApp ?? callNumber;
+
+  return {
+    phone: ownPhone,
+    whatsapp: waNumber,
+    callHref: telHref(toInternationalDigits(callNumber)),
+    whatsappHref: whatsappUrl(toInternationalDigits(waNumber), profileName),
+    displayPhone: formatPhone(ownPhone ?? fallback),
+    usingFallback: !ownPhone,
+    gated: false,
+  };
+}

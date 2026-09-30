@@ -829,7 +829,25 @@ input[type="radio"] {
 .profile-card:hover .profile-card__fav { opacity: 1; transform: scale(1); }
 .profile-card__fav:hover { background: var(--primary); transform: scale(1.15) !important; }
 .profile-card__fav svg { width: 14px; height: 14px; }
-.profile-card__content { padding: 10px 10px 12px; }
+
+/* Whole-card link, stretched across the card via ::after so the
+   Call / WhatsApp buttons below stay independently clickable. */
+.profile-card__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+}
+.profile-card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radius);
+}
+.profile-card__link:focus-visible { box-shadow: 0 0 0 3px var(--primary-ghost); }
+
+.profile-card__content { padding: 10px 10px 8px; }
 .profile-card__name {
   font-size: 14px; font-weight: 700; color: var(--text-heading);
   margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -840,6 +858,64 @@ input[type="radio"] {
 }
 .profile-card__location svg { width: 12px; height: 12px; color: var(--text-light); flex-shrink: 0; }
 .profile-card__badges { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* ─── Card Call / WhatsApp actions ─── */
+.profile-card__actions {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 0 10px 10px;
+}
+.profile-card__action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  min-height: 32px;
+  padding: 7px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: clamp(10px, 0.75vw, 12px);
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  color: #fff;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease);
+}
+.profile-card__action svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+.profile-card__action-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.profile-card__action:hover { filter: brightness(1.08); }
+.profile-card__action:active { transform: scale(0.96); }
+.profile-card__action:focus-visible {
+  outline: 2px solid var(--text-heading);
+  outline-offset: 2px;
+}
+.profile-card__action--call { background: #10b981; }
+.profile-card__action--call:hover { background: #0f9a6e; }
+.profile-card__action--wa { background: #25D366; }
+.profile-card__action--wa:hover { background: #20ba58; }
+.profile-card__action--locked {
+  grid-column: 1 / -1;
+  background: var(--bg-alt);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+.profile-card__action--locked:hover { background: var(--primary-ghost); color: var(--primary); }
+
 .badge {
   display: inline-flex; align-items: center;
   padding: 2px 7px; font-size: 9px; font-weight: 700;
@@ -2337,6 +2413,8 @@ input[type="radio"] {
   .subnav { padding: 0 12px; }
   .main-content { padding: 14px 12px 24px; }
   .profiles-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .profile-card__actions { gap: 5px; padding: 0 8px 9px; }
+  .profile-card__action { min-height: 34px; font-size: 11px; }
   .page-title { font-size: 18px; }
   .ad-banner-row { grid-template-columns: 1fr; }
   .ad-banner-row .ad-slot:nth-child(n+2) { display: none; }
@@ -2369,7 +2447,10 @@ input[type="radio"] {
   .top-header__account-name { display: none; }
   .top-header__btn-signout { padding: 4px 8px; font-size: 11px; }
   .profiles-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .profile-card__content { padding: 8px 8px 10px; }
+  .profile-card__content { padding: 8px 8px 6px; }
+  .profile-card__actions { gap: 4px; padding: 0 8px 8px; }
+  .profile-card__action { min-height: 32px; font-size: 10px; gap: 4px; padding: 6px 4px; }
+  .profile-card__action svg { width: 12px; height: 12px; }
   .profile-card__name { font-size: 12px; }
   .profile-card__location { font-size: 10px; }
   .badge { font-size: 8px; padding: 1px 5px; }
@@ -2388,6 +2469,8 @@ input[type="radio"] {
   .top-header__mobile-login-btn { font-size: 10px; padding: 0 8px; }
   .profiles-grid { gap: 6px; }
   .profile-card__badges { gap: 2px; }
+  .profile-card__action { font-size: 9px; gap: 3px; padding: 6px 3px; }
+  .profile-card__action svg { width: 11px; height: 11px; }
 }
 
 /* ============================================================
@@ -2964,17 +3047,20 @@ input[type="radio"] {
   color: var(--text-heading);
   margin-bottom: 16px;
 }
-.similar-profiles-grid {
+.similar-profiles-grid,
+.similar-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 .similar-card {
+  position: relative;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
   text-decoration: none;
+  color: inherit;
   transition: transform var(--dur-med) ease, box-shadow var(--dur-med) ease;
 }
 .similar-card:hover {
@@ -3019,6 +3105,57 @@ input[type="radio"] {
   font-size: 12px;
   font-weight: 700;
   color: var(--primary);
+}
+
+/* ─── Similar card: stretched link + Call / WhatsApp actions ─── */
+.similar-card__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+}
+.similar-card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radius);
+}
+.similar-card__actions {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 0 12px 12px;
+}
+.similar-card__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 7px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  color: #fff;
+  white-space: nowrap;
+  transition: filter var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.similar-card__action:hover { filter: brightness(1.08); }
+.similar-card__action:active { transform: scale(0.96); }
+.similar-card__action--call { background: #10b981; }
+.similar-card__action--call:hover { background: #0f9a6e; }
+.similar-card__action--wa { background: #25D366; }
+.similar-card__action--wa:hover { background: #20ba58; }
+.similar-card__action--locked {
+  grid-column: 1 / -1;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
 }
 
 /* Lightbox Modal */
@@ -3167,24 +3304,45 @@ input[type="radio"] {
   right: 0;
   background: var(--bg-card);
   border-top: 1px solid var(--border);
-  padding: 8px 12px;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
   z-index: 990;
   box-shadow: 0 -4px 16px rgba(0,0,0,0.15);
   gap: 8px;
 }
 .mobile-bar-btn {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   text-align: center;
-  padding: 10px 6px;
+  padding: 12px 6px;
   border-radius: var(--radius-sm);
-  font-size: 12px;
+  font-size: clamp(11px, 3.2vw, 14px);
   font-weight: 700;
+  line-height: 1.2;
   text-decoration: none;
   color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: filter var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
 }
+.mobile-bar-btn:hover { filter: brightness(1.08); }
+.mobile-bar-btn:active { transform: scale(0.97); }
+.mobile-bar-btn:focus-visible { outline: 2px solid var(--text-heading); outline-offset: -2px; }
 .mobile-bar-btn--call { background: #10b981; }
+.mobile-bar-btn--call:hover { background: #0f9a6e; }
 .mobile-bar-btn--wa { background: #25D366; }
+.mobile-bar-btn--wa:hover { background: #20ba58; }
 .mobile-bar-btn--tg { background: #0088cc; }
+.mobile-bar-btn--tg:hover { background: #007ab8; }
+.mobile-bar-btn--signin { background: var(--primary); }
+.mobile-bar-btn--signin:hover { background: var(--primary-light); }
+
+/* Very narrow phones: drop the third action so the two primary
+   actions stay comfortably tappable. */
+@media (max-width: 380px) {
+  .mobile-bar-btn--tg { display: none; }
+  .mobile-bar-btn { padding: 12px 4px; }
+}
 
 /* ============================================================
    INFO PAGES: Contact, Advertise, Reviews, Blacklist, About, FAQ, Legal
@@ -4554,6 +4712,7 @@ input[type="radio"] {
   .info-pillars-grid { grid-template-columns: 1fr; }
   .city-link-list { grid-template-columns: 1fr; }
   .similar-profiles-grid { grid-template-columns: repeat(2, 1fr); }
+  .similar-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
@@ -4776,6 +4935,28 @@ input[type="radio"] {
 .pdv-cta-btn--wa:hover { background: #20ba58; }
 .pdv-cta-btn--tg { background: #0088cc; color: #fff; }
 .pdv-cta-btn--tg:hover { background: #007ab8; }
+.pdv-cta-btn--signin {
+  background: var(--bg-alt);
+  border-color: var(--border);
+  color: var(--text);
+  width: 100%;
+}
+.pdv-cta-btn--signin:hover { background: var(--primary-ghost); border-color: var(--primary); }
+.pdv-contact-restricted {
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+/* Stack the CTA buttons into a comfortable 2-up row once the layout is narrow. */
+@media (max-width: 560px) {
+  .pdv-contact-btns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pdv-cta-btn { flex-direction: column; align-items: flex-start; gap: 6px; }
+}
 .pdv-phone-row {
   display: flex; align-items: center;
   justify-content: space-between;

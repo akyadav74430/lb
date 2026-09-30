@@ -141,6 +141,9 @@ export default async function EscortsPage() {
                       topBadge={profile.topBadge}
                       badges={profile.badges}
                       href={`/profile/${profile.id}`}
+                      phone={profile.phone}
+                      whatsapp={profile.whatsapp}
+                      hidePhone={Boolean(profile.isPhoneHidden || profile.hidePhoneFromPublic)}
                     />
                   ))}
                 </div>
