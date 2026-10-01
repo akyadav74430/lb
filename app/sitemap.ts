@@ -7,6 +7,15 @@ import {
 } from "@/lib/seo/profiles";
 import { absoluteUrl } from "@/lib/seo/site";
 
+/**
+ * The sitemap queries the database, so it must not be baked at build time.
+ * Without this, unpublishing or deleting a profile leaves its URL advertised in
+ * sitemap.xml until the next deploy — which is how crawkers end up requesting
+ * pages that 404. An hourly revalidate keeps the submitted URLs honest without
+ * rebuilding.
+ */
+export const revalidate = 3600;
+
 /** Epoch is our "unknown" sentinel for static-only cities: omit instead. */
 function realDate(date: Date | null | undefined): Date | undefined {
   if (!date) return undefined;
