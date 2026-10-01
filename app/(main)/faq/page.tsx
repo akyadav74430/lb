@@ -4,6 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { absoluteUrl } from "@/lib/seo/site";
 import { BRAND } from "@/lib/seo/site";
 import { listCitiesWithListings } from "@/lib/seo/profiles";
+import { JsonLd, breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonld";
 
 export const metadata: Metadata = {
   title: "FAQ — Safety, Verification & Booking Answers",
@@ -141,8 +142,18 @@ const SECTIONS: { title: string; items: { q: string; a: string }[] }[] = [
 export default async function FaqPage() {
   const cities = await listCitiesWithListings();
 
+  // Built from SECTIONS, the same constant the body renders, so the schema
+  // cannot drift out of sync with the visible questions.
+  const allFaq = SECTIONS.flatMap((section) => section.items);
+
   return (
     <>
+      <JsonLd data={breadcrumbJsonLd([
+        { name: "Home", path: "/" },
+        { name: "FAQ", path: "/faq" },
+      ])} />
+      <JsonLd data={faqPageJsonLd(allFaq)} />
+
       <main className="info-page-main">
         <div className="info-page-container">
           <nav className="breadcrumb" aria-label="Breadcrumb">

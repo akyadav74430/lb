@@ -67,17 +67,25 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     };
   }
 
+  // The homepage is the directory itself: the browsable, filterable index.
+  //
+  // `/call-girls` is the term-targeted landing page and owns the head term.
+  // Until this commit both pages shipped the identical title "Call Girls in
+  // India — Verified Escorts", so Google had to pick one to rank and split
+  // the signals between two URLs competing for the same query. Differentiating
+  // them here: the homepage sells breadth and browsing, /call-girls owns the
+  // keyword. Keep these two titles distinct.
   return {
-    title: "Call Girls in India — Verified Escorts",
+    title: "Escorts & Call Girls Directory — Browse by City | Lovebite",
     description: clampMeta(
-      "Browse verified call girls, escorts and companions across India. Filter by city or state, then open any profile for real photos, published rates and direct contact.",
+      "The Lovebite directory of independent escorts and call girls in India. Browse every public profile by city or state, then open one for photos, rates and contact.",
       160
     ),
     alternates: { canonical: absoluteUrl("/") },
     openGraph: {
-      title: "Call Girls in India — Verified Escorts",
+      title: "Escorts & Call Girls Directory — Browse by City | Lovebite",
       description:
-        "Browse verified call girls, escorts and companions across India by city, state or category.",
+        "Browse every public escort and companion profile in India by city, state or category.",
       url: absoluteUrl("/"),
       type: "website",
       images: ["/opengraph-image"],

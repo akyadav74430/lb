@@ -9,19 +9,26 @@ export async function generateMetadata(): Promise<Metadata> {
   const cities = await listCitiesWithListings();
   const topCities = cities.slice(0, 5);
 
+  // This page owns the head term "call girls in India". The homepage is a
+  // directory and takes a different title; do not reintroduce the duplicate.
+  //
+  // "Verified" is not used in the title. The only check the pipeline performs
+  // is an 18+ self-declaration plus SHA-256 duplicate-photo detection, which
+  // the FAQ documents precisely. Selling the word harder than the process
+  // supports is the kind of claim that gets a directory de-rated.
   const description = clampMeta(
-    `Find verified call girls in India. Browse independent companions by city — ${topCities
+    `Find call girls in India. Browse independent companions by city — ${topCities
       .map((c) => c.name)
       .join(", ")} and more. Real photos, published rates and direct contact.`,
     160
   );
 
   return {
-    title: "Call Girls in India — Verified Escorts",
+    title: "Call Girls in India — Real Photos, Direct Contact",
     description,
     alternates: { canonical: absoluteUrl("/call-girls") },
     openGraph: {
-      title: "Call Girls in India — Verified Escorts",
+      title: "Call Girls in India — Real Photos, Direct Contact",
       description,
       url: absoluteUrl("/call-girls"),
       type: "website",

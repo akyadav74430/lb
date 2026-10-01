@@ -38,6 +38,28 @@ export function breadcrumbJsonLd(crumbs: Crumb[]) {
   };
 }
 
+/**
+ * A FAQPage built from questions that are visibly rendered on the page.
+ *
+ * Google's FAQ rich results are restricted to a small set of well-known
+ * government and health authorities, so this will not earn a rich result on
+ * an adult directory. It is still worth emitting: it makes the question and
+ * answer text unambiguous to any consumer of the page, and it costs nothing.
+ *
+ * Do not pass invented questions. Every entry must be rendered in the body.
+ */
+export function faqPageJsonLd(faq: { q: string; a: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
+}
+
 /** An ItemList of the profiles actually rendered on the page. */
 export function profileListJsonLd(
   heading: string,
