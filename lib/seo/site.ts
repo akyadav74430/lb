@@ -16,6 +16,15 @@ export const BRAND = "Lovebite";
 export const SITE_NAME = "Lovebite";
 export const SITE_DOMAIN = "lovebite.live";
 
+/**
+ * Year the directory began operating.
+ *
+ * Previously the footer carried "© 2012–2026", which dated back further than the
+ * site had existed and read as an invented heritage claim. The earliest records
+ * in the database are from 2026, so that is what is stated.
+ */
+export const BRAND_YEAR = 2026;
+
 /** Absolute URL for a site-relative path. */
 export function absoluteUrl(path: string): string {
   if (!path || path === "/") return `${SITE_URL}/`;

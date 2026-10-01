@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { EscortProfile } from "@/lib/profiles-data";
 import { citySlug } from "@/lib/seo/site";
+import { bioAdvertisesOtherCity } from "@/lib/seo/metadata";
 import { buildContactLinks } from "@/lib/contact-visibility";
 
 interface Props {
@@ -480,11 +481,44 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
           {/* About Me */}
           <div className="pdv-card-section">
             <h2 className="pdv-card-section__title">About {profile.name}</h2>
-            <div className="profile-about-text">
-              {profile.about.split("\n").map((para, i) => (
-                <p key={i}>{para}</p>
-              ))}
-            </div>
+            {(() => {
+              // A bio written about a different city is withheld rather than
+              // rendered. Publishing it would put the page in competition with a
+              // city the listing is not in, which misleads visitors and reads to
+              // a crawler as a doorway page. See `bioAdvertisesOtherCity`.
+              if (bioAdvertisesOtherCity(profile)) {
+                return (
+                  <div className="profile-about-text">
+                    <p>
+                      This listing does not currently include a description. Contact{" "}
+                      {profile.name} directly to ask about availability, services and
+                      rates.
+                    </p>
+                  </div>
+                );
+              }
+
+              const paragraphs = profile.about.split("\n").filter((p) => p.trim());
+              if (paragraphs.length === 0) {
+                return (
+                  <div className="profile-about-text">
+                    <p>
+                      This listing does not currently include a description. Contact{" "}
+                      {profile.name} directly to ask about availability, services and
+                      rates.
+                    </p>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="profile-about-text">
+                  {paragraphs.map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Services Checklist */}

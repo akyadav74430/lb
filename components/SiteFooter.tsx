@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { listCitiesWithListings } from "@/lib/seo/profiles";
+import { BRAND, BRAND_YEAR } from "@/lib/seo/site";
 
 /**
  * Site-wide footer.
@@ -73,12 +74,16 @@ export default async function SiteFooter() {
           <div className="footer-col">
             <h4 className="footer-col__title">Legal</h4>
             <div className="footer-col__list">
+              <Link href="/terms" className="footer-col__link">Terms of Service</Link>
+              <Link href="/privacy" className="footer-col__link">Privacy Policy</Link>
+              <Link href="/dmca" className="footer-col__link">DMCA &amp; Removal</Link>
+              <Link href="/faq" className="footer-col__link">FAQ &amp; Safety</Link>
             </div>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <span>© 2012–2026 Lovebite. All rights reserved. 18+ Adult Directory.</span>
+          <span>© {BRAND_YEAR} {BRAND}. 18+ Adult Directory.</span>
           <div className="footer-bottom__links">
             <Link href="/sitemap.xml" className="footer-bottom__link">Sitemap</Link>
           </div>

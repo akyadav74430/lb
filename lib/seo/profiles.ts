@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import {
   ESCORT_PROFILES,
   dbProfileToEscortProfile,
+  MIN_PLAUSIBLE_RATE as PROFILE_MIN_PLAUSIBLE_RATE,
   type EscortProfile,
 } from "@/lib/profiles-data";
 import { citySlug, displayCityName, normalizeKey } from "@/lib/seo/site";
@@ -277,8 +278,12 @@ const EMPTY_AGGREGATES: CityAggregates = {
  * enough that single-digit and two-digit values show up (2, 55, 222). Printing
  * a range built from those would be literally true and completely useless, so
  * they are discarded and logged. Real companion rates start well above this.
+ *
+ * The floor itself lives in `lib/profiles-data.ts` so the profile pages and this
+ * aggregation cannot drift apart; `sanitizeRates()` applies the same rule to the
+ * rate table each profile page renders.
  */
-const MIN_PLAUSIBLE_RATE = 1000;
+const MIN_PLAUSIBLE_RATE = PROFILE_MIN_PLAUSIBLE_RATE;
 
 export async function getCityAggregates(
   city: CityListing

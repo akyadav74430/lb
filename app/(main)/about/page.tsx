@@ -1,15 +1,21 @@
 import Link from "next/link";
-import { absoluteUrl } from "@/lib/seo/site";
+import { absoluteUrl, BRAND } from "@/lib/seo/site";
+import SiteFooter from "@/components/SiteFooter";
+import { listCitiesWithListings } from "@/lib/seo/profiles";
 
 export const metadata = {
   title: "About Us — lovebite.live Directory",
-  description: "Learn about lovebite.live, the premier verified adult companion directory operating across India and Asia.",
+  description: "Learn about lovebite.live, the verified adult companion directory operating across India.",
   alternates: { canonical: absoluteUrl("/about") },
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const cities = await listCitiesWithListings();
+  const cityNames = cities.map((c) => c.name);
+
   return (
-    <main className="info-page-main">
+    <>
+      <main className="info-page-main">
       <div className="info-page-container">
         <nav className="profile-breadcrumbs" aria-label="Breadcrumb">
           <Link href="/" className="profile-breadcrumb__link">Home</Link>
@@ -20,65 +26,126 @@ export default function AboutPage() {
         <div className="info-page-hero">
           <h1 className="info-page-title">About lovebite.live</h1>
           <p className="info-page-subtitle">
-            Connecting discerning gentlemen with verified, independent companions and luxury agencies since 2012.
+            A city-wise directory of independent escorts, call girls and companions in
+            India. Listings are written by the people they describe, reviewed before they
+            are published, and contacted directly by visitors.
           </p>
         </div>
 
         <div className="info-card-content">
           <section className="info-section">
-            <h2 className="info-section__title">Our Mission</h2>
+            <h2 className="info-section__title">What this is</h2>
             <p className="info-text">
-              lovebite.live was founded with a single, uncompromising vision: to build the most trustworthy, elegant, and functionally advanced adult companion directory in the world. 
-              We believe adult advertising should be dignified, transparent, and completely free from misleading advertisements, fraudulent booking agents, and stolen photography.
+              lovebite.live is a directory, not an agency. We do not employ companions, do
+              not broker bookings, and do not handle money. A companion creates a profile,
+              publishes their own photographs, description, rates and contact details, and
+              visitors then contact them directly.
             </p>
             <p className="info-text">
-              Over the last decade, we have established the premier independent companion directory, prominently covering Mumbai, Delhi NCR, Bangalore, Kolkata, Goa, Pune, Hyderabad, and Dubai.
+              The directory exists because the alternative is usually a wall of anonymous
+              adverts with no way to tell which photographs are real and whose they are. Our
+              position is that a listing should be attributable, reviewable, and removable —
+              including by the person it describes.
             </p>
           </section>
 
           <section className="info-section">
-            <h2 className="info-section__title">The 3 Pillars of lovebite.live</h2>
+            <h2 className="info-section__title">Where we currently list</h2>
+            {cityNames.length > 0 ? (
+              <>
+                <p className="info-text">
+                  We only publish a city page once a companion in that city has an approved
+                  public listing, so there is never a landing page for a city where nobody is
+                  listed. Right now that is{" "}
+                  {cityNames.length === 1
+                    ? cityNames[0]
+                    : `${cityNames.slice(0, -1).join(", ")} and ${cityNames[cityNames.length - 1]}`}
+                  .
+                </p>
+                <ul className="city-link-list">
+                  {cities.map((city) => (
+                    <li key={city.slug}>
+                      <Link href={`/city/${city.slug}`} className="city-link">
+                        Escorts in {city.name}
+                        <span className="city-link__meta">
+                          {city.count} {city.count === 1 ? "profile" : "profiles"}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="info-text">
+                No city has a published listing yet. City pages appear as soon as the first
+                listing in a city is approved.
+              </p>
+            )}
+            <p className="info-text">
+              The directory is national and growing, but coverage is limited by real supply.
+              We would rather show two cities accurately than fifty thin ones.
+            </p>
+          </section>
+
+          <section className="info-section">
+            <h2 className="info-section__title">How review works</h2>
             <div className="info-pillars-grid">
               <div className="pillar-box">
                 <div className="pillar-icon">🛡️</div>
-                <h3 className="pillar-title">100% Real Verification</h3>
+                <h3 className="pillar-title">Self-published, then reviewed</h3>
                 <p className="pillar-desc">
-                  Every profile displaying our green <strong>✓ Verified</strong> badge has provided real timestamp photo verification, government ID proof of age (18+), and live video checks.
+                  Submitters confirm they are 18 or older and consent to their photographs
+                  being published. Nothing is written on a companion&rsquo;s behalf by us.
                 </p>
               </div>
 
               <div className="pillar-box">
-                <div className="pillar-icon">🔒</div>
-                <h3 className="pillar-title">Discretion &amp; Privacy</h3>
+                <div className="pillar-icon">🔍</div>
+                <h3 className="pillar-title">Duplicate-photo detection</h3>
                 <p className="pillar-desc">
-                  We collect minimal data, never share your contact information with third parties, and employ high-grade SSL/TLS encryption for all site navigation and messaging.
+                  Every upload is hashed with SHA-256. A submission containing an identical
+                  photograph to one already published elsewhere is held for manual review
+                  rather than published.
                 </p>
               </div>
 
               <div className="pillar-box">
                 <div className="pillar-icon">⚖️</div>
-                <h3 className="pillar-title">Zero Tolerance for Exploitation</h3>
+                <h3 className="pillar-title">No invented claims</h3>
                 <p className="pillar-desc">
-                  We maintain strict compliance with global anti-trafficking standards, 18 U.S.C. § 2257 requirements, and cooperate fully with international human rights watchdogs.
+                  We do not run live video checks, do not collect government ID, and do not
+                  publish review scores or star ratings we have not verified. Where we do
+                  not have a mechanism, we say so.
                 </p>
               </div>
             </div>
           </section>
 
           <section className="info-section">
-            <h2 className="info-section__title">For Independent Companions &amp; Agencies</h2>
+            <h2 className="info-section__title">For independent companions &amp; agencies</h2>
             <p className="info-text">
-              Whether you are an independent model seeking direct client bookings without abusive middleman cuts, or an upscale agency looking for premium exposure, lovebite.live gives you full control over your rates, services, photos, and schedule.
+              If you work independently, you keep control of your own rates, services,
+              photographs and schedule, and you can hide your phone number or unpublish your
+              listing at any time. Because we handle no payments, there is no commission to
+              deduct.
+            </p>
+            <p className="info-text">
+              <Link href="/faq">Read the FAQ</Link> first — it explains exactly what review
+              covers, what the Verified mark does and does not mean, and the
+              advance-payment scam that targets clients everywhere in this industry.
             </p>
             <div className="info-cta-box">
-              <span>Ready to list your profile or agency on lovebite.live?</span>
-              <Link href="/signup" className="info-cta-btn">
-                Register as an Escort →
+              <span>Ready to list your profile on lovebite.live?</span>
+              <Link href="/profile/add" className="info-cta-btn">
+                Create your profile →
               </Link>
             </div>
           </section>
         </div>
       </div>
     </main>
+
+      <SiteFooter />
+    </>
   );
 }

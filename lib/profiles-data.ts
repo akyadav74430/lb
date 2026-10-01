@@ -22,6 +22,71 @@ export interface ProfileRate {
   outcall?: string;
 }
 
+/**
+ * Rupee amounts below this are treated as keying errors, not real prices.
+ *
+ * The listings table is hand-entered, and short keys are common enough that
+ * single- and double-digit values turn up (0, 2, 55, 222, 225, 500). A booking
+ * priced at ₹2 for ten hours is not information a visitor can act on, and
+ * printing it lends the whole page a fabricated air, so these are discarded.
+ *
+ * Defined here rather than in `lib/seo/profiles.ts` because this module is pure
+ * data with no Prisma import, which keeps it safe for the client components that
+ * render profiles. The city-level aggregation reuses this same floor.
+ */
+export const MIN_PLAUSIBLE_RATE = 1000;
+
+/** Renders as "—" wherever a rate is absent or not a credible amount. */
+const NO_RATE = "—";
+
+/**
+ * Pulls a rupee amount out of a stored rate, which may be a number, a
+ * pre-formatted string ("₹12,500"), or null. Returns null when the value is
+ * missing, unparseable, non-positive, or below the plausibility floor.
+ */
+export function parseRateAmount(value: number | string | null | undefined): number | null {
+  if (value === null || value === undefined) return null;
+
+  const amount =
+    typeof value === "number"
+      ? value
+      : Number.parseFloat(String(value).replace(/[^0-9.]/g, ""));
+
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  return amount < MIN_PLAUSIBLE_RATE ? null : amount;
+}
+
+/** Formats a rate cell, or "—" when the tier holds no credible amount. */
+function formatRateCell(value: number | string | null | undefined): string {
+  const amount = parseRateAmount(value);
+  return amount === null ? NO_RATE : `₹${amount.toLocaleString("en-IN")}`;
+}
+
+/**
+ * Normalises a profile's published rate rows for public display.
+ *
+ * A tier with no credible amount renders as "—" so the column stays aligned,
+ * and a row where neither tier holds a credible amount is dropped entirely
+ * rather than showing a duration with no price attached to it.
+ */
+export function sanitizeRates(
+  rates: { duration: string; incall?: number | string | null; outcall?: number | string | null }[]
+): ProfileRate[] {
+  const rows: ProfileRate[] = [];
+
+  for (const rate of rates) {
+    const incall = formatRateCell(rate.incall);
+    const outcall = formatRateCell(rate.outcall);
+
+    // Nothing credible on either side: the row carries no information.
+    if (incall === NO_RATE && outcall === NO_RATE) continue;
+
+    rows.push({ duration: rate.duration, incall, outcall });
+  }
+
+  return rows;
+}
+
 export interface EscortProfile {
   id: string;
   name: string;
@@ -256,11 +321,7 @@ export function dbProfileToEscortProfile(p: {
     whatsapp: p.whatsapp || "",
     rates:
       p.rates && p.rates.length > 0
-        ? p.rates.map((r) => ({
-            duration: r.duration,
-            incall: typeof r.incall === "number" ? `₹${r.incall.toLocaleString("en-IN")}` : (r.incall ? String(r.incall) : "—"),
-            outcall: typeof r.outcall === "number" ? `₹${r.outcall.toLocaleString("en-IN")}` : (r.outcall ? String(r.outcall) : "—"),
-          }))
+        ? sanitizeRates(p.rates)
         // No default price sheet: publishing STANDARD_PRICING_TIERS against a
         // real listing would assert rates its owner never agreed to.
         : [],

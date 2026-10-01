@@ -44,6 +44,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const infoRoutes: MetadataRoute.Sitemap = [
     { url: absoluteUrl("/about"), changeFrequency: "yearly", priority: 0.4 },
     { url: absoluteUrl("/contact"), changeFrequency: "yearly", priority: 0.4 },
+    // The safety/verification FAQ is the most linkable asset the site has and the
+    // page most likely to earn a position for long-tail safety queries, so it is
+    // submitted alongside the trust pages it depends on.
+    { url: absoluteUrl("/faq"), changeFrequency: "monthly", priority: 0.6 },
+    { url: absoluteUrl("/terms"), changeFrequency: "yearly", priority: 0.3 },
+    { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.3 },
+    { url: absoluteUrl("/dmca"), changeFrequency: "yearly", priority: 0.3 },
   ];
 
   // City landing pages: only cities that currently have public listings, so the
