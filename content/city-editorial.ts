@@ -174,4 +174,82 @@ export const CITY_EDITORIAL: Record<string, CityEditorial> = {
     ratesNote:
       "Gurgaon companion rates start from ₹12,000 to ₹25,000 for 1-2 hours, and ₹50,000 to ₹70,000 for overnight appointments.",
   },
+  surat: {
+    intro: [
+      'Looking for verified call girls and independent escorts in Surat? Lovebite lists independent companions in Gujarat’s diamond and textile capital. Surat has grown rapidly into a tier-1 commercial hub, drawing business travelers, diamond merchants, and exporters who seek discreet, professional companionship.',
+      'Every profile on Lovebite features real photos, published rates, and direct WhatsApp contact — no middlemen, no advance fees.',
+    ],
+    areasNote:
+      'Key companion zones in Surat include Vesu, Adajan, Dumas Road, Ghod Dod Road, Piplod, and star hotels along Varachha and Ring Road.',
+    ratesNote:
+      'Independent companion rates in Surat typically start around ₹9,000 to ₹18,000 for 1-2 hours, with overnight bookings ranging between ₹35,000 and ₹45,000.',
+    extra: [
+      'Discretion is especially valued in Surat’s close-knit business community. Verified Lovebite profiles ensure direct, private contact without agency exposure.',
+    ],
+  },
+  indore: {
+    intro: [
+      'Find verified call girls and independent escorts in Indore, Madhya Pradesh’s commercial capital and India’s cleanest city. Indore’s booming pharmaceutical, IT, and retail sectors attract a steady flow of corporate visitors seeking refined, discreet companionship.',
+      'Lovebite connects you directly with independent companions in Indore — no booking fees, no agencies, just real profiles with genuine photos and published rates.',
+    ],
+    areasNote:
+      'Popular companion areas in Indore include Vijay Nagar, Palasia Square, AB Road, Sapna Sangeeta, Bhawar Kuan, and star hotels near the city center.',
+    ratesNote:
+      'Companion rates in Indore start from ₹8,000 to ₹18,000 for standard 1-2 hour sessions, with overnight packages priced between ₹35,000 and ₹45,000.',
+    extra: [
+      'Avoid unverified street-level contacts in Indore. Use Lovebite for direct, secure, and private connections with genuinely independent companions.',
+    ],
+  },
+  bhubaneswar: {
+    intro: [
+      'Discover verified independent escorts and call girls in Bhubaneswar, Odisha’s modern capital city. As the state’s IT and administrative hub, Bhubaneswar attracts government officials, tech professionals, and corporate travelers who prefer discreet, verified companionship.',
+      'Lovebite makes it easy to find real independent companions in Bhubaneswar with authentic photos, transparent pricing, and direct contact numbers — no agency hassle.',
+    ],
+    areasNote:
+      'Companion activity in Bhubaneswar is concentrated in Patia, Saheed Nagar, Nayapalli, Jayadev Vihar, Chandrasekharpur, and luxury hotels near the airport.',
+    ratesNote:
+      'Independent companion rates in Bhubaneswar range from ₹8,000 to ₹16,000 for standard sessions, with overnight bookings starting around ₹30,000 to ₹40,000.',
+    extra: [
+      'Bhubaneswar companions are known for their warmth and cultural elegance. Connect directly via WhatsApp for discreet hotel outcalls across the city.',
+    ],
+  },
+  cochin: {
+    intro: [
+      'Find verified call girls and independent escorts in Kochi (Cochin), Kerala’s commercial and cultural capital. Kochi’s thriving port, IT hub, and tourism economy bring diverse visitors who value discretion and quality companionship.',
+      'Lovebite features independent companions in Ernakulam, Marine Drive, and Kakkanad with genuine photos, transparent rates, and direct contact — no middlemen involved.',
+    ],
+    areasNote:
+      'Companion coverage in Kochi extends across Ernakulam, Marine Drive, MG Road, Kakkanad IT Park, Fort Kochi, and Edappally luxury hotels.',
+    ratesNote:
+      'Published rates for independent companions in Kochi typically range from ₹10,000 to ₹20,000 for 1-2 hours, with overnight packages from ₹40,000 to ₹50,000.',
+    extra: [
+      'Kerala’s cosmopolitan culture makes Kochi companions some of the most well-educated and multilingual in South India, ideal for professional and social engagements.',
+    ],
+  },
+  dehradun: {
+    intro: [
+      'Browse verified call girls and independent escorts in Dehradun, Uttarakhand’s charming capital city. Dehradun attracts government officials, defence personnel, and leisure tourists visiting the Himalayan foothills, all of whom benefit from Lovebite’s discreet, verified companion listings.',
+      'Real photos, published rates, and direct WhatsApp contact — without any agency booking fees or advance deposits.',
+    ],
+    areasNote:
+      'Key companion zones in Dehradun include Rajpur Road, Jakhan, Sahastradhara Road, Clement Town, Mussoorie Diversion, and quality hotels near Clock Tower.',
+    ratesNote:
+      'Companion rates in Dehradun start from ₹8,000 to ₹16,000 for 1-2 hours, with full overnight packages ranging between ₹30,000 and ₹40,000.',
+    extra: [
+      'Dehradun’s proximity to top leisure destinations like Mussoorie and Rishikesh makes companions ideal for weekend hill-station accompaniment, in addition to city hotel meetings.',
+    ],
+  },
+  patna: {
+    intro: [
+      'Find verified independent escorts and call girls in Patna, Bihar’s ancient and rapidly modernising capital. Patna’s growing administrative, medical, and business travel sector makes it a rising demand hub for discreet, professional companionship on Lovebite.',
+      'Every listing features authentic photographs, direct contact numbers, and published rates — no booking fees paid in advance.',
+    ],
+    areasNote:
+      'Companion availability in Patna spans Bailey Road, Kankarbagh, Boring Road, Fraser Road, Danapur, and premium hotels near Gandhi Maidan and Exhibition Road.',
+    ratesNote:
+      'Standard companion rates in Patna start from ₹7,000 to ₹15,000 for 1-2 hour sessions, with overnight packages available from ₹28,000 to ₹35,000.',
+    extra: [
+      'Safety reminder: never transfer advance payments to any companion before meeting. Genuine independent companions in Patna always accept cash on meeting at your confirmed hotel.',
+    ],
+  },
 };
