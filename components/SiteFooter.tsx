@@ -35,7 +35,7 @@ export default async function SiteFooter() {
             <h4 className="footer-col__title">Cities With Listings</h4>
             <div className="footer-col__list">
               {cities.length > 0 ? (
-                cities.map((city) => (
+                cities.slice(0, 10).map((city) => (
                   <Link
                     key={city.slug}
                     href={`/city/${city.slug}`}
@@ -47,8 +47,8 @@ export default async function SiteFooter() {
               ) : (
                 <span className="footer-col__link">No published listings yet</span>
               )}
-              <Link href="/escorts" className="footer-col__link">
-                All escorts in India
+              <Link href="/escorts" className="footer-col__link" style={{ fontWeight: 600 }}>
+                All Cities &amp; Escorts in India →
               </Link>
             </div>
           </div>

@@ -64,6 +64,16 @@ export const metadata: Metadata = {
     ],
     shortcut: "/favicon.ico",
   },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || "googlec3be23050e4cdec8",
+    other: {
+      "msvalidate.01": process.env.BING_SITE_VERIFICATION || "",
+    },
+  },
+  other: {
+    rating: "RTA-5042-1996-1404-2520-ETA",
+    "theme-color": "#c41e3a",
+  },
 };
 
 export default function RootLayout({

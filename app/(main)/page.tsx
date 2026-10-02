@@ -74,9 +74,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   // India — Verified Escorts", so Google had to pick one to rank and split
   // the signals between two URLs competing for the same query. Differentiating
   // them here: the homepage sells breadth and browsing, /call-girls owns the
-  // keyword. Keep these two titles distinct.
   return {
-    title: "Escorts & Call Girls Directory — Browse by City | Lovebite",
+    title: {
+      absolute: "Lovebite — Escorts & Call Girls Directory in India",
+    },
     description: clampMeta(
       "The Lovebite directory of independent escorts and call girls in India. Browse every public profile by city or state, then open one for photos, rates and contact.",
       160

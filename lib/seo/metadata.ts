@@ -47,9 +47,7 @@ export function buildCityMetadata(city: CityListing): Metadata {
   const plural = city.count === 1;
   const title = `Escorts in ${city.name} | Call Girls & Companions`;
   const description = clampMeta(
-    plural
-      ? `Browse 1 verified escort and call girl in ${city.name}. Real photos, published rates and direct contact on ${BRAND}.`
-      : `Browse ${city.count} verified escorts and call girls in ${city.name}. Real photos, published rates and direct contact on ${BRAND}.`,
+    `Browse verified independent escorts and call girls in ${city.name}. Real photos, published rates and direct contact on ${BRAND}. Find companions across ${city.name}.`,
     160
   );
 

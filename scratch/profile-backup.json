@@ -1,0 +1,202 @@
+{
+  "savedAt": "2026-10-01T19:37:45.894Z",
+  "profiles": [
+    {
+      "id": "cmuiro2rl0008lc0425f7ojrr",
+      "userId": "cmuirmu4c0004lc04zvb13mdz",
+      "status": "APPROVED",
+      "visibility": "PUBLIC",
+      "moderationNotes": null,
+      "rejectionReason": null,
+      "ageConfirmed": true,
+      "consentRecorded": true,
+      "consentTimestamp": "2026-09-26T19:12:52.316Z",
+      "consentVersion": "1.0",
+      "photoUrl": "https://kjoiiitwkqbvbsosjhyy.supabase.co/storage/v1/object/public/uploads/profiles/48035ce4-8194-4827-912a-29cc6b538704.webp",
+      "bio": "test",
+      "address": null,
+      "city": "Kolkata",
+      "region": "West Bengal",
+      "district": null,
+      "localArea": null,
+      "country": "India",
+      "favColor": null,
+      "phone": "1234567891",
+      "whatsapp": "1234567891",
+      "hidePhoneFromPublic": false,
+      "gender": "female",
+      "createdAt": "2026-09-26T19:12:24.089Z",
+      "updatedAt": "2026-09-26T19:12:52.317Z",
+      "rates": [
+        {
+          "id": "cmuiroryo000ilc042wkuc7br",
+          "profileId": "cmuiro2rl0008lc0425f7ojrr",
+          "duration": "1 Hour",
+          "incall": 500,
+          "outcall": 1000,
+          "order": 0
+        },
+        {
+          "id": "cmuiroryo000jlc04ir6r9hlz",
+          "profileId": "cmuiro2rl0008lc0425f7ojrr",
+          "duration": "2 Hours",
+          "incall": 222,
+          "outcall": 0,
+          "order": 1
+        },
+        {
+          "id": "cmuiroryo000klc04w5jn9yqg",
+          "profileId": "cmuiro2rl0008lc0425f7ojrr",
+          "duration": "3 Hours",
+          "incall": 555,
+          "outcall": 2525,
+          "order": 2
+        },
+        {
+          "id": "cmuiroryo000llc041044zqak",
+          "profileId": "cmuiro2rl0008lc0425f7ojrr",
+          "duration": "Dinner Date (4 Hours)",
+          "incall": 0,
+          "outcall": 55,
+          "order": 3
+        },
+        {
+          "id": "cmuiroryo000mlc04dlev562t",
+          "profileId": "cmuiro2rl0008lc0425f7ojrr",
+          "duration": "Overnight (10 Hours)",
+          "incall": 0,
+          "outcall": 2,
+          "order": 4
+        },
+        {
+          "id": "cmuiroryo000nlc04za9zenau",
+          "profileId": "cmuiro2rl0008lc0425f7ojrr",
+          "duration": "Weekend Getaway",
+          "incall": 0,
+          "outcall": 225,
+          "order": 5
+        }
+      ],
+      "user": {
+        "name": "divya",
+        "email": "divya@gmail.com",
+        "role": "REGISTERED_USER"
+      }
+    },
+    {
+      "id": "cmuje84jz0003l2042k4r91iw",
+      "userId": "cmuje0gbw0000jp04sxa81y2k",
+      "status": "APPROVED",
+      "visibility": "PUBLIC",
+      "moderationNotes": null,
+      "rejectionReason": null,
+      "ageConfirmed": true,
+      "consentRecorded": true,
+      "consentTimestamp": "2026-09-27T05:43:51.309Z",
+      "consentVersion": "1.0",
+      "photoUrl": "https://kjoiiitwkqbvbsosjhyy.supabase.co/storage/v1/object/public/uploads/profiles/7e83eb4c-31e8-4427-92f6-c440d96bd045.webp",
+      "bio": "Independent Chandigarh Escorts\nGasti helps you meet independent Chandigarh escorts for hotel, home, dinner, and overnight plans. Booking stays private. Service is available day and night.\n\nIndependent Chandigarh escorts are girls who work on their own terms. They are not locked to one small street list. They choose the time, the place, and the kind of client they want to meet. That is why many visitors in Chandigarh search for independent profiles instead of random ads.\n\nGasti is a known name for independent escorts in Chandigarh. The aim is simple. You see a profile. You share your time and hotel or home location. A girl who is free can reach you. You do not need to wander on dozens of fake pages.\n\nChandigarh is a planned city. Hotels, sectors, and guest houses are spread out. Business guests come for meetings. Local men look for a quiet private evening. Both groups want the same two things: a real girl and no public drama. Independent escort service tries to give that.\n\nWhat Independ",
+      "address": null,
+      "city": "delhi",
+      "region": "Delhi",
+      "district": null,
+      "localArea": "south delhi",
+      "country": "India",
+      "favColor": "#ef4444",
+      "phone": "542361597",
+      "whatsapp": "542361597",
+      "hidePhoneFromPublic": false,
+      "gender": "female",
+      "createdAt": "2026-09-27T05:43:51.311Z",
+      "updatedAt": "2026-09-27T05:43:51.311Z",
+      "rates": [],
+      "user": {
+        "name": "vaani",
+        "email": "rojloofficial@gmail.com",
+        "role": "REGISTERED_USER"
+      }
+    },
+    {
+      "id": "cmuiq53270001kz04k7eo0817",
+      "userId": "cmuio3rln0000iepcaamc36nv",
+      "status": "APPROVED",
+      "visibility": "PUBLIC",
+      "moderationNotes": null,
+      "rejectionReason": null,
+      "ageConfirmed": true,
+      "consentRecorded": true,
+      "consentTimestamp": "2026-10-01T12:33:38.781Z",
+      "consentVersion": "1.0",
+      "photoUrl": "https://kjoiiitwkqbvbsosjhyy.supabase.co/storage/v1/object/public/uploads/profiles/f1ea5db5-d3eb-4b3f-a51d-719b9032a0fd.webp",
+      "bio": "Independent Chandigarh Escorts\nGasti helps you meet independent Chandigarh escorts for hotel, home, dinner, and overnight plans. Booking stays private. Service is available day and night.\n\nIndependent Chandigarh escorts are girls who work on their own terms. They are not locked to one small street list. They choose the time, the place, and the kind of client they want to meet. That is why many visitors in Chandigarh search for independent profiles instead of random ads.\n\nGasti is a known name for independent escorts in Chandigarh. The aim is simple. You see a profile. You share your time and hotel or home location. A girl who is free can reach you. You do not need to wander on dozens of fake pages.\n\nChandigarh is a planned city. Hotels, sectors, and guest houses are spread out. Business guests come for meetings. Local men look for a quiet private evening. Both groups want the same two things: a real girl and no public drama. Independent escort service tries to give that.\n\nWhat Independ",
+      "address": null,
+      "city": "delhi",
+      "region": "Delhi",
+      "district": null,
+      "localArea": "south delhi",
+      "country": "India",
+      "favColor": null,
+      "phone": "9296992977",
+      "whatsapp": "9296992977",
+      "hidePhoneFromPublic": false,
+      "gender": "female",
+      "createdAt": "2026-09-26T18:29:38.393Z",
+      "updatedAt": "2026-10-01T12:33:38.782Z",
+      "rates": [
+        {
+          "id": "cmupimmca000cl0042anifemf",
+          "profileId": "cmuiq53270001kz04k7eo0817",
+          "duration": "1 Hour",
+          "incall": 1500,
+          "outcall": 2000,
+          "order": 0
+        },
+        {
+          "id": "cmupimmca000dl004kpips2g9",
+          "profileId": "cmuiq53270001kz04k7eo0817",
+          "duration": "2 Hours",
+          "incall": 2000,
+          "outcall": 2500,
+          "order": 1
+        },
+        {
+          "id": "cmupimmca000el004rlt3ex8y",
+          "profileId": "cmuiq53270001kz04k7eo0817",
+          "duration": "3 Hours",
+          "incall": 3000,
+          "outcall": 3500,
+          "order": 2
+        },
+        {
+          "id": "cmupimmca000fl0045fdn6b9g",
+          "profileId": "cmuiq53270001kz04k7eo0817",
+          "duration": "Dinner Date (4 Hours)",
+          "incall": 3500,
+          "outcall": 4000,
+          "order": 3
+        },
+        {
+          "id": "cmupimmca000gl0045pwbdlzx",
+          "profileId": "cmuiq53270001kz04k7eo0817",
+          "duration": "Overnight (10 Hours)",
+          "incall": 4500,
+          "outcall": 5000,
+          "order": 4
+        },
+        {
+          "id": "cmupimmca000hl0042kja610v",
+          "profileId": "cmuiq53270001kz04k7eo0817",
+          "duration": "Weekend Getaway",
+          "incall": 10000,
+          "outcall": 15000,
+          "order": 5
+        }
+      ],
+      "user": {
+        "name": "admin",
+        "email": "admin@lovebite.com",
+        "role": "SUPER_ADMIN"
+      }
+    }
+  ]
+}

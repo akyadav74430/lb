@@ -1,0 +1,4 @@
+⚠ Warning: Next.js ignored package-lock.json in C:\Users\ankit because it is outside the current Git repository (C:\Users\ankit\OneDrive\Desktop\New folder\social-profiles).
+ To use this directory, set `outputFileTracingRoot` in your Next.js config.
+
+⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.

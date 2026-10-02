@@ -12,8 +12,9 @@ import {
 } from "@/lib/seo/profiles";
 import { buildCityMetadata } from "@/lib/seo/metadata";
 import { buildCityBody } from "@/lib/seo/city-content";
-import { breadcrumbJsonLd, profileListJsonLd, JsonLd } from "@/lib/seo/jsonld";
+import { breadcrumbJsonLd, profileListJsonLd, faqPageJsonLd, JsonLd } from "@/lib/seo/jsonld";
 import { BRAND, displayCityName } from "@/lib/seo/site";
+import { MAJOR_CITY_BY_SLUG } from "@/lib/seo/major-cities";
 
 interface Props {
   params: Promise<{ city: string }>;
@@ -54,6 +55,8 @@ export default async function CityPage({ params }: Props) {
   const regionSuffix = city.region ? ` in ${displayCityName(city.region)}` : "";
   const countText = `${city.count} public ${city.count === 1 ? "profile" : "profiles"}`;
   const body = buildCityBody(city, aggregates);
+  const cityDef = MAJOR_CITY_BY_SLUG.get(city.slug);
+  const faqs = cityDef?.faqs && cityDef.faqs.length > 0 ? cityDef.faqs : null;
 
   return (
     <>
@@ -70,6 +73,7 @@ export default async function CityPage({ params }: Props) {
           profiles.map((p) => ({ name: p.name, id: p.id, city: city.name }))
         )}
       />
+      {faqs && <JsonLd data={faqPageJsonLd(faqs)} />}
 
       <main className="info-page-main">
         <div className="info-page-container">
@@ -152,6 +156,24 @@ export default async function CityPage({ params }: Props) {
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          {faqs && (
+            <div className="info-card-content">
+              <h2 className="info-section__title">Frequently Asked Questions in {city.name}</h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                {faqs.map((faq, index) => (
+                  <div key={index} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "12px" }}>
+                    <h3 style={{ fontSize: "15px", fontWeight: "600", marginBottom: "6px", color: "var(--text-primary)" }}>
+                      {faq.q}
+                    </h3>
+                    <p className="info-text" style={{ margin: 0 }}>
+                      {faq.a}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

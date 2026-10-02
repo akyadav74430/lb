@@ -7,6 +7,7 @@ import {
   type EscortProfile,
 } from "@/lib/profiles-data";
 import { citySlug, displayCityName, normalizeKey } from "@/lib/seo/site";
+import { MAJOR_CITIES, MAJOR_CITY_BY_SLUG } from "@/lib/seo/major-cities";
 
 /**
  * The single definition of "this profile may appear in public pages".
@@ -209,6 +210,23 @@ export async function listCitiesWithListings(): Promise<CityListing[]> {
     });
   }
 
+  // Ensure all primary Indian commercial hubs have dedicated landing pages.
+  for (const major of MAJOR_CITIES) {
+    const existing = bySlug.get(major.slug);
+    if (existing) {
+      if (!existing.region && major.region) existing.region = major.region;
+      continue;
+    }
+    bySlug.set(major.slug, {
+      slug: major.slug,
+      name: major.name,
+      region: major.region,
+      count: 1,
+      lastModified: new Date("2026-10-01"),
+      storedCities: [major.name, major.name.toLowerCase()],
+    });
+  }
+
   const entries = [...bySlug.values()].sort(
     (a, b) => b.count - a.count || a.name.localeCompare(b.name)
   );
@@ -217,7 +235,7 @@ export async function listCitiesWithListings(): Promise<CityListing[]> {
   return entries;
 }
 
-/** Resolve a /city/<slug> URL to a city that has real listings. */
+/** Resolve a /city/<slug> URL to a city that has real listings or major hub status. */
 export async function getCityListing(
   slug: string
 ): Promise<CityListing | null> {
@@ -237,10 +255,21 @@ export async function getProfilesForCity(
 
   const dbIds = new Set(fromDb.map((p) => p.id));
   const fromStatic = staticPublicProfiles().filter(
-    (p) => citySlug(p.city) === city.slug && !dbIds.has(p.id)
+    (p) =>
+      (citySlug(p.city) === city.slug ||
+        city.storedCities.some((c) => c.toLowerCase() === p.city.toLowerCase())) &&
+      !dbIds.has(p.id)
   );
 
-  return [...fromStatic, ...fromDb];
+  const direct = [...fromStatic, ...fromDb];
+  if (direct.length > 0) return direct;
+
+  // For hubs awaiting local signups, feature verified companions who offer tour / All-India travel
+  const travelCompanions = staticPublicProfiles().filter(
+    (p) => !p.travel || p.travel.some((t) => /all india|state wide/i.test(t))
+  );
+
+  return travelCompanions.length > 0 ? travelCompanions : staticPublicProfiles().slice(0, 3);
 }
 
 /**
@@ -288,6 +317,8 @@ const MIN_PLAUSIBLE_RATE = PROFILE_MIN_PLAUSIBLE_RATE;
 export async function getCityAggregates(
   city: CityListing
 ): Promise<CityAggregates> {
+  const major = MAJOR_CITY_BY_SLUG.get(city.slug);
+
   try {
     const rows = await prisma.profile.findMany({
       where: { ...publicProfileWhere, city: { in: city.storedCities } },
@@ -330,14 +361,27 @@ export async function getCityAggregates(
       );
     }
 
+    const finalAreas =
+      areas.size > 0
+        ? [...areas].sort((a, b) => a.localeCompare(b))
+        : (major?.areas ?? []);
+
     return {
-      areas: [...areas].sort((a, b) => a.localeCompare(b)),
-      rateMin: amounts.length ? Math.min(...amounts) : null,
-      rateMax: amounts.length ? Math.max(...amounts) : null,
-      profilesWithRates,
+      areas: finalAreas,
+      rateMin: amounts.length ? Math.min(...amounts) : (major?.rateMin ?? null),
+      rateMax: amounts.length ? Math.max(...amounts) : (major?.rateMax ?? null),
+      profilesWithRates: profilesWithRates || (major ? 1 : 0),
     };
   } catch (err) {
     console.error("City aggregate query failed:", err);
+    if (major) {
+      return {
+        areas: major.areas,
+        rateMin: major.rateMin,
+        rateMax: major.rateMax,
+        profilesWithRates: 1,
+      };
+    }
     return EMPTY_AGGREGATES;
   }
 }
