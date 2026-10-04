@@ -29,7 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const coreRoutes: MetadataRoute.Sitemap = [
-    { url: absoluteUrl("/"), changeFrequency: "daily", priority: 1 },
+    { url: absoluteUrl("/"), lastModified: now, changeFrequency: "daily", priority: 1 },
     // The head-term landing page. Kept separate from "/" so the two can target
     // different queries ("call girls" vs. the browsable directory) without
     // competing as duplicates.
@@ -85,12 +85,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Keep serving the sitemap; lastModified is optional.
   }
 
-  const profileRoutes: MetadataRoute.Sitemap = profiles.map((profile) => ({
-    url: absoluteUrl(`/profile/${profile.id}`),
-    lastModified: realDate(updatedAtById.get(profile.id)),
-    changeFrequency: "weekly",
-    priority: 0.7,
-  }));
+  const profileRoutes: MetadataRoute.Sitemap = profiles.map((profile) => {
+    const profileUrl = absoluteUrl(`/profile/${profile.id}`);
+    const entry: MetadataRoute.Sitemap[number] = {
+      url: profileUrl,
+      lastModified: realDate(updatedAtById.get(profile.id)),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    };
+    // Include the primary photo in the sitemap so Google Images can
+    // associate the photo with the profile URL without crawling the page.
+    if (profile.photoUrl) {
+      // @ts-expect-error — Next.js sitemap type does not yet expose `images`
+      // but Google Sitemaps spec supports it and Googlebot processes it.
+      entry.images = [{ loc: absoluteUrl(profile.photoUrl) }];
+    }
+    return entry;
+  });
 
   return [...coreRoutes, ...cityRoutes, ...profileRoutes, ...infoRoutes];
 }

@@ -26,6 +26,16 @@ export const metadata: Metadata = {
   // No `alternates.canonical` here on purpose: a canonical declared in the root
   // layout is inherited by every child route, which would make the homepage the
   // canonical URL for the entire site. Each page declares its own instead.
+  //
+  // `x-default` hreflang tells Google which URL to show to users whose language
+  // is not matched by any explicit hreflang tag. Since this is an India-only
+  // directory with one language variant, x-default pointing at the root is correct.
+  alternates: {
+    languages: {
+      "x-default": SITE_URL,
+      "en-IN": SITE_URL,
+    },
+  },
   openGraph: {
     type: "website",
     locale: "en_IN",
@@ -65,9 +75,13 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico",
   },
   verification: {
-    google: process.env.GOOGLE_SITE_VERIFICATION || "googlec3be23050e4cdec8",
+    ...(process.env.GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+      : {}),
     other: {
-      "msvalidate.01": process.env.BING_SITE_VERIFICATION || "",
+      ...(process.env.BING_SITE_VERIFICATION
+        ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION }
+        : {}),
     },
   },
   other: {
@@ -82,7 +96,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en-IN" className={inter.className}>
       <body>
         <Providers>
           <TopHeader />
