@@ -5,6 +5,7 @@ import TopHeader from "@/components/TopHeader";
 import SubNav from "@/components/SubNav";
 import Providers from "@/components/Providers";
 import { BRAND, SITE_URL } from "@/lib/seo/site";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -103,6 +104,7 @@ export default function RootLayout({
           <SubNav />
           {children}
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
