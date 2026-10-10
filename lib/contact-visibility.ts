@@ -131,8 +131,8 @@ function toInternationalDigits(value: string): string {
 export function whatsappPrefill(profileName?: string | null): string {
   const name = (profileName ?? "").trim();
   return name
-    ? `Hello, I am interested in your profile on Lovebite.com (${name}).`
-    : "Hello, I am interested in your profile on Lovebite.com.";
+    ? `I've seen you on ❕Lovebite.live❕ ---------> 6203540719. I'd like to get in touch... (${name})`
+    : "I've seen you on ❕Lovebite.live❕ ---------> 6203540719. I'd like to get in touch...";
 }
 
 /** `https://wa.me/<digits>?text=<encoded prefill>` */
