@@ -27,13 +27,49 @@ function realDate(date: Date | null | undefined): Date | undefined {
 /**
  * Safely extract a valid absolute URL string for sitemap image:loc.
  * Returns undefined if the value is not a valid string URL.
+ * Extremely defensive: validates input type, output type, and URL format.
  */
 function getValidImageUrl(photoUrl: unknown): string | undefined {
-  if (typeof photoUrl !== "string") return undefined;
+  // Reject non-strings immediately (objects, null, undefined, numbers, etc.)
+  if (typeof photoUrl !== "string") {
+    if (process.env.NODE_ENV !== "production" && photoUrl != null) {
+      console.warn("[sitemap] Invalid photoUrl type:", typeof photoUrl, photoUrl);
+    }
+    return undefined;
+  }
+
   const trimmed = photoUrl.trim();
   if (!trimmed) return undefined;
+
+  let absolute: string;
   try {
-    return absoluteUrl(trimmed);
+    absolute = absoluteUrl(trimmed);
+  } catch {
+    return undefined;
+  }
+
+  // Ensure absoluteUrl actually returned a string (defense against unexpected behavior)
+  if (typeof absolute !== "string") {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[sitemap] absoluteUrl returned non-string:", typeof absolute, absolute);
+    }
+    return undefined;
+  }
+
+  // Validate it's a well-formed absolute URL with allowed scheme
+  try {
+    const parsed = new URL(absolute);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      return undefined;
+    }
+    // Ensure hostname matches our canonical domain (defense against injection)
+    if (!parsed.hostname.endsWith("lovebite.live")) {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("[sitemap] External image URL rejected:", absolute);
+      }
+      return undefined;
+    }
+    return absolute;
   } catch {
     return undefined;
   }
