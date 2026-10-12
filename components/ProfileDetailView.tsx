@@ -156,6 +156,8 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
                 priority
                 sizes="(max-width: 768px) 100vw, 420px"
                 className="pdv-main-photo__img"
+                placeholder="blur"
+                blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
               />
 
               {/* Top-left stacked circular badges */}
@@ -228,9 +230,11 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
                       src={photo}
                       alt={`${profile.name} photo ${idx + 1}`}
                       fill
-                      sizes="120px"
+                      sizes="72px"
                       className="pdv-thumb-img"
                       loading="lazy"
+                      placeholder="blur"
+                      blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
                     />
                     <span className="pdv-thumb-number">{idx + 1}</span>
                   </button>
@@ -561,8 +565,11 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
                       src={p.photoUrl || gallery[0]}
                       alt={p.name}
                       fill
-                      sizes="180px"
+                      sizes="(max-width: 768px) 90px, (max-width: 1240px) 180px, 200px"
                       className="similar-card__img"
+                      loading="lazy"
+                      placeholder="blur"
+                      blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
                     />
                     {p.badges.includes("VIP") && (
                       <span className="similar-badge similar-badge--vip">VIP</span>

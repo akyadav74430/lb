@@ -79,6 +79,10 @@ export default function ProfileCard({
   const contact = buildContactLinks({ phone, whatsapp, profileName: name, gated: hidePhone });
   const signInHref = `/signin?callbackUrl=${encodeURIComponent(href)}`;
 
+  // Profile card image is 3:4 aspect ratio, ~200px wide on desktop
+  const imageWidth = 320;
+  const imageHeight = 427;
+
   return (
     <article className="profile-card" id={`profile-card-${name.toLowerCase().replace(/\s+/g, "-")}`}>
       {/* Image area */}
@@ -88,10 +92,12 @@ export default function ProfileCard({
             src={photoUrl}
             alt={`${name} profile photo`}
             fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            sizes="(max-width: 600px) 50vw, (max-width: 960px) 33vw, (max-width: 1240px) 25vw, 20vw"
             loading={priority ? "eager" : "lazy"}
             fetchPriority={priority ? "high" : "auto"}
             decoding={priority ? "sync" : "async"}
+            placeholder="blur"
+            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
             style={{ objectFit: "cover" }}
             onError={() => setImgError(true)}
           />
