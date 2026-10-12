@@ -27,48 +27,54 @@ function realDate(date: Date | null | undefined): Date | undefined {
 /**
  * Safely extract a valid absolute URL string for sitemap image:loc.
  * Returns undefined if the value is not a valid string URL.
+ * Handles: string URLs, objects with .url property, Prisma ProfilePhoto objects.
  * Extremely defensive: validates input type, output type, and URL format.
  */
 function getValidImageUrl(photoUrl: unknown): string | undefined {
-  // Reject non-strings immediately (objects, null, undefined, numbers, etc.)
-  if (typeof photoUrl !== "string") {
-    if (process.env.NODE_ENV !== "production" && photoUrl != null) {
-      console.warn("[sitemap] Invalid photoUrl type:", typeof photoUrl, photoUrl);
-    }
-    return undefined;
+  // DIAGNOSTIC: Log in production for profile/1 debugging
+  if (process.env.NODE_ENV === "production" && photoUrl != null) {
+    console.log("[sitemap-prod] photoUrl raw:", {
+      type: typeof photoUrl,
+      constructor: photoUrl.constructor?.name,
+      keys: typeof photoUrl === "object" ? Object.keys(photoUrl) : null,
+      isString: typeof photoUrl === "string",
+    });
   }
 
-  const trimmed = photoUrl.trim();
-  if (!trimmed) return undefined;
+  let urlString: string | undefined;
+
+  if (typeof photoUrl === "string") {
+    urlString = photoUrl.trim();
+  } else if (photoUrl && typeof photoUrl === "object") {
+    // Handle Prisma ProfilePhoto object or similar: { url: string, ... }
+    const obj = photoUrl as Record<string, unknown>;
+    if (typeof obj.url === "string") {
+      urlString = obj.url.trim();
+    } else if (typeof obj.src === "string") {
+      urlString = obj.src.trim();
+    } else if (typeof obj.path === "string") {
+      urlString = obj.path.trim();
+    }
+  }
+
+  if (!urlString) return undefined;
 
   let absolute: string;
   try {
-    absolute = absoluteUrl(trimmed);
+    absolute = absoluteUrl(urlString);
   } catch {
     return undefined;
   }
 
-  // Ensure absoluteUrl actually returned a string (defense against unexpected behavior)
-  if (typeof absolute !== "string") {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("[sitemap] absoluteUrl returned non-string:", typeof absolute, absolute);
-    }
-    return undefined;
-  }
+  // Ensure absoluteUrl actually returned a string
+  if (typeof absolute !== "string") return undefined;
 
   // Validate it's a well-formed absolute URL with allowed scheme
   try {
     const parsed = new URL(absolute);
-    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-      return undefined;
-    }
-    // Ensure hostname matches our canonical domain (defense against injection)
-    if (!parsed.hostname.endsWith("lovebite.live")) {
-      if (process.env.NODE_ENV !== "production") {
-        console.warn("[sitemap] External image URL rejected:", absolute);
-      }
-      return undefined;
-    }
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return undefined;
+    // Ensure hostname matches our canonical domain
+    if (!parsed.hostname.endsWith("lovebite.live")) return undefined;
     return absolute;
   } catch {
     return undefined;
