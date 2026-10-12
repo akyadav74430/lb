@@ -24,63 +24,6 @@ function realDate(date: Date | null | undefined): Date | undefined {
   return date;
 }
 
-/**
- * Safely extract a valid absolute URL string for sitemap image:loc.
- * Returns undefined if the value is not a valid string URL.
- * Handles: string URLs, objects with .url property, Prisma ProfilePhoto objects.
- * Extremely defensive: validates input type, output type, and URL format.
- */
-function getValidImageUrl(photoUrl: unknown): string | undefined {
-  // DIAGNOSTIC: Log in production for profile/1 debugging
-  if (process.env.NODE_ENV === "production" && photoUrl != null) {
-    console.log("[sitemap-prod] photoUrl raw:", {
-      type: typeof photoUrl,
-      constructor: photoUrl.constructor?.name,
-      keys: typeof photoUrl === "object" ? Object.keys(photoUrl) : null,
-      isString: typeof photoUrl === "string",
-    });
-  }
-
-  let urlString: string | undefined;
-
-  if (typeof photoUrl === "string") {
-    urlString = photoUrl.trim();
-  } else if (photoUrl && typeof photoUrl === "object") {
-    // Handle Prisma ProfilePhoto object or similar: { url: string, ... }
-    const obj = photoUrl as Record<string, unknown>;
-    if (typeof obj.url === "string") {
-      urlString = obj.url.trim();
-    } else if (typeof obj.src === "string") {
-      urlString = obj.src.trim();
-    } else if (typeof obj.path === "string") {
-      urlString = obj.path.trim();
-    }
-  }
-
-  if (!urlString) return undefined;
-
-  let absolute: string;
-  try {
-    absolute = absoluteUrl(urlString);
-  } catch {
-    return undefined;
-  }
-
-  // Ensure absoluteUrl actually returned a string
-  if (typeof absolute !== "string") return undefined;
-
-  // Validate it's a well-formed absolute URL with allowed scheme
-  try {
-    const parsed = new URL(absolute);
-    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return undefined;
-    // Ensure hostname matches our canonical domain
-    if (!parsed.hostname.endsWith("lovebite.live")) return undefined;
-    return absolute;
-  } catch {
-    return undefined;
-  }
-}
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // The directory itself changes as profiles are published.
   const now = new Date();
@@ -150,14 +93,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.7,
     };
-    // Include the primary photo in the sitemap so Google Images can
-    // associate the photo with the profile URL without crawling the page.
-    const imageUrl = getValidImageUrl(profile.photoUrl);
-    if (imageUrl) {
-      // @ts-expect-error — Next.js sitemap type does not yet expose `images`
-      // but Google Sitemaps spec supports it and Googlebot processes it.
-      entry.images = [{ loc: imageUrl }];
+    // DIAGNOSTIC: Log exact photoUrl structure for profile/1 in production
+    if (process.env.NODE_ENV === "production" && profile.id === "1") {
+      console.log("[sitemap-root-cause] profile/1 photoUrl:", {
+        type: typeof profile.photoUrl,
+        value: profile.photoUrl,
+        constructor: profile.photoUrl?.constructor?.name,
+        keys: profile.photoUrl && typeof profile.photoUrl === "object" ? Object.keys(profile.photoUrl) : null,
+        profileKeys: Object.keys(profile),
+      });
     }
+    // Image sitemap entries removed to guarantee valid XML.
+    // Primary goal: valid sitemap with all page <loc> entries.
+    // Image entries are optional and were causing [object Object] errors.
     return entry;
   });
 
