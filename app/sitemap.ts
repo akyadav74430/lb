@@ -24,6 +24,21 @@ function realDate(date: Date | null | undefined): Date | undefined {
   return date;
 }
 
+/**
+ * Safely extract a valid absolute URL string for sitemap image:loc.
+ * Returns undefined if the value is not a valid string URL.
+ */
+function getValidImageUrl(photoUrl: unknown): string | undefined {
+  if (typeof photoUrl !== "string") return undefined;
+  const trimmed = photoUrl.trim();
+  if (!trimmed) return undefined;
+  try {
+    return absoluteUrl(trimmed);
+  } catch {
+    return undefined;
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // The directory itself changes as profiles are published.
   const now = new Date();
@@ -95,10 +110,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
     // Include the primary photo in the sitemap so Google Images can
     // associate the photo with the profile URL without crawling the page.
-    if (profile.photoUrl) {
+    const imageUrl = getValidImageUrl(profile.photoUrl);
+    if (imageUrl) {
       // @ts-expect-error — Next.js sitemap type does not yet expose `images`
       // but Google Sitemaps spec supports it and Googlebot processes it.
-      entry.images = [{ loc: absoluteUrl(profile.photoUrl) }];
+      entry.images = [{ loc: imageUrl }];
     }
     return entry;
   });
