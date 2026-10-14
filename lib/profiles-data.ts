@@ -193,12 +193,9 @@ export const ESCORT_PROFILES: EscortProfile[] = [
     availableFor: ["Incall", "Outcall"],
     meetingWith: ["Man", "Couple"],
     rates: [
-      { duration: "1 Hour", incall: "₹12,500", outcall: "₹16,500" },
-      { duration: "2 Hours", incall: "₹22,000", outcall: "₹28,000" },
-      { duration: "3 Hours", incall: "₹30,000", outcall: "₹38,000" },
-      { duration: "Dinner Date (4 Hours)", incall: "₹40,000", outcall: "₹50,000" },
-      { duration: "Overnight (10 Hours)", incall: "₹75,000", outcall: "₹90,000" },
-      { duration: "Weekend Getaway", incall: "₹1,50,000", outcall: "₹1,80,000" },
+      { duration: "1 Hour", incall: "₹1,500", outcall: "₹1,500" },
+      { duration: "2 Hours", incall: "₹2,000", outcall: "₹2,000" },
+      { duration: "Full Night", incall: "₹5,000", outcall: "₹5,000" },
     ],
     services: [
       { name: "Girlfriend Experience (GFE)", category: "Classic", available: true },
