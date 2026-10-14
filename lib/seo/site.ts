@@ -98,6 +98,19 @@ export function clampMeta(text: string, max: number): string {
   return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trim().replace(/[,;:\-–]$/, "")}…`;
 }
 
+/** Generate the new SEO-friendly city URL slug: /call-girls-in-<city> */
+export function citySeoSlug(city: string): string {
+  return `call-girls-in-${citySlug(city)}`;
+}
+
+/** Extract city name from the new SEO slug format */
+export function parseCitySeoSlug(slug: string | undefined | null): string | null {
+  if (!slug || typeof slug !== "string") return null;
+  const prefix = "call-girls-in-";
+  if (!slug.startsWith(prefix)) return null;
+  return slug.slice(prefix.length);
+}
+
 /** Same slug collision guard used to de-duplicate city listings. */
 export function normalizeKey(value: string): string {
   return value.trim().toLowerCase();

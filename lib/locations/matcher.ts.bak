@@ -1,0 +1,601 @@
+/**
+ * Profile-to-LGD Location Matcher
+ *
+ * Maps profile location fields (city, district, region, localArea) to LGD registry locations
+ * using stable LGD codes instead of fuzzy string matching.
+ *
+ * This ensures:
+ * - Stable, reproducible location matching
+ * - No silent misassignment of profiles to wrong locations
+ * - Explicit reporting of unmatched and ambiguous profiles
+ */
+
+import { Prisma } from '@/lib/generated/prisma';
+import { prisma } from '@/lib/db';
+import { locationRegistry, Location } from './registry';
+import { LGDLocalBody } from './lgd-source';
+import { citySlug, displayCityName, normalizeKey } from '@/lib/seo/site';
+import { publicProfileWhere } from '@/lib/seo/profiles';
+
+export interface ProfileLocationInput {
+  city: string | null;
+  district: string | null;
+  region: string | null;
+  localArea: string | null;
+  profileId: string;
+}
+
+export interface MatchedLocation {
+  profileId: string;
+  lgdLocation: Location | null;
+  matchType: 'exact' | 'city-only' | 'ambiguous' | 'unmatched';
+  candidates: Location[];
+  matchedBy: 'lgd-code' | 'city-slug' | 'city-name' | 'locality-slug' | 'locality-name' | 'none';
+  warning?: string;
+}
+
+export interface MatchReport {
+  total: number;
+  exact: number;
+  cityOnly: number;
+  ambiguous: number;
+  unmatched: number;
+  details: MatchedLocation[];
+}
+
+/**
+ * Normalize a location name for comparison
+ */
+function normalizeLocationName(name: string | null | undefined): string {
+  if (!name) return '';
+  return normalizeKey(displayCityName(name));
+}
+
+/**
+ * Build lookup maps for LGD local bodies for efficient matching
+ */
+interface LGDLookups {
+  byLocalBodyCode: Map<string, LGDLocalBody>;
+  byCitySlug: Map<string, LGDLocalBody[]>;
+  byCityName: Map<string, LGDLocalBody[]>;
+  byLocalitySlug: Map<string, LGDLocalBody[]>;
+  byLocalityName: Map<string, LGDLocalBody[]>;
+  byDistrictSlug: Map<string, LGDLocalBody[]>;
+  byStateCode: Map<string, LGDLocalBody[]>;
+}
+
+export function buildLGDLookups(localBodies: LGDLocalBody[]): LGDLookups {
+  const byLocalBodyCode = new Map<string, LGDLocalBody>();
+  const byCitySlug = new Map<string, LGDLocalBody[]>();
+  const byCityName = new Map<string, LGDLocalBody[]>();
+  const byLocalitySlug = new Map<string, LGDLocalBody[]>();
+  const byLocalityName = new Map<string, LGDLocalBody[]>();
+  const byDistrictSlug = new Map<string, LGDLocalBody[]>();
+  const byStateCode = new Map<string, LGDLocalBody[]>();
+
+  for (const lb of localBodies) {
+    // By LGD local body code (most stable)
+    if (lb.localbodyCode) {
+      byLocalBodyCode.set(lb.localbodyCode, lb);
+    }
+
+    // By city slug
+    const citySlug_ = citySlug(lb.localbodyName);
+    if (citySlug_) {
+      const arr = byCitySlug.get(citySlug_) || [];
+      arr.push(lb);
+      byCitySlug.set(citySlug_, arr);
+    }
+
+    // By city name (normalized)
+    const cityNameNorm = normalizeLocationName(lb.localbodyName);
+    if (cityNameNorm) {
+      const arr = byCityName.get(cityNameNorm) || [];
+      arr.push(lb);
+      byCityName.set(cityNameNorm, arr);
+    }
+
+    // By locality slug
+    if (lb.villageName) {
+      const localitySlug = citySlug(lb.villageName);
+      if (localitySlug) {
+        const arr = byLocalitySlug.get(localitySlug) || [];
+        arr.push(lb);
+        byLocalitySlug.set(localitySlug, arr);
+      }
+      const localityNameNorm = normalizeLocationName(lb.villageName);
+      if (localityNameNorm) {
+        const arr = byLocalityName.get(localityNameNorm) || [];
+        arr.push(lb);
+        byLocalityName.set(localityNameNorm, arr);
+      }
+    }
+
+    // By district slug
+    const districtSlug = citySlug(lb.districtName);
+    if (districtSlug) {
+      const arr = byDistrictSlug.get(districtSlug) || [];
+      arr.push(lb);
+      byDistrictSlug.set(districtSlug, arr);
+    }
+
+    // By state code
+    if (lb.districtCode && lb.stateName) {
+      // We'd need state code mapping - for now use state name
+      const stateCode = lb.stateName.toUpperCase().replace(/\s+/g, '_');
+      const arr = byStateCode.get(stateCode) || [];
+      arr.push(lb);
+      byStateCode.set(stateCode, arr);
+    }
+  }
+
+  return {
+    byLocalBodyCode,
+    byCitySlug,
+    byCityName,
+    byLocalitySlug,
+    byLocalityName,
+    byDistrictSlug,
+    byStateCode,
+  };
+}
+
+/**
+ * Match a single profile to LGD locations
+ */
+export function matchProfileToLGD(
+  profile: ProfileLocationInput,
+  lookups: LGDLookups
+): MatchedLocation {
+  const { city, district, region, localArea, profileId } = profile;
+  const candidates: Location[] = [];
+  let matchedLocation: Location | null = null;
+  let matchType: MatchedLocation['matchType'] = 'unmatched';
+  let matchedBy: MatchedLocation['matchedBy'] = 'none';
+  let warning: string | undefined;
+
+  // Get registry for looking up by LGD code
+  const registry = locationRegistry;
+  const bySlugMap = registry.getBySlugMap();
+
+  // Strategy 1: Try exact LGD local body code match (if we had it in profile)
+  // Not available in current schema, but keep for future
+
+  // Strategy 2: Match by city slug + district slug + locality slug
+  const citySlug_ = city ? citySlug(city) : '';
+  const districtSlug_ = district ? citySlug(district) : '';
+  const localAreaSlug_ = localArea ? citySlug(localArea) : '';
+  const regionNorm = region ? normalizeLocationName(region) : '';
+
+  // First, try to find exact locality match (city + locality)
+  if (citySlug_ && localAreaSlug_) {
+    // Try registry lookup by city slug first
+    const cityLocations = Array.from(bySlugMap.values())
+      .filter(l => l.type === 'city' && normalizeKey(l.slug) === normalizeKey(citySlug_));
+
+    for (const cityLoc of cityLocations) {
+      const localityChildren = cityLoc.children.filter(
+        c => c.type === 'locality' && normalizeKey(c.slug) === normalizeKey(localAreaSlug_)
+      );
+      candidates.push(...localityChildren);
+    }
+  }
+
+  // Strategy 3: Try LGD lookups directly
+  if (citySlug_) {
+    // Try city slug match
+    const lgdByCitySlug = lookups.byCitySlug.get(citySlug_);
+    if (lgdByCitySlug && lgdByCitySlug.length > 0) {
+      for (const lb of lgdByCitySlug) {
+        // Verify district matches if provided
+        if (district && normalizeKey(lb.districtName) !== normalizeKey(district)) continue;
+        if (region && normalizeLocationName(lb.stateName) !== regionNorm) continue;
+
+        // Find or create location in registry
+        const loc = registry.getLocation(`localbody:${lb.localbodyCode}`);
+        if (loc) candidates.push(loc);
+      }
+    }
+  }
+
+  // Strategy 4: Try city name match
+  if (!candidates.length && city) {
+    const cityNameNorm = normalizeLocationName(city);
+    const lgdByCityName = lookups.byCityName.get(cityNameNorm);
+    if (lgdByCityName && lgdByCityName.length > 0) {
+      for (const lb of lgdByCityName) {
+        if (district && normalizeKey(lb.districtName) !== normalizeKey(district)) continue;
+        if (region && normalizeLocationName(lb.stateName) !== regionNorm) continue;
+
+        const loc = registry.getLocation(`localbody:${lb.localbodyCode}`);
+        if (loc) candidates.push(loc);
+      }
+    }
+  }
+
+  // Strategy 5: Try locality match (for locality pages)
+  if (localAreaSlug_) {
+    const lgdByLocalitySlug = lookups.byLocalitySlug.get(localAreaSlug_);
+    if (lgdByLocalitySlug && lgdByLocalitySlug.length > 0) {
+      for (const lb of lgdByLocalitySlug) {
+        // Verify city matches if provided
+        if (city && normalizeKey(lb.localbodyName) !== normalizeKey(city)) continue;
+        if (district && normalizeKey(lb.districtName) !== normalizeKey(district)) continue;
+        if (region && normalizeLocationName(lb.stateName) !== regionNorm) continue;
+
+        const loc = registry.getLocation(`localbody:${lb.localbodyCode}`);
+        if (loc) candidates.push(loc);
+      }
+    }
+  }
+
+  // Strategy 6: Try locality name match
+  if (!candidates.length && localArea) {
+    const localityNameNorm = normalizeLocationName(localArea);
+    const lgdByLocalityName = lookups.byLocalityName.get(localityNameNorm);
+    if (lgdByLocalityName && lgdByLocalityName.length > 0) {
+      for (const lb of lgdByLocalityName) {
+        if (city && normalizeKey(lb.localbodyName) !== normalizeKey(city)) continue;
+        if (district && normalizeKey(lb.districtName) !== normalizeKey(district)) continue;
+        if (region && normalizeLocationName(lb.stateName) !== regionNorm) continue;
+
+        const loc = registry.getLocation(`localbody:${lb.localbodyCode}`);
+        if (loc) candidates.push(loc);
+      }
+    }
+  }
+
+  // Deduplicate candidates
+  const uniqueCandidates = Array.from(new Map(candidates.map(c => [c.id, c])).values());
+
+  // Determine match result
+  if (uniqueCandidates.length === 1) {
+    matchedLocation = uniqueCandidates[0];
+    matchType = 'exact';
+    matchedBy = 'lgd-code';
+  } else if (uniqueCandidates.length > 1) {
+    // Check if all candidates are the same LGD entity (different slugs due to collision handling)
+    const uniqueByLGDCode = new Map<string, Location>();
+    for (const c of uniqueCandidates) {
+      if (c.lgdCode && !uniqueByLGDCode.has(c.lgdCode)) {
+        uniqueByLGDCode.set(c.lgdCode, c);
+      }
+    }
+    if (uniqueByLGDCode.size === 1) {
+      matchedLocation = uniqueByLGDCode.values().next().value!;
+      matchType = 'exact';
+      matchedBy = 'lgd-code';
+    } else {
+      matchType = 'ambiguous';
+      matchedBy = 'city-slug'; // fallback
+      warning = `Ambiguous match: ${uniqueCandidates.length} LGD locations match profile ${profileId} (city: ${city}, district: ${district}, locality: ${localArea})`;
+    }
+  } else if (city) {
+    // City-only match - profile has city but no matching locality
+    matchType = 'city-only';
+    matchedBy = 'city-slug';
+    warning = `Profile ${profileId} matched to city only (no locality match): ${city}`;
+  } else {
+    matchType = 'unmatched';
+    matchedBy = 'none';
+    warning = `Profile ${profileId} could not be matched to any LGD location (city: ${city}, district: ${district}, locality: ${localArea})`;
+  }
+
+  return {
+    profileId,
+    lgdLocation: matchedLocation,
+    matchType,
+    candidates: uniqueCandidates,
+    matchedBy,
+    warning,
+  };
+}
+
+/**
+ * Match all public profiles to LGD locations
+ */
+export async function matchAllProfilesToLGD(): Promise<MatchReport> {
+  // Fetch all public profiles with location data
+  const profiles = await prisma.profile.findMany({
+    where: publicProfileWhere,
+    select: {
+      id: true,
+      city: true,
+      district: true,
+      region: true,
+      localArea: true,
+    },
+  });
+
+  // Also get static profiles
+  const { ESCORT_PROFILES } = await import('@/lib/profiles-data');
+  const staticProfiles = ESCORT_PROFILES.filter(p => p.city && p.city.trim().length > 0);
+
+  // Fetch LGD local bodies for matching
+  const { fetchLGDLocalBodies } = await import('./lgd-source');
+  const localBodies = await fetchLGDLocalBodies();
+
+  const lookups = buildLGDLookups(localBodies);
+
+  // Match database profiles
+  const dbMatches = profiles.map(p => matchProfileToLGD({
+    profileId: p.id,
+    city: p.city,
+    district: p.district,
+    region: p.region,
+    localArea: p.localArea,
+  }, lookups));
+
+  // Match static profiles
+  const staticMatches = staticProfiles.map(p => matchProfileToLGD({
+    profileId: p.id,
+    city: p.city,
+    district: p.district,
+    region: p.region,
+    localArea: p.localArea,
+  }, lookups));
+
+  const allMatches = [...dbMatches, ...staticMatches];
+
+  const report: MatchReport = {
+    total: allMatches.length,
+    exact: allMatches.filter(m => m.matchType === 'exact').length,
+    cityOnly: allMatches.filter(m => m.matchType === 'city-only').length,
+    ambiguous: allMatches.filter(m => m.matchType === 'ambiguous').length,
+    unmatched: allMatches.filter(m => m.matchType === 'unmatched').length,
+    details: allMatches,
+  };
+
+  // Log summary
+  console.log(`[LocationMatcher] Match Report:`);
+  console.log(`  Total: ${report.total}`);
+  console.log(`  Exact: ${report.exact}`);
+  console.log(`  City-only: ${report.cityOnly}`);
+  console.log(`  Ambiguous: ${report.ambiguous}`);
+  console.log(`  Unmatched: ${report.unmatched}`);
+
+  // Log warnings for ambiguous and unmatched
+  for (const match of allMatches) {
+    if (match.warning) {
+      console.warn(`[LocationMatcher] ${match.warning}`);
+    }
+  }
+
+  return report;
+}
+
+/**
+ * Get LGD-matched city listings using database as source of truth
+ * This replaces the fuzzy string matching in listCitiesWithListings()
+ */
+export async function getLGDMatchedCityListings(): Promise<Array<{
+  lgdCode: string;
+  slug: string;
+  name: string;
+  region: string | null;
+  count: number;
+  lastModified: Date;
+  storedCities: string[];
+  lgdLocation: Location;
+}>> {
+  const { fetchLGDLocalBodies } = await import('./lgd-source');
+  const localBodies = await fetchLGDLocalBodies();
+  const lookups = buildLGDLookups(localBodies);
+
+  // Get all public profiles from database
+  const profiles = await prisma.profile.findMany({
+    where: publicProfileWhere,
+    select: {
+      id: true,
+      city: true,
+      district: true,
+      region: true,
+      localArea: true,
+      updatedAt: true,
+    },
+  });
+
+  // Also include static profiles
+  const { ESCORT_PROFILES } = await import('@/lib/profiles-data');
+  const staticProfiles = ESCORT_PROFILES.filter(p => p.city && p.city.trim().length > 0);
+
+  // Group profiles by LGD city (using matcher)
+  const cityGroups = new Map<string, {
+    lgdCode: string;
+    name: string;
+    slug: string;
+    region: string | null;
+    count: number;
+    lastModified: Date;
+    storedCities: Set<string>;
+    lgdLocation: Location;
+  }>();
+
+  // Process DB profiles
+  for (const profile of profiles) {
+    const match = matchProfileToLGD({
+      profileId: profile.id,
+      city: profile.city,
+      district: profile.district,
+      region: profile.region,
+      localArea: profile.localArea,
+    }, lookups);
+
+    if (match.lgdLocation && match.lgdLocation.type === 'city') {
+      const lgdCode = match.lgdLocation.lgdCode!;
+      const existing = cityGroups.get(lgdCode);
+      if (existing) {
+        existing.count += 1;
+        existing.storedCities.add(profile.city || '');
+        if (profile.updatedAt && profile.updatedAt > existing.lastModified) {
+          existing.lastModified = profile.updatedAt;
+        }
+      } else {
+        cityGroups.set(lgdCode, {
+          lgdCode,
+          name: match.lgdLocation.name,
+          slug: match.lgdLocation.slug,
+          region: match.lgdLocation.stateName,
+          count: 1,
+          lastModified: profile.updatedAt ?? new Date(0),
+          storedCities: new Set([profile.city || '']),
+          lgdLocation: match.lgdLocation,
+        });
+      }
+    }
+
+  // Process static profiles
+  for (const profile of staticProfiles) {
+    const match = matchProfileToLGD({
+      profileId: profile.id,
+      city: profile.city,
+      district: profile.district,
+      region: profile.region,
+      localArea: profile.localArea,
+    }, lookups);
+
+    if (match.lgdLocation && match.lgdLocation.type === 'city') {
+      const lgdCode = match.lgdLocation.lgdCode!;
+      const existing = cityGroups.get(lgdCode);
+      if (existing) {
+        existing.count += 1;
+        existing.storedCities.add(profile.city);
+      } else {
+        cityGroups.set(lgdCode, {
+          lgdCode,
+          name: match.lgdLocation.name,
+          slug: match.lgdLocation.slug,
+          region: match.lgdLocation.stateName,
+          count: 1,
+          lastModified: new Date(0),
+          storedCities: new Set([profile.city]),
+          lgdLocation: match.lgdLocation,
+        });
+      }
+    }
+  }
+
+  // Convert to array and sort
+  return Array.from(cityGroups.values())
+    .map(g => ({
+      ...g,
+      storedCities: Array.from(g.storedCities),
+    }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+/**
+ * Get LGD-matched locality listings
+ */
+export async function getLGDMatchedLocalityListings(): Promise<Array<{
+  lgdCode: string;
+  slug: string;
+  name: string;
+  citySlug: string;
+  cityName: string;
+  region: string | null;
+  count: number;
+  lastModified: Date;
+  storedLocalAreas: string[];
+  lgdLocation: Location;
+}>> {
+  const { fetchLGDLocalBodies } = await import('./lgd-source');
+  const localBodies = await fetchLGDLocalBodies();
+  const lookups = buildLGDLookups(localBodies);
+
+  const profiles = await prisma.profile.findMany({
+    where: { ...publicProfileWhere, localArea: { not: null }, city: { not: null } },
+    select: { id: true, city: true, localArea: true, region: true, updatedAt: true },
+  });
+
+  const { ESCORT_PROFILES } = await import('@/lib/profiles-data');
+  const staticProfiles = ESCORT_PROFILES.filter(p => p.city && p.localArea);
+
+  const localityGroups = new Map<string, {
+    lgdCode: string;
+    name: string;
+    slug: string;
+    citySlug: string;
+    cityName: string;
+    region: string | null;
+    count: number;
+    lastModified: Date;
+    storedLocalAreas: Set<string>;
+    lgdLocation: Location;
+  }>();
+
+  // Process DB profiles
+  for (const profile of profiles) {
+    const match = matchProfileToLGD({
+      profileId: profile.id,
+      city: profile.city,
+      district: profile.district,
+      region: profile.region,
+      localArea: profile.localArea,
+    }, lookups);
+
+    if (match.lgdLocation && match.lgdLocation.type === 'locality') {
+      const lgdCode = match.lgdLocation.lgdCode!;
+      const existing = localityGroups.get(lgdCode);
+      if (existing) {
+        existing.count += 1;
+        existing.storedLocalAreas.add(profile.localArea || '');
+        if (profile.updatedAt && profile.updatedAt > existing.lastModified) {
+          existing.lastModified = profile.updatedAt;
+        }
+      } else {
+        localityGroups.set(lgdCode, {
+          lgdCode,
+          name: match.lgdLocation.name,
+          slug: match.lgdLocation.slug,
+          citySlug: match.lgdLocation.parentId?.split(':').pop() || '',
+          cityName: match.lgdLocation.name, // This would be the parent city name
+          region: match.lgdLocation.stateName,
+          count: 1,
+          lastModified: profile.updatedAt ?? new Date(0),
+          storedLocalAreas: new Set([profile.localArea || '']),
+          lgdLocation: match.lgdLocation,
+        });
+      }
+    }
+
+  // Process static profiles
+  for (const profile of staticProfiles) {
+    const match = matchProfileToLGD({
+      profileId: profile.id,
+      city: profile.city,
+      district: profile.district,
+      region: profile.region,
+      localArea: profile.localArea,
+    }, lookups);
+
+    if (match.lgdLocation && match.lgdLocation.type === 'locality') {
+      const lgdCode = match.lgdLocation.lgdCode!;
+      const existing = localityGroups.get(lgdCode);
+      if (existing) {
+        existing.count += 1;
+        existing.storedLocalAreas.add(profile.localArea);
+      } else {
+        localityGroups.set(lgdCode, {
+          lgdCode,
+          name: match.lgdLocation.name,
+          slug: match.lgdLocation.slug,
+          citySlug: match.lgdLocation.parentId?.split(':').pop() || '',
+          cityName: match.lgdLocation.name,
+          region: match.lgdLocation.stateName,
+          count: 1,
+          lastModified: new Date(0),
+          storedLocalAreas: new Set([profile.localArea]),
+          lgdLocation: match.lgdLocation,
+        });
+      }
+    }
+  }
+
+  return Array.from(localityGroups.values())
+    .map(g => ({
+      ...g,
+      storedLocalAreas: Array.from(g.storedLocalAreas),
+    }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}

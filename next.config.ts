@@ -35,6 +35,16 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "5mb",
     },
   },
+  async redirects() {
+    return [
+      // Permanent redirects from old /city/<slug> to new /call-girls-in/<slug>
+      {
+        source: "/city/:city*",
+        destination: "/call-girls-in/:city*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       // Security headers — applied to every response.

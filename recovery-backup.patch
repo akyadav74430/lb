@@ -1,0 +1,1389 @@
+diff --git a/app/(main)/about/page.tsx b/app/(main)/about/page.tsx
+index 39723cc..7f81389 100644
+--- a/app/(main)/about/page.tsx
++++ b/app/(main)/about/page.tsx
+@@ -1,4 +1,5 @@
+ import Link from "next/link";
++import { JsonLd, breadcrumbJsonLd } from "@/lib/seo/jsonld";
+ import { absoluteUrl, BRAND } from "@/lib/seo/site";
+ import SiteFooter from "@/components/SiteFooter";
+ import { listCitiesWithListings } from "@/lib/seo/profiles";
+@@ -15,6 +16,11 @@ export default async function AboutPage() {
+ 
+   return (
+     <>
++      <JsonLd data={breadcrumbJsonLd([
++        { name: "Home", path: "/" },
++        { name: "About", path: "/about" },
++      ])} />
++
+       <main className="info-page-main">
+       <div className="info-page-container">
+         <nav className="profile-breadcrumbs" aria-label="Breadcrumb">
+diff --git a/app/(main)/call-girls/page.tsx b/app/(main)/call-girls/page.tsx
+index 8ab6ab0..fef08ca 100644
+--- a/app/(main)/call-girls/page.tsx
++++ b/app/(main)/call-girls/page.tsx
+@@ -97,7 +97,7 @@ export default async function CallGirlsPage() {
+               <ul className="city-link-list">
+                 {topCities.map((city) => (
+                   <li key={city.slug}>
+-                    <Link href={`/city/${city.slug}`} className="city-link">
++                    <Link href={`/call-girls-in/${city.slug}`} className="city-link">
+                       Call girls in {cityRegionLabel(city.name, city.region)}
+                       <span className="city-link__meta">
+                         {city.count} {city.count === 1 ? "profile" : "profiles"}
+@@ -108,8 +108,8 @@ export default async function CallGirlsPage() {
+               </ul>
+               {cities.length > 12 && (
+                 <p className="info-text" style={{ marginTop: 16 }}>
+-                  More cities with listings are available on <Link href="/escorts">the
+-                  escorts directory</Link>.
++                  More cities with listings are available on <Link href="/call-girls">the
++                  call girls directory</Link>.
+                 </p>
+               )}
+             </div>
+diff --git a/app/(main)/profile/[id]/page.tsx b/app/(main)/profile/[id]/page.tsx
+index fc32960..3e7916d 100644
+--- a/app/(main)/profile/[id]/page.tsx
++++ b/app/(main)/profile/[id]/page.tsx
+@@ -8,7 +8,7 @@ import {
+   listPublicProfiles,
+ } from "@/lib/seo/profiles";
+ import { buildProfileMetadata } from "@/lib/seo/metadata";
+-import { breadcrumbJsonLd, JsonLd } from "@/lib/seo/jsonld";
++import { breadcrumbJsonLd, personJsonLd, JsonLd } from "@/lib/seo/jsonld";
+ import { citySlug } from "@/lib/seo/site";
+ 
+ interface Props {
+@@ -60,11 +60,12 @@ export default async function ProfileDetailPage({ params }: Props) {
+       <JsonLd
+         data={breadcrumbJsonLd([
+           { name: "Home", path: "/" },
+-          { name: "Escorts", path: "/escorts" },
+-          { name: profile.city, path: `/city/${citySlug(profile.city)}` },
++          { name: "Call Girls", path: "/call-girls" },
++          { name: profile.city, path: `/call-girls-in/${citySlug(profile.city)}` },
+           { name: profile.name, path: `/profile/${profile.id}` },
+         ])}
+       />
++      <JsonLd data={personJsonLd(profile)} />
+       <main className="profile-page-main">
+         <ProfileDetailView
+           profile={profile}
+diff --git a/app/city/[city]/page.tsx b/app/city/[city]/page.tsx
+index be5794c..15e2f48 100644
+--- a/app/city/[city]/page.tsx
++++ b/app/city/[city]/page.tsx
+@@ -1,203 +1,20 @@
+ import type { Metadata } from "next";
+-import Link from "next/link";
+-import { notFound } from "next/navigation";
+-import ProfileCard from "@/components/ProfileCard";
+-import SiteFooter from "@/components/SiteFooter";
+-import {
+-  getCityAggregates,
+-  getCityListing,
+-  getProfilesForCity,
+-  listCitiesWithListings,
+-  type CityListing,
+-} from "@/lib/seo/profiles";
+-import { buildCityMetadata } from "@/lib/seo/metadata";
+-import { buildCityBody } from "@/lib/seo/city-content";
+-import { breadcrumbJsonLd, profileListJsonLd, faqPageJsonLd, JsonLd } from "@/lib/seo/jsonld";
+-import { BRAND, displayCityName } from "@/lib/seo/site";
+-import { MAJOR_CITY_BY_SLUG } from "@/lib/seo/major-cities";
++import { redirect } from "next/navigation";
++import { citySlug } from "@/lib/seo/site";
+ 
+ interface Props {
+   params: Promise<{ city: string }>;
+ }
+ 
+-// Listings change as profiles are published; revalidate hourly.
+-export const revalidate = 3600;
+-
+-// A city that gets its first listing after deploy still resolves.
+-export const dynamicParams = true;
+-
+-export async function generateStaticParams() {
+-  const cities = await listCitiesWithListings();
+-  return cities.map((city) => ({ city: city.slug }));
+-}
+-
+-async function resolveCity(slug: string): Promise<CityListing> {
+-  const city = await getCityListing(slug);
+-  if (!city) notFound();
+-  return city;
+-}
+-
+ export async function generateMetadata({ params }: Props): Promise<Metadata> {
+-  const { city: slug } = await params;
+-  const city = await resolveCity(slug);
+-  return buildCityMetadata(city);
++  const { city } = await params;
++  return {
++    title: "Redirecting…",
++    robots: { index: false, follow: true },
++  };
+ }
+ 
+ export default async function CityPage({ params }: Props) {
+-  const { city: slug } = await params;
+-  const city = await resolveCity(slug);
+-  const [profiles, allCities, aggregates] = await Promise.all([
+-    getProfilesForCity(city),
+-    listCitiesWithListings(),
+-    getCityAggregates(city),
+-  ]);
+-  const otherCities = allCities.filter((c) => c.slug !== city.slug);
+-  const regionSuffix = city.region ? ` in ${displayCityName(city.region)}` : "";
+-  const countText = `${city.count} public ${city.count === 1 ? "profile" : "profiles"}`;
+-  const body = buildCityBody(city, aggregates);
+-  const cityDef = MAJOR_CITY_BY_SLUG.get(city.slug);
+-  const faqs = cityDef?.faqs && cityDef.faqs.length > 0 ? cityDef.faqs : null;
+-
+-  return (
+-    <>
+-      <JsonLd
+-        data={breadcrumbJsonLd([
+-          { name: "Home", path: "/" },
+-          { name: "Escorts", path: "/escorts" },
+-          { name: city.name, path: `/city/${city.slug}` },
+-        ])}
+-      />
+-      <JsonLd
+-        data={profileListJsonLd(
+-          `Escorts in ${city.name}`,
+-          profiles.map((p) => ({ name: p.name, id: p.id, city: city.name }))
+-        )}
+-      />
+-      {faqs && <JsonLd data={faqPageJsonLd(faqs)} />}
+-
+-      <main className="info-page-main">
+-        <div className="info-page-container">
+-          <nav className="breadcrumb" aria-label="Breadcrumb">
+-            <Link href="/">Home</Link>
+-            <span className="breadcrumb__sep">›</span>
+-            <Link href="/escorts">Escorts</Link>
+-            <span className="breadcrumb__sep">›</span>
+-            <span>{city.name}</span>
+-          </nav>
+-
+-          <header className="info-page-hero">
+-            <h1 className="info-page-title">
+-              Escorts in {city.name} — Call Girls &amp; Companions
+-            </h1>
+-            <p className="info-page-subtitle">
+-              {countText} currently listed in {city.name}
+-              {regionSuffix}. {BRAND} publishes independent escorts, call girls and companions
+-              here with real photos and published rates — open a profile to see availability
+-              and contact details.
+-            </p>
+-          </header>
+-
+-          <div className="info-card-content">
+-            <h2 className="info-section__title">Profiles in {city.name}</h2>
+-            <div className="profiles-grid">
+-              {profiles.map((profile, index) => (
+-                <ProfileCard
+-                  key={profile.id}
+-                  name={profile.name}
+-                  location={`${profile.city}${profile.state ? `, ${profile.state}` : ""}`}
+-                  photoUrl={profile.photoUrl}
+-                  topBadge={profile.topBadge}
+-                  badges={profile.badges}
+-                  href={`/profile/${profile.id}`}
+-                  phone={profile.phone}
+-                  whatsapp={profile.whatsapp}
+-                  hidePhone={Boolean(profile.isPhoneHidden || profile.hidePhoneFromPublic)}
+-                  priority={index < 4}
+-                />
+-              ))}
+-            </div>
+-          </div>
+-
+-          <div className="info-card-content">
+-            <h2 className="info-section__title">About escorts in {city.name}</h2>
+-            {body.intro.map((paragraph, index) => (
+-              <p key={index} className="info-text">
+-                {paragraph}
+-              </p>
+-            ))}
+-            {body.ratesNote && <p className="info-text">{body.ratesNote}</p>}
+-            <p className="info-text">
+-              Availability and timings change often, which is why they live on each profile
+-              rather than on this page. If nothing here fits what you need,{" "}
+-              <Link href="/escorts">the full India escort directory</Link> lists everything
+-              published nationwide, and the city pages above cover the neighbouring listings.
+-            </p>
+-          </div>
+-
+-          {body.areasNote && body.areasHeading && (
+-            <div className="info-card-content">
+-              <h2 className="info-section__title">{body.areasHeading}</h2>
+-              <p className="info-text">{body.areasNote}</p>
+-            </div>
+-          )}
+-
+-          {otherCities.length > 0 && (
+-            <div className="info-card-content">
+-              <h2 className="info-section__title">Other cities with listings</h2>
+-              <ul className="city-link-list">
+-                {otherCities.map((other) => (
+-                  <li key={other.slug}>
+-                    <Link href={`/city/${other.slug}`} className="city-link">
+-                      Escorts in {other.name}
+-                      <span className="city-link__meta">
+-                        {other.count} {other.count === 1 ? "profile" : "profiles"}
+-                      </span>
+-                    </Link>
+-                  </li>
+-                ))}
+-              </ul>
+-            </div>
+-          )}
+-
+-          {faqs && (
+-            <div className="info-card-content">
+-              <h2 className="info-section__title">Frequently Asked Questions in {city.name}</h2>
+-              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+-                {faqs.map((faq, index) => (
+-                  <div key={index} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "12px" }}>
+-                    <h3 style={{ fontSize: "15px", fontWeight: "600", marginBottom: "6px", color: "var(--text-primary)" }}>
+-                      {faq.q}
+-                    </h3>
+-                    <p className="info-text" style={{ margin: 0 }}>
+-                      {faq.a}
+-                    </p>
+-                  </div>
+-                ))}
+-              </div>
+-            </div>
+-          )}
+-
+-          <div className="info-card-content">
+-            <h2 className="info-section__title">Companion in {city.name}?</h2>
+-            <p className="info-text">
+-              If you are a companion based in {city.name}, you can list yourself on {BRAND} for
+-              free. Your profile only becomes a public page after it is approved, and you can
+-              hide or unpublish it at any time.
+-            </p>
+-            <p className="info-text">
+-              <Link href="/profile/add" className="btn-leave-review" style={{ display: "inline-block" }}>
+-                Add your profile
+-              </Link>
+-            </p>
+-            <p className="info-text">
+-              Before you contact anyone, read the{" "}
+-              <Link href="/terms">terms of service</Link>.
+-            </p>
+-          </div>
+-        </div>
+-      </main>
+-
+-      <SiteFooter />
+-    </>
+-  );
++  const { city } = await params;
++  redirect(`/call-girls-in-${citySlug(city)}`);
+ }
+\ No newline at end of file
+diff --git a/app/escorts/page.tsx b/app/escorts/page.tsx
+index 541155d..4b5879f 100644
+--- a/app/escorts/page.tsx
++++ b/app/escorts/page.tsx
+@@ -5,25 +5,16 @@ import SiteFooter from "@/components/SiteFooter";
+ import { listPublicProfiles, listCitiesWithListings } from "@/lib/seo/profiles";
+ import { breadcrumbJsonLd, profileListJsonLd, JsonLd } from "@/lib/seo/jsonld";
+ import { BRAND } from "@/lib/seo/site";
++import { buildServicePageMetadata } from "@/lib/seo/metadata";
+ 
+ // The listing changes as profiles are published, so keep the page fresh
+ // without re-rendering it on every request.
+ export const revalidate = 3600;
+ 
+-export const metadata: Metadata = {
+-  title: "Escort Service & Independent Escorts in India",
+-  description:
+-    "India escort service directory. Browse independent escorts, call girls and companions city by city, with real photos, published rates and direct contact.",
+-  alternates: { canonical: "/escorts" },
+-  openGraph: {
+-    title: "Escort Service & Independent Escorts in India",
+-    description:
+-      "Browse independent escorts, call girls and companions in India, city by city, with real photos and published rates.",
+-    url: "/escorts",
+-    type: "website",
+-    images: ["/opengraph-image"],
+-  },
+-};
++export async function generateMetadata(): Promise<Metadata> {
++  const profiles = await listPublicProfiles();
++  return buildServicePageMetadata(profiles.length);
++}
+ 
+ const PILLARS = [
+   {
+@@ -92,18 +83,18 @@ export default async function EscortsPage() {
+           </div>
+ 
+           <div className="info-card-content">
+-            <h2 className="info-section__title">Browse escorts by city</h2>
++            <h2 className="info-section__title">Browse call girls by city</h2>
+             {cities.length > 0 ? (
+               <>
+                 <p className="info-text">
+                   These are the cities with published listings right now. Use them to find
+-                  escorts near you.
++                  call girls near you.
+                 </p>
+                 <ul className="city-link-list">
+                   {cities.map((city) => (
+                     <li key={city.slug}>
+-                      <Link href={`/city/${city.slug}`} className="city-link">
+-                        Escorts in {city.name}
++                      <Link href={`/call-girls-in/${city.slug}`} className="city-link">
++                        Call Girls in {city.name}
+                         <span className="city-link__meta">
+                           {city.count} {city.count === 1 ? "profile" : "profiles"}
+                         </span>
+diff --git a/app/sitemap.ts b/app/sitemap.ts
+index 9caf6ac..7373943 100644
+--- a/app/sitemap.ts
++++ b/app/sitemap.ts
+@@ -6,6 +6,7 @@ import {
+   publicProfileWhere,
+ } from "@/lib/seo/profiles";
+ import { absoluteUrl } from "@/lib/seo/site";
++import { getIndexableCities, getIndexableLocalities } from "@/lib/india-locations";
+ 
+ /**
+  * The sitemap queries the database, so it must not be baked at build time.
+@@ -66,12 +67,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+   // sitemap can never advertise an empty or 404 page.
+   const cities = await listCitiesWithListings();
+   const cityRoutes: MetadataRoute.Sitemap = cities.map((city) => ({
+-    url: absoluteUrl(`/city/${city.slug}`),
++    url: absoluteUrl(`/call-girls-in/${city.slug}`),
+     lastModified: realDate(city.lastModified),
+     changeFrequency: "daily",
+     priority: 0.8,
+   }));
+ 
++  // LGD-based indexable city pages (from official Government of India data)
++  let lgdCityRoutes: MetadataRoute.Sitemap = [];
++  try {
++    const lgdCities = await getIndexableCities();
++    lgdCityRoutes = lgdCities.map((city) => ({
++      url: absoluteUrl(`/call-girls-in/${city.slug}`),
++      lastModified: now,
++      changeFrequency: "daily",
++      priority: 0.8,
++    }));
++    console.log(`[sitemap] Added ${lgdCityRoutes.length} LGD-based indexable city URLs`);
++  } catch (error) {
++    console.warn('[sitemap] Failed to fetch LGD cities:', error);
++  }
++
++  // LGD-based indexable locality pages
++  let lgdLocalityRoutes: MetadataRoute.Sitemap = [];
++  try {
++    const lgdLocalities = await getIndexableLocalities();
++    lgdLocalityRoutes = lgdLocalities.map((loc) => ({
++      url: absoluteUrl(`/call-girls-in/${loc.city}/${loc.slug}`),
++      lastModified: now,
++      changeFrequency: "daily",
++      priority: 0.7,
++    }));
++    console.log(`[sitemap] Added ${lgdLocalityRoutes.length} LGD-based indexable locality URLs`);
++  } catch (error) {
++    console.warn('[sitemap] Failed to fetch LGD localities:', error);
++  }
++
+   // Profile pages: same public filter the pages themselves use.
+   const profiles = await listPublicProfiles();
+   const updatedAtById = new Map<string, Date>();
+@@ -109,5 +140,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+     return entry;
+   });
+ 
+-  return [...coreRoutes, ...cityRoutes, ...profileRoutes, ...infoRoutes];
++  // Combine all routes, deduplicate by URL
++  const allRoutes = [...coreRoutes, ...cityRoutes, ...lgdCityRoutes, ...lgdLocalityRoutes, ...profileRoutes, ...infoRoutes];
++  const seen = new Set<string>();
++  const uniqueRoutes = allRoutes.filter(route => {
++    if (seen.has(route.url)) return false;
++    seen.add(route.url);
++    return true;
++  });
++
++  return uniqueRoutes;
+ }
+\ No newline at end of file
+diff --git a/components/Navbar.tsx b/components/Navbar.tsx
+index 81d8558..5e26720 100644
+--- a/components/Navbar.tsx
++++ b/components/Navbar.tsx
+@@ -3,6 +3,7 @@
+ import Link from "next/link";
+ import { useSession, signOut } from "next-auth/react";
+ import Logo from "./Logo";
++import { citySlug } from "@/lib/seo/site";
+ 
+ const CITIES = [
+   "Bangalore", "Mumbai", "Delhi", "Chennai", "Pune",
+@@ -55,10 +56,10 @@ export default function Navbar() {
+           {CITIES.map((city) => (
+             <Link
+               key={city}
+-              href={`/?city=${encodeURIComponent(city)}`}
++              href={`/call-girls-in/${citySlug(city)}`}
+               className="navbar__city"
+             >
+-              {city} Directory
++              {city}
+             </Link>
+           ))}
+         </div>
+diff --git a/components/SiteFooter.tsx b/components/SiteFooter.tsx
+index 9f44a57..e14a4ee 100644
+--- a/components/SiteFooter.tsx
++++ b/components/SiteFooter.tsx
+@@ -1,7 +1,7 @@
+ import Link from "next/link";
+ import Logo from "@/components/Logo";
+ import { listCitiesWithListings } from "@/lib/seo/profiles";
+-import { BRAND, BRAND_YEAR } from "@/lib/seo/site";
++import { BRAND, BRAND_YEAR, citySeoSlug } from "@/lib/seo/site";
+ 
+ /**
+  * Site-wide footer.
+@@ -35,20 +35,20 @@ export default async function SiteFooter() {
+             <h4 className="footer-col__title">Cities With Listings</h4>
+             <div className="footer-col__list">
+               {cities.length > 0 ? (
+-                cities.slice(0, 10).map((city) => (
++                cities.slice(0, 20).map((city) => (
+                   <Link
+                     key={city.slug}
+-                    href={`/city/${city.slug}`}
++                    href={`/call-girls-in/${city.slug}`}
+                     className="footer-col__link"
+                   >
+-                    Escorts in {city.name}
++                    Call Girls in {city.name}
+                   </Link>
+                 ))
+               ) : (
+                 <span className="footer-col__link">No published listings yet</span>
+               )}
+-              <Link href="/escorts" className="footer-col__link" style={{ fontWeight: 600 }}>
+-                All Cities &amp; Escorts in India →
++              <Link href="/call-girls" className="footer-col__link" style={{ fontWeight: 600 }}>
++                All Cities & Call Girls in India →
+               </Link>
+             </div>
+           </div>
+@@ -57,7 +57,7 @@ export default async function SiteFooter() {
+             <h4 className="footer-col__title">Services</h4>
+             <div className="footer-col__list">
+               <Link href="/call-girls" className="footer-col__link">Call Girls</Link>
+-              <Link href="/escorts" className="footer-col__link">Escorts &amp; Companions</Link>
++              <Link href="/escorts" className="footer-col__link">Escorts & Companions</Link>
+               <Link href="/?filter=vip" className="footer-col__link">VIP Escorts</Link>
+               <Link href="/?filter=massages" className="footer-col__link">Sensual Massage</Link>
+             </div>
+@@ -76,8 +76,8 @@ export default async function SiteFooter() {
+             <div className="footer-col__list">
+               <Link href="/terms" className="footer-col__link">Terms of Service</Link>
+               <Link href="/privacy" className="footer-col__link">Privacy Policy</Link>
+-              <Link href="/dmca" className="footer-col__link">DMCA &amp; Removal</Link>
+-              <Link href="/faq" className="footer-col__link">FAQ &amp; Safety</Link>
++              <Link href="/dmca" className="footer-col__link">DMCA & Removal</Link>
++              <Link href="/faq" className="footer-col__link">FAQ & Safety</Link>
+             </div>
+           </div>
+         </div>
+diff --git a/lib/india-locations.ts b/lib/india-locations.ts
+index 58aa8c3..18737b2 100644
+--- a/lib/india-locations.ts
++++ b/lib/india-locations.ts
+@@ -983,3 +983,232 @@ export function formatINR(amount: number | string): string {
+ 
+   return `₹${formatted}`;
+ }
++
++/* ─── LGD Registry Integration (New) ─── */
++
++import { locationRegistry } from './locations/registry';
++import { LGDState, LGDDistrict, LGDSubdistrict, LGDLocalBody } from './locations/lgd-source';
++import { listPublicProfiles, getPublicProfileById } from '@/lib/seo/profiles';
++import { matchProfileToLGD, buildLGDLookups } from '@/lib/locations/matcher-core';
++
++/** Registry initialization state */
++let registryInitialized = false;
++let registryInitPromise: Promise<void> | null = null;
++
++/**
++ * Build profile counts mapped to LGD local body codes
++ * Uses the LGD matcher to properly map profiles to LGD locations
++ */
++async function fetchProfileCountsLGD(): Promise<Map<string, number>> {
++  const counts = new Map<string, number>();
++  const profiles = await listPublicProfiles();
++
++  // Get LGD local bodies for matching
++  const { fetchLGDLocalBodies } = await import('./locations/lgd-source');
++  const localBodies = await fetchLGDLocalBodies();
++  const { buildLGDLookups, matchProfileToLGD } = await import('@/lib/locations/matcher-core');
++  const lookups = buildLGDLookups(localBodies);
++
++  for (const profile of profiles) {
++    const match = matchProfileToLGD({
++      profileId: profile.id,
++      city: profile.city,
++      district: profile.district,
++      region: profile.region,
++      localArea: profile.localArea,
++    }, lookups);
++
++    if (match.lgdLocation && match.lgdLocation.lgdCode) {
++      const key = `localbody:${match.lgdLocation.lgdCode}`;
++      counts.set(key, (counts.get(key) || 0) + 1);
++    } else if (profile.city) {
++      // Fallback for unmatched profiles - use composite key for city
++      const cityKey = `${profile.state || ''}|${profile.city}|${profile.district || ''}|${profile.localArea || ''}`;
++      counts.set(cityKey, (counts.get(cityKey) || 0) + 1);
++    }
++  }
++
++  return counts;
++}
++
++/**
++ * Initialize the LGD registry with official government data
++ * This should be called once at server startup
++ */
++export async function initializeLGDRegistry(): Promise<void> {
++  if (registryInitialized) return;
++  if (registryInitPromise) return registryInitPromise;
++
++  registryInitPromise = (async () => {
++    try {
++      console.log('[LGD] Initializing location registry from official Government of India data...');
++
++      // Dynamic import to avoid bundling fetch in client
++      const { fetchLGDStates, fetchLGDDistricts, fetchLGDSubdistricts, fetchLGDLocalBodies } =
++        await import('./locations/lgd-source');
++
++      // First fetch all LGD data
++      const [states, districts, subdistricts, localBodies] = await Promise.all([
++        fetchLGDStates(),
++        fetchLGDDistricts(),
++        fetchLGDSubdistricts(),
++        fetchLGDLocalBodies(),
++      ]);
++
++      console.log(`[LGD] Fetched: ${states.length} states, ${districts.length} districts, ${subdistricts.length} subdistricts, ${localBodies.length} local bodies`);
++
++      // Build profile counts using LGD matching
++      const profileCounts = await fetchProfileCountsLGD();
++
++      console.log(`[LGD] Profile counts mapped to ${profileCounts.size} LGD locations`);
++
++      await locationRegistry.initialize(states, districts, subdistricts, localBodies, profileCounts);
++
++      const stats = locationRegistry.getStats();
++      console.log(`[LGD] Registry initialized: ${stats.states} states, ${stats.districts} districts, ${stats.subdistricts} subdistricts, ${stats.cities} cities, ${stats.indexableCities} indexable cities`);
++
++      registryInitialized = true;
++    } catch (error) {
++      console.error('[LGD] Failed to initialize registry, falling back to static data:', error);
++      registryInitialized = false;
++      throw error;
++    }
++  })();
++
++  return registryInitPromise;
++}
++
++/**
++ * Check if LGD registry is ready
++ */
++export function isLGDRegistryReady(): boolean {
++  return registryInitialized && locationRegistry.isReady();
++}
++
++/**
++ * Get the LGD registry instance (after initialization)
++ */
++export function getLGDRegistry() {
++  return locationRegistry;
++}
++
++/**
++ * Enhanced search that uses LGD registry when available, falls back to static data
++ */
++export async function searchIndiaLocationsEnhanced(query: string, limit = 12) {
++  if (isLGDRegistryReady()) {
++    const results = locationRegistry.search(query, limit);
++    return results.map(loc => ({
++      type: loc.type as "state" | "district" | "city" | "localArea",
++      displayName: loc.name,
++      state: loc.stateName,
++      district: loc.districtName,
++      city: loc.type === 'city' ? loc.name : undefined,
++      localArea: loc.type === 'locality' ? loc.name : undefined,
++      hierarchy: `India › ${loc.stateName}${loc.districtName ? ` › ${loc.districtName}` : ''}${loc.name ? ` › ${loc.name}` : ''}${loc.subdistrictName ? ` › ${loc.subdistrictName}` : ''}`,
++    }));
++  }
++
++  // Fallback to static data
++  return searchIndiaLocations(query, limit);
++}
++
++/**
++ * Get all states (uses LGD registry when available)
++ */
++export async function getAllStatesEnhanced(): Promise<string[]> {
++  if (isLGDRegistryReady()) {
++    return locationRegistry.getStates().map(s => s.name);
++  }
++  return getAllStates();
++}
++
++/**
++ * Get districts for state (uses LGD registry when available)
++ */
++export async function getDistrictsForStateEnhanced(stateName: string): Promise<string[]> {
++  if (isLGDRegistryReady()) {
++    const state = locationRegistry.getStates().find(s => s.name.toLowerCase() === stateName.toLowerCase());
++    if (state) {
++      return locationRegistry.getDistrictsForState(state.id.replace('state:', '')).map(d => d.name);
++    }
++  }
++  return getDistrictsForState(stateName);
++}
++
++/**
++ * Get cities for district (uses LGD registry when available)
++ */
++export async function getCitiesForDistrictEnhanced(stateName: string, districtName: string): Promise<string[]> {
++  if (isLGDRegistryReady()) {
++    const state = locationRegistry.getStates().find(s => s.name.toLowerCase() === stateName.toLowerCase());
++    if (state) {
++      const districts = locationRegistry.getDistrictsForState(state.id.replace('state:', ''));
++      const district = districts.find(d => d.name.toLowerCase() === districtName.toLowerCase());
++      if (district) {
++        return locationRegistry.getCitiesForDistrict(
++          state.id.replace('state:', ''),
++          district.id.replace(`district:${state.id.replace('state:', '')}:`, '')
++        ).map(c => c.name);
++      }
++    }
++  }
++  return getCitiesForDistrict(stateName, districtName);
++}
++
++/**
++ * Get local areas for city (uses LGD registry when available)
++ */
++export async function getLocalAreasEnhanced(stateName: string, districtName: string, cityName: string): Promise<string[]> {
++  if (isLGDRegistryReady()) {
++    const state = locationRegistry.getStates().find(s => s.name.toLowerCase() === stateName.toLowerCase());
++    if (state) {
++      const districts = locationRegistry.getDistrictsForState(state.id.replace('state:', ''));
++      const district = districts.find(d => d.name.toLowerCase() === districtName.toLowerCase());
++      if (district) {
++        const cities = locationRegistry.getCitiesForDistrict(
++          state.id.replace('state:', ''),
++          district.id.replace(`district:${state.id.replace('state:', '')}:`, '')
++        );
++        const city = cities.find(c => c.name.toLowerCase() === cityName.toLowerCase());
++        if (city) {
++          // Localities are children of city
++          return city.children.filter(l => l.type === 'locality').map(l => l.name);
++        }
++      }
++    }
++  }
++  return getLocalAreas(stateName, districtName, cityName);
++}
++
++/**
++ * Get indexable city pages for sitemap/generation
++ */
++export async function getIndexableCities(): Promise<Array<{ name: string; slug: string; state: string; district: string; count: number }>> {
++  if (!isLGDRegistryReady()) return [];
++
++  const cities = locationRegistry.getIndexableCities();
++  return cities.map(city => ({
++    name: city.name,
++    slug: city.slug,
++    state: city.stateName,
++    district: city.districtName || '',
++    count: city.listingCount,
++  }));
++}
++
++/**
++ * Get indexable locality pages for sitemap/generation
++ */
++export async function getIndexableLocalities(): Promise<Array<{ name: string; slug: string; city: string; state: string; count: number }>> {
++  if (!isLGDRegistryReady()) return [];
++
++  const localities = locationRegistry.getIndexableLocalities();
++  return localities.map(loc => ({
++    name: loc.name,
++    slug: loc.slug,
++    city: loc.parentId ? loc.parentId.replace(/^.*:/, '') : '',
++    state: loc.stateName,
++    count: loc.listingCount,
++  }));
++}
+diff --git a/lib/seo/jsonld.tsx b/lib/seo/jsonld.tsx
+index 1b71c7d..ee0447b 100644
+--- a/lib/seo/jsonld.tsx
++++ b/lib/seo/jsonld.tsx
+@@ -88,32 +88,129 @@ export function profileListJsonLd(
+  */
+ export function siteJsonLd() {
+   const logo = absoluteUrl("/icon-512.png");
++  const siteUrl = absoluteUrl("/");
+ 
+-  const organization = {
+-    "@type": "Organization",
+-    "@id": `${absoluteUrl("/")}#organization`,
+-    name: SITE_NAME,
+-    url: absoluteUrl("/"),
+-    logo,
+-    image: logo,
+-    description:
+-      "City-wise directory of independent escorts, call girls and companions in India.",
++  // Both nodes share a single @graph so each gets the same @context without
++  // repeating it, and the @id cross-references resolve correctly.
++  return {
++    "@context": "https://schema.org",
++    "@graph": [
++      {
++        "@type": "Organization",
++        "@id": `${siteUrl}#organization`,
++        name: SITE_NAME,
++        url: siteUrl,
++        logo,
++        image: logo,
++        description:
++          "City-wise directory of independent escorts, call girls and companions in India.",
++      },
++      {
++        "@type": "WebSite",
++        "@id": `${siteUrl}#website`,
++        url: siteUrl,
++        name: SITE_NAME,
++        publisher: { "@id": `${siteUrl}#organization` },
++        inLanguage: "en-IN",
++      },
++    ],
+   };
++}
++
++
++/**
++ * Person schema for a public escort profile page.
++ *
++ * Only facts that are unambiguously present on the page are emitted.
++ * No price, rating, or review data is synthesised; those only appear when
++ * the companion published them on the profile itself.
++ */
++export function personJsonLd(profile: {
++  id: string;
++  name: string;
++  city: string;
++  state?: string;
++  photoUrl?: string | null;
++  about?: string | null;
++  age?: number | null;
++  languages?: string[];
++}) {
++  const url = absoluteUrl(`/profile/${profile.id}`);
++  const location = [profile.city, profile.state].filter(Boolean).join(", ");
+ 
+-  return [
+-    {
+-      ...organization,
+-      "@type": "WebSite",
+-      "@id": `${absoluteUrl("/")}#website`,
+-      url: absoluteUrl("/"),
++  const node: Record<string, unknown> = {
++    "@context": "https://schema.org",
++    "@type": "Person",
++    "@id": `${url}#person`,
++    name: profile.name,
++    url,
++    // homepLocation is more appropriate than `address` for a public directory:
++    // it conveys city-level presence without a street address.
++    homeLocation: {
++      "@type": "Place",
++      name: location,
++      address: {
++        "@type": "PostalAddress",
++        addressLocality: profile.city,
++        ...(profile.state ? { addressRegion: profile.state } : {}),
++        addressCountry: "IN",
++      },
++    },
++  };
++
++  if (profile.photoUrl) {
++    node.image = absoluteUrl(profile.photoUrl);
++  }
++  if (profile.about) {
++    // Truncate the bio to 300 chars for the schema description — Google does
++    // not display more than that in any surface that uses this type.
++    node.description = profile.about.replace(/\s+/g, " ").trim().slice(0, 300);
++  }
++  if (profile.age && profile.age > 0) {
++    node.age = profile.age;
++  }
++  if (profile.languages && profile.languages.length > 0) {
++    node.knowsLanguage = profile.languages;
++  }
++
++  return node;
++}
++
++/**
++ * Service schema for a /call-girls-in/<city> landing page.
++ *
++ * Represents the call girls directory service available in a given city. This
++ * is a lightweight `Service` node that ties the page to a geographic area.
++ * It does not emit prices or ratings — neither of which is verifiable from
++ * the directory's side.
++ */
++export function cityServiceJsonLd(cityName: string, citySlug: string, region?: string | null) {
++  const url = absoluteUrl(`/call-girls-in/${citySlug}`);
++  return {
++    "@context": "https://schema.org",
++    "@type": "Service",
++    "@id": `${url}#service`,
++    name: `Call Girls Directory — ${cityName}`,
++    description: `Browse independent call girls, escorts and companions in ${cityName}${region ? `, ${region}` : ""}. Real photos, published rates and direct contact.`,
++    url,
++    provider: {
++      "@type": "Organization",
++      "@id": `${absoluteUrl("/")}#organization`,
+       name: SITE_NAME,
+-      publisher: { "@id": organization["@id"] },
+-      inLanguage: "en-IN",
+     },
+-    {
+-      "@context": "https://schema.org",
+-      ...organization,
+-      isPartOf: { "@id": `${absoluteUrl("/")}#website` },
++    areaServed: {
++      "@type": "City",
++      name: cityName,
++      ...(region
++        ? {
++            containedInPlace: {
++              "@type": "State",
++              name: region,
++              addressCountry: "IN",
++            },
++          }
++        : {}),
+     },
+-  ];
++    serviceType: "Call Girls Directory",
++  };
+ }
+\ No newline at end of file
+diff --git a/lib/seo/metadata.ts b/lib/seo/metadata.ts
+index cc04040..05cd84b 100644
+--- a/lib/seo/metadata.ts
++++ b/lib/seo/metadata.ts
+@@ -1,6 +1,6 @@
+ import type { Metadata } from "next";
+ import { BRAND, absoluteUrl, clampMeta, displayCityName } from "@/lib/seo/site";
+-import type { CityListing } from "@/lib/seo/profiles";
++import type { CityListing, LocalityListing } from "@/lib/seo/profiles";
+ import type { EscortProfile } from "@/lib/profiles-data";
+ import { INDIA_LOCATIONS } from "@/lib/india-locations";
+ 
+@@ -57,20 +57,22 @@ export function buildServicePageMetadata(profileCount: number): Metadata {
+  */
+ export function buildCityMetadata(city: CityListing): Metadata {
+   const plural = city.count === 1;
+-  const title = `Escorts in ${city.name} | Call Girls & Companions`;
++  const title = `Call Girls in ${city.name} | ${BRAND}`;
+   const description = clampMeta(
+-    `Browse verified independent escorts and call girls in ${city.name}. Real photos, published rates and direct contact on ${BRAND}. Find companions across ${city.name}.`,
++    `Browse publicly listed profiles in ${city.name} on ${BRAND}. View available profile details and contact information published by each listing.`,
+     160
+   );
+ 
++  const canonicalUrl = absoluteUrl(`/call-girls-in/${city.slug}`);
++
+   return {
+     title,
+     description,
+-    alternates: { canonical: absoluteUrl(`/city/${city.slug}`) },
++    alternates: { canonical: canonicalUrl },
+     openGraph: {
+       title: `${title} | ${BRAND}`,
+       description,
+-      url: absoluteUrl(`/city/${city.slug}`),
++      url: canonicalUrl,
+       type: "website",
+       images: [OG_IMAGE],
+     },
+@@ -162,6 +164,38 @@ function usableBioSentence(profile: EscortProfile): string | null {
+   return first;
+ }
+ 
++/**
++ * Metadata for a locality landing page. `count` is the real number of publicly
++ * listable profiles in the locality, so the description never overstates the page.
++ */
++export function buildLocalityMetadata(locality: LocalityListing): Metadata {
++  const title = `Call Girls in ${locality.name}, ${locality.cityName} | ${BRAND}`;
++  const description = clampMeta(
++    `Browse publicly listed profiles in ${locality.name}, ${locality.cityName} on ${BRAND}. View available profile details and contact information published by each listing.`,
++    160
++  );
++
++  const canonicalUrl = absoluteUrl(`/call-girls-in/${locality.citySlug}/${locality.slug}`);
++
++  return {
++    title,
++    description,
++    alternates: { canonical: canonicalUrl },
++    openGraph: {
++      title: `${title} | ${BRAND}`,
++      description,
++      url: canonicalUrl,
++      type: "website",
++      images: [OG_IMAGE],
++    },
++    twitter: {
++      card: "summary_large_image",
++      title: `${title} | ${BRAND}`,
++      description,
++    },
++  };
++}
++
+ /** Metadata for a public profile page. The title template adds the brand. */
+ export function buildProfileMetadata(profile: EscortProfile): Metadata {
+   // Stored city values are free text ("delhi"), so normalise for a clean title.
+diff --git a/lib/seo/profiles.ts b/lib/seo/profiles.ts
+index 0d6dfba..8932462 100644
+--- a/lib/seo/profiles.ts
++++ b/lib/seo/profiles.ts
+@@ -8,6 +8,8 @@ import {
+ } from "@/lib/profiles-data";
+ import { citySlug, displayCityName, normalizeKey } from "@/lib/seo/site";
+ import { MAJOR_CITIES, MAJOR_CITY_BY_SLUG } from "@/lib/seo/major-cities";
++// Import LGD-matched functions from dedicated module
++import { getLGDMatchedCityListings, getLGDMatchedLocalityListings } from '@/lib/seo/lgd-matched-listings';
+ 
+ /**
+  * The single definition of "this profile may appear in public pages".
+@@ -154,85 +156,91 @@ const CITY_CACHE_MS = 60_000;
+  *
+  * This is what keeps /city/* from becoming a set of empty doorway pages: a city
+  * only becomes a landing page when real listings back it.
++ *
++ * Now uses LGD-matched data as the source of truth for stable city identification.
+  */
+ export async function listCitiesWithListings(): Promise<CityListing[]> {
+   if (cityCache && Date.now() - cityCache.at < CITY_CACHE_MS) {
+     return cityCache.entries;
+   }
+ 
+-  const bySlug = new Map<string, CityListing>();
+-
+-  const groups = await dbCityGroups();
+-  for (const group of groups) {
+-    const stored = group.city;
+-    if (!stored || !stored.trim()) continue;
+-    const slug = citySlug(stored);
+-    if (!slug) continue;
+-
+-    const existing = bySlug.get(slug);
+-    if (existing) {
+-      existing.count += group.count;
+-      if (!existing.storedCities.includes(stored)) existing.storedCities.push(stored);
+-      if (group.lastModified && group.lastModified > existing.lastModified) {
+-        existing.lastModified = group.lastModified;
+-      }
+-      continue;
+-    }
+-
+-    bySlug.set(slug, {
+-      slug,
+-      name: displayCityName(stored),
+-      region: group.region,
+-      count: group.count,
+-      lastModified: group.lastModified ?? new Date(0),
+-      storedCities: [stored],
+-    });
+-  }
++  try {
++    // Use LGD-matched data as primary source of truth
++    const lgdCities = await getLGDMatchedCityListings();
++
++    // Convert to CityListing format
++    const entries: CityListing[] = lgdCities.map(city => ({
++      slug: city.slug,
++      name: city.name,
++      region: city.region,
++      count: city.count,
++      lastModified: city.lastModified,
++      storedCities: city.storedCities,
++    }));
+ 
+-  for (const profile of staticPublicProfiles()) {
+-    const slug = citySlug(profile.city);
+-    if (!slug) continue;
+-    const existing = bySlug.get(slug);
+-    if (existing) {
+-      existing.count += 1;
+-      if (!existing.storedCities.includes(profile.city)) {
+-        existing.storedCities.push(profile.city);
++    cityCache = { at: Date.now(), entries };
++    return entries;
++  } catch (error) {
++    console.error('[listCitiesWithListings] LGD matching failed, falling back to legacy method:', error);
++
++    // Fallback to legacy method
++    const bySlug = new Map<string, CityListing>();
++
++    const groups = await dbCityGroups();
++    for (const group of groups) {
++      const stored = group.city;
++      if (!stored || !stored.trim()) continue;
++      const slug = citySlug(stored);
++      if (!slug) continue;
++
++      const existing = bySlug.get(slug);
++      if (existing) {
++        existing.count += group.count;
++        if (!existing.storedCities.includes(stored)) existing.storedCities.push(stored);
++        if (group.lastModified && group.lastModified > existing.lastModified) {
++          existing.lastModified = group.lastModified;
++        }
++        continue;
+       }
+-      continue;
++
++      bySlug.set(slug, {
++        slug,
++        name: displayCityName(stored),
++        region: group.region,
++        count: group.count,
++        lastModified: group.lastModified ?? new Date(0),
++        storedCities: [stored],
++      });
+     }
+-    bySlug.set(slug, {
+-      slug,
+-      name: displayCityName(profile.city),
+-      region: profile.state ?? null,
+-      count: 1,
+-      lastModified: new Date(0),
+-      storedCities: [profile.city],
+-    });
+-  }
+ 
+-  // Ensure all primary Indian commercial hubs have dedicated landing pages.
+-  for (const major of MAJOR_CITIES) {
+-    const existing = bySlug.get(major.slug);
+-    if (existing) {
+-      if (!existing.region && major.region) existing.region = major.region;
+-      continue;
++    for (const profile of staticPublicProfiles()) {
++      const slug = citySlug(profile.city);
++      if (!slug) continue;
++      const existing = bySlug.get(slug);
++      if (existing) {
++        existing.count += 1;
++        if (!existing.storedCities.includes(profile.city)) {
++          existing.storedCities.push(profile.city);
++        }
++        continue;
++      }
++      bySlug.set(slug, {
++        slug,
++        name: displayCityName(profile.city),
++        region: profile.state ?? null,
++        count: 1,
++        lastModified: new Date(0),
++        storedCities: [profile.city],
++      });
+     }
+-    bySlug.set(major.slug, {
+-      slug: major.slug,
+-      name: major.name,
+-      region: major.region,
+-      count: 1,
+-      lastModified: new Date("2026-10-01"),
+-      storedCities: [major.name, major.name.toLowerCase()],
+-    });
+-  }
+ 
+-  const entries = [...bySlug.values()].sort(
+-    (a, b) => b.count - a.count || a.name.localeCompare(b.name)
+-  );
++    const entries = [...bySlug.values()].sort(
++      (a, b) => b.count - a.count || a.name.localeCompare(b.name)
++    );
+ 
+-  cityCache = { at: Date.now(), entries };
+-  return entries;
++    cityCache = { at: Date.now(), entries };
++    return entries;
++  }
+ }
+ 
+ /** Resolve a /city/<slug> URL to a city that has real listings or major hub status. */
+@@ -384,4 +392,178 @@ export async function getCityAggregates(
+     }
+     return EMPTY_AGGREGATES;
+   }
++}
++
++/**
++ * Locality listing interface for /call-girls-in/<city>/<locality> pages
++ */
++export interface LocalityListing {
++  /** URL segment for the locality. */
++  slug: string;
++  /** Human readable locality name. */
++  name: string;
++  /** Parent city slug. */
++  citySlug: string;
++  /** Parent city name. */
++  cityName: string;
++  /** Region/state name. */
++  region: string | null;
++  /** Number of publicly listable profiles in this locality. */
++  count: number;
++  lastModified: Date;
++  /** Raw `localArea` column values that map to this slug. */
++  storedLocalAreas: string[];
++}
++
++let localityCache: { at: number; entries: LocalityListing[] } | null = null;
++const LOCALITY_CACHE_MS = 60_000;
++
++/**
++ * Localities that genuinely have at least one publicly listable profile.
++ * A locality only becomes a landing page when real listings back it.
++ *
++ * Now uses LGD-matched data as the source of truth for stable locality identification.
++ */
++export async function listLocalitiesWithListings(): Promise<LocalityListing[]> {
++  if (localityCache && Date.now() - localityCache.at < LOCALITY_CACHE_MS) {
++    return localityCache.entries;
++  }
++
++  try {
++    // Use LGD-matched data as primary source of truth
++    const lgdLocalities = await getLGDMatchedLocalityListings();
++
++    // Convert to LocalityListing format
++    const entries: LocalityListing[] = lgdLocalities.map(loc => ({
++      slug: loc.slug,
++      name: loc.name,
++      citySlug: loc.citySlug,
++      cityName: loc.cityName,
++      region: loc.region,
++      count: loc.count,
++      lastModified: loc.lastModified,
++      storedLocalAreas: loc.storedLocalAreas,
++    }));
++
++    localityCache = { at: Date.now(), entries };
++    return entries;
++  } catch (error) {
++    console.error('[listLocalitiesWithListings] LGD matching failed, falling back to legacy method:', error);
++
++    // Fallback to legacy method
++    const groups = await prisma.profile.groupBy({
++      by: ["city", "localArea", "region"],
++      where: { ...publicProfileWhere, localArea: { not: null }, city: { not: null } },
++      _count: { _all: true },
++      _max: { updatedAt: true },
++    });
++
++    const bySlug = new Map<string, LocalityListing>();
++
++    for (const group of groups) {
++      const storedCity = group.city;
++      const storedLocalArea = group.localArea;
++if (!storedCity || !storedCity.trim() || !storedLocalArea || !storedLocalArea.trim()) continue;
++
++      const citySlug_ = citySlug(storedCity);
++      const localitySlug_ = citySlug(storedLocalArea);
++      if (!citySlug_ || !localitySlug_) continue;
++
++const compositeSlug = `${citySlug_}|${localitySlug_}`;
++
++      const existing = bySlug.get(compositeSlug);
++      if (existing) {
++        existing.count += group._count._all;
++        if (!existing.storedLocalAreas.includes(storedLocalArea)) existing.storedLocalAreas.push(storedLocalArea);
++        if (group._max.updatedAt && group._max.updatedAt > existing.lastModified) {
++          existing.lastModified = group._max.updatedAt;
++        }
++        continue;
++      }
++
++      bySlug.set(compositeSlug, {
++        slug: localitySlug_,
++        name: displayCityName(storedLocalArea),
++        citySlug: citySlug_,
++        cityName: displayCityName(storedCity),
++        region: group.region,
++        count: group._count._all,
++        lastModified: group._max.updatedAt ?? new Date(0),
++        storedLocalAreas: [storedLocalArea],
++      });
++    }
++
++    // Also add static profiles
++    for (const profile of staticPublicProfiles()) {
++      if (!profile.city || !profile.localArea) continue;
++      const citySlug_ = citySlug(profile.city);
++      const localitySlug_ = citySlug(profile.localArea);
++      if (!citySlug_ || !localitySlug_) continue;
++
++      const compositeSlug = `${citySlug_}|${localitySlug_}`;
++      const existing = bySlug.get(compositeSlug);
++      if (existing) {
++        existing.count += 1;
++        if (!existing.storedLocalAreas.includes(profile.localArea)) {
++          existing.storedLocalAreas.push(profile.localArea);
++        }
++        continue;
++      }
++
++      bySlug.set(compositeSlug, {
++        slug: localitySlug_,
++        name: displayCityName(profile.localArea),
++        citySlug: citySlug_,
++        cityName: displayCityName(profile.city),
++        region: profile.state ?? null,
++        count: 1,
++        lastModified: new Date(0),
++        storedLocalAreas: [profile.localArea],
++      });
++    }
++
++    const entries = [...bySlug.values()].sort(
++      (a, b) => b.count - a.count || a.name.localeCompare(b.name)
++    );
++
++    localityCache = { at: Date.now(), entries };
++    return entries;
++  }
++}
++
++/** Resolve a /call-girls-in/<city>/<locality> URL to a locality with real listings. */
++export async function getLocalityListing(
++  citySlug: string,
++  localitySlug: string
++): Promise<LocalityListing | null> {
++  const normalizedCity = normalizeKey(citySlug);
++  const normalizedLocality = normalizeKey(localitySlug);
++  const compositeKey = `${normalizedCity}|${normalizedLocality}`;
++
++  const localities = await listLocalitiesWithListings();
++  return localities.find((l) =>
++    normalizeKey(l.citySlug) === normalizedCity &&
++    normalizeKey(l.slug) === normalizedLocality
++  ) ?? null;
++}
++
++/** The publicly listable profiles backing one locality landing page. */
++export async function getProfilesForLocality(
++  locality: LocalityListing
++): Promise<EscortProfile[]> {
++  const fromDb = await safeDbProfiles({
++    ...publicProfileWhere,
++    city: locality.cityName,
++    localArea: { in: locality.storedLocalAreas },
++  });
++
++  const dbIds = new Set(fromDb.map((p) => p.id));
++  const fromStatic = staticPublicProfiles().filter(
++    (p) =>
++      displayCityName(p.city) === locality.cityName &&
++      locality.storedLocalAreas.some((la) => la.toLowerCase() === (p.localArea || '').toLowerCase()) &&
++      !dbIds.has(p.id)
++  );
++
++  return [...fromStatic, ...fromDb];
+ }
+\ No newline at end of file
+diff --git a/lib/seo/site.ts b/lib/seo/site.ts
+index 53f1667..d2039aa 100644
+--- a/lib/seo/site.ts
++++ b/lib/seo/site.ts
+@@ -98,6 +98,19 @@ export function clampMeta(text: string, max: number): string {
+   return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trim().replace(/[,;:\-–]$/, "")}…`;
+ }
+ 
++/** Generate the new SEO-friendly city URL slug: /call-girls-in-<city> */
++export function citySeoSlug(city: string): string {
++  return `call-girls-in-${citySlug(city)}`;
++}
++
++/** Extract city name from the new SEO slug format */
++export function parseCitySeoSlug(slug: string | undefined | null): string | null {
++  if (!slug || typeof slug !== "string") return null;
++  const prefix = "call-girls-in-";
++  if (!slug.startsWith(prefix)) return null;
++  return slug.slice(prefix.length);
++}
++
+ /** Same slug collision guard used to de-duplicate city listings. */
+ export function normalizeKey(value: string): string {
+   return value.trim().toLowerCase();
+diff --git a/next.config.ts b/next.config.ts
+index e4d6b6c..4dd8e7e 100644
+--- a/next.config.ts
++++ b/next.config.ts
+@@ -35,6 +35,16 @@ const nextConfig: NextConfig = {
+       bodySizeLimit: "5mb",
+     },
+   },
++  async redirects() {
++    return [
++      // Permanent redirects from old /city/<slug> to new /call-girls-in/<slug>
++      {
++        source: "/city/:city*",
++        destination: "/call-girls-in/:city*",
++        permanent: true,
++      },
++    ];
++  },
+   async headers() {
+     return [
+       // Security headers — applied to every response.
+diff --git a/public/llms.txt b/public/llms.txt
+index 5854dfd..ceaab37 100644
+--- a/public/llms.txt
++++ b/public/llms.txt
+@@ -31,3 +31,9 @@ Lovebite (https://www.lovebite.live) is a curated directory of verified independ
+ - Lucknow: https://www.lovebite.live/city/lucknow
+ - Noida: https://www.lovebite.live/city/noida
+ - Gurgaon: https://www.lovebite.live/city/gurgaon
++- Surat: https://www.lovebite.live/city/surat
++- Indore: https://www.lovebite.live/city/indore
++- Bhubaneswar: https://www.lovebite.live/city/bhubaneswar
++- Kochi: https://www.lovebite.live/city/cochin
++- Dehradun: https://www.lovebite.live/city/dehradun
++- Patna: https://www.lovebite.live/city/patna

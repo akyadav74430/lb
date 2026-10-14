@@ -6,6 +6,7 @@ import {
   publicProfileWhere,
 } from "@/lib/seo/profiles";
 import { absoluteUrl } from "@/lib/seo/site";
+import { getIndexableCities, getIndexableLocalities } from "@/lib/india-locations";
 
 /**
  * The sitemap queries the database, so it must not be baked at build time.
@@ -66,11 +67,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // sitemap can never advertise an empty or 404 page.
   const cities = await listCitiesWithListings();
   const cityRoutes: MetadataRoute.Sitemap = cities.map((city) => ({
-    url: absoluteUrl(`/city/${city.slug}`),
+    url: absoluteUrl(`/call-girls-in/${city.slug}`),
     lastModified: realDate(city.lastModified),
     changeFrequency: "daily",
     priority: 0.8,
   }));
+
+  // LGD-based indexable city pages (from official Government of India data)
+  let lgdCityRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const lgdCities = await getIndexableCities();
+    lgdCityRoutes = lgdCities.map((city) => ({
+      url: absoluteUrl(`/call-girls-in/${city.slug}`),
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.8,
+    }));
+    console.log(`[sitemap] Added ${lgdCityRoutes.length} LGD-based indexable city URLs`);
+  } catch (error) {
+    console.warn('[sitemap] Failed to fetch LGD cities:', error);
+  }
+
+  // LGD-based indexable locality pages
+  let lgdLocalityRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const lgdLocalities = await getIndexableLocalities();
+    lgdLocalityRoutes = lgdLocalities.map((loc) => ({
+      url: absoluteUrl(`/call-girls-in/${loc.city}/${loc.slug}`),
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.7,
+    }));
+    console.log(`[sitemap] Added ${lgdLocalityRoutes.length} LGD-based indexable locality URLs`);
+  } catch (error) {
+    console.warn('[sitemap] Failed to fetch LGD localities:', error);
+  }
 
   // Profile pages: same public filter the pages themselves use.
   const profiles = await listPublicProfiles();
@@ -109,5 +140,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return entry;
   });
 
-  return [...coreRoutes, ...cityRoutes, ...profileRoutes, ...infoRoutes];
+  // Combine all routes, deduplicate by URL
+  const allRoutes = [...coreRoutes, ...cityRoutes, ...lgdCityRoutes, ...lgdLocalityRoutes, ...profileRoutes, ...infoRoutes];
+  const seen = new Set<string>();
+  const uniqueRoutes = allRoutes.filter(route => {
+    if (seen.has(route.url)) return false;
+    seen.add(route.url);
+    return true;
+  });
+
+  return uniqueRoutes;
 }

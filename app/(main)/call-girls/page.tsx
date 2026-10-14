@@ -97,7 +97,7 @@ export default async function CallGirlsPage() {
               <ul className="city-link-list">
                 {topCities.map((city) => (
                   <li key={city.slug}>
-                    <Link href={`/city/${city.slug}`} className="city-link">
+                    <Link href={`/call-girls-in/${city.slug}`} className="city-link">
                       Call girls in {cityRegionLabel(city.name, city.region)}
                       <span className="city-link__meta">
                         {city.count} {city.count === 1 ? "profile" : "profiles"}
@@ -108,8 +108,8 @@ export default async function CallGirlsPage() {
               </ul>
               {cities.length > 12 && (
                 <p className="info-text" style={{ marginTop: 16 }}>
-                  More cities with listings are available on <Link href="/escorts">the
-                  escorts directory</Link>.
+                  More cities with listings are available on <Link href="/call-girls">the
+                  call girls directory</Link>.
                 </p>
               )}
             </div>

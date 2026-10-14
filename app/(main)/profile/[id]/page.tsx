@@ -8,7 +8,7 @@ import {
   listPublicProfiles,
 } from "@/lib/seo/profiles";
 import { buildProfileMetadata } from "@/lib/seo/metadata";
-import { breadcrumbJsonLd, JsonLd } from "@/lib/seo/jsonld";
+import { breadcrumbJsonLd, personJsonLd, JsonLd } from "@/lib/seo/jsonld";
 import { citySlug } from "@/lib/seo/site";
 
 interface Props {
@@ -60,11 +60,12 @@ export default async function ProfileDetailPage({ params }: Props) {
       <JsonLd
         data={breadcrumbJsonLd([
           { name: "Home", path: "/" },
-          { name: "Escorts", path: "/escorts" },
-          { name: profile.city, path: `/city/${citySlug(profile.city)}` },
+          { name: "Call Girls", path: "/call-girls" },
+          { name: profile.city, path: `/call-girls-in/${citySlug(profile.city)}` },
           { name: profile.name, path: `/profile/${profile.id}` },
         ])}
       />
+      <JsonLd data={personJsonLd(profile)} />
       <main className="profile-page-main">
         <ProfileDetailView
           profile={profile}

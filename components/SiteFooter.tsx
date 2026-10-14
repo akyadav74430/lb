@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { listCitiesWithListings } from "@/lib/seo/profiles";
-import { BRAND, BRAND_YEAR } from "@/lib/seo/site";
+import { BRAND, BRAND_YEAR, citySeoSlug } from "@/lib/seo/site";
 
 /**
  * Site-wide footer.
@@ -35,20 +35,20 @@ export default async function SiteFooter() {
             <h4 className="footer-col__title">Cities With Listings</h4>
             <div className="footer-col__list">
               {cities.length > 0 ? (
-                cities.slice(0, 10).map((city) => (
+                cities.slice(0, 20).map((city) => (
                   <Link
                     key={city.slug}
-                    href={`/city/${city.slug}`}
+                    href={`/call-girls-in/${city.slug}`}
                     className="footer-col__link"
                   >
-                    Escorts in {city.name}
+                    Call Girls in {city.name}
                   </Link>
                 ))
               ) : (
                 <span className="footer-col__link">No published listings yet</span>
               )}
-              <Link href="/escorts" className="footer-col__link" style={{ fontWeight: 600 }}>
-                All Cities &amp; Escorts in India →
+              <Link href="/call-girls" className="footer-col__link" style={{ fontWeight: 600 }}>
+                All Cities & Call Girls in India →
               </Link>
             </div>
           </div>
@@ -57,7 +57,7 @@ export default async function SiteFooter() {
             <h4 className="footer-col__title">Services</h4>
             <div className="footer-col__list">
               <Link href="/call-girls" className="footer-col__link">Call Girls</Link>
-              <Link href="/escorts" className="footer-col__link">Escorts &amp; Companions</Link>
+              <Link href="/escorts" className="footer-col__link">Escorts & Companions</Link>
               <Link href="/?filter=vip" className="footer-col__link">VIP Escorts</Link>
               <Link href="/?filter=massages" className="footer-col__link">Sensual Massage</Link>
             </div>
@@ -76,8 +76,8 @@ export default async function SiteFooter() {
             <div className="footer-col__list">
               <Link href="/terms" className="footer-col__link">Terms of Service</Link>
               <Link href="/privacy" className="footer-col__link">Privacy Policy</Link>
-              <Link href="/dmca" className="footer-col__link">DMCA &amp; Removal</Link>
-              <Link href="/faq" className="footer-col__link">FAQ &amp; Safety</Link>
+              <Link href="/dmca" className="footer-col__link">DMCA & Removal</Link>
+              <Link href="/faq" className="footer-col__link">FAQ & Safety</Link>
             </div>
           </div>
         </div>

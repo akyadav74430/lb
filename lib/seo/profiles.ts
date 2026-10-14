@@ -8,6 +8,8 @@ import {
 } from "@/lib/profiles-data";
 import { citySlug, displayCityName, normalizeKey } from "@/lib/seo/site";
 import { MAJOR_CITIES, MAJOR_CITY_BY_SLUG } from "@/lib/seo/major-cities";
+// Import LGD-matched functions from dedicated module
+import { getLGDMatchedCityListings, getLGDMatchedLocalityListings } from '@/lib/seo/lgd-matched-listings';
 
 /**
  * The single definition of "this profile may appear in public pages".
@@ -154,85 +156,91 @@ const CITY_CACHE_MS = 60_000;
  *
  * This is what keeps /city/* from becoming a set of empty doorway pages: a city
  * only becomes a landing page when real listings back it.
+ *
+ * Now uses LGD-matched data as the source of truth for stable city identification.
  */
 export async function listCitiesWithListings(): Promise<CityListing[]> {
   if (cityCache && Date.now() - cityCache.at < CITY_CACHE_MS) {
     return cityCache.entries;
   }
 
-  const bySlug = new Map<string, CityListing>();
+  try {
+    // Use LGD-matched data as primary source of truth
+    const lgdCities = await getLGDMatchedCityListings();
 
-  const groups = await dbCityGroups();
-  for (const group of groups) {
-    const stored = group.city;
-    if (!stored || !stored.trim()) continue;
-    const slug = citySlug(stored);
-    if (!slug) continue;
+    // Convert to CityListing format
+    const entries: CityListing[] = lgdCities.map(city => ({
+      slug: city.slug,
+      name: city.name,
+      region: city.region,
+      count: city.count,
+      lastModified: city.lastModified,
+      storedCities: city.storedCities,
+    }));
 
-    const existing = bySlug.get(slug);
-    if (existing) {
-      existing.count += group.count;
-      if (!existing.storedCities.includes(stored)) existing.storedCities.push(stored);
-      if (group.lastModified && group.lastModified > existing.lastModified) {
-        existing.lastModified = group.lastModified;
+    cityCache = { at: Date.now(), entries };
+    return entries;
+  } catch (error) {
+    console.error('[listCitiesWithListings] LGD matching failed, falling back to legacy method:', error);
+
+    // Fallback to legacy method
+    const bySlug = new Map<string, CityListing>();
+
+    const groups = await dbCityGroups();
+    for (const group of groups) {
+      const stored = group.city;
+      if (!stored || !stored.trim()) continue;
+      const slug = citySlug(stored);
+      if (!slug) continue;
+
+      const existing = bySlug.get(slug);
+      if (existing) {
+        existing.count += group.count;
+        if (!existing.storedCities.includes(stored)) existing.storedCities.push(stored);
+        if (group.lastModified && group.lastModified > existing.lastModified) {
+          existing.lastModified = group.lastModified;
+        }
+        continue;
       }
-      continue;
+
+      bySlug.set(slug, {
+        slug,
+        name: displayCityName(stored),
+        region: group.region,
+        count: group.count,
+        lastModified: group.lastModified ?? new Date(0),
+        storedCities: [stored],
+      });
     }
 
-    bySlug.set(slug, {
-      slug,
-      name: displayCityName(stored),
-      region: group.region,
-      count: group.count,
-      lastModified: group.lastModified ?? new Date(0),
-      storedCities: [stored],
-    });
-  }
-
-  for (const profile of staticPublicProfiles()) {
-    const slug = citySlug(profile.city);
-    if (!slug) continue;
-    const existing = bySlug.get(slug);
-    if (existing) {
-      existing.count += 1;
-      if (!existing.storedCities.includes(profile.city)) {
-        existing.storedCities.push(profile.city);
+    for (const profile of staticPublicProfiles()) {
+      const slug = citySlug(profile.city);
+      if (!slug) continue;
+      const existing = bySlug.get(slug);
+      if (existing) {
+        existing.count += 1;
+        if (!existing.storedCities.includes(profile.city)) {
+          existing.storedCities.push(profile.city);
+        }
+        continue;
       }
-      continue;
+      bySlug.set(slug, {
+        slug,
+        name: displayCityName(profile.city),
+        region: profile.state ?? null,
+        count: 1,
+        lastModified: new Date(0),
+        storedCities: [profile.city],
+      });
     }
-    bySlug.set(slug, {
-      slug,
-      name: displayCityName(profile.city),
-      region: profile.state ?? null,
-      count: 1,
-      lastModified: new Date(0),
-      storedCities: [profile.city],
-    });
+
+    const entries = [...bySlug.values()].sort(
+      (a, b) => b.count - a.count || a.name.localeCompare(b.name)
+    );
+
+    cityCache = { at: Date.now(), entries };
+    return entries;
   }
-
-  // Ensure all primary Indian commercial hubs have dedicated landing pages.
-  for (const major of MAJOR_CITIES) {
-    const existing = bySlug.get(major.slug);
-    if (existing) {
-      if (!existing.region && major.region) existing.region = major.region;
-      continue;
-    }
-    bySlug.set(major.slug, {
-      slug: major.slug,
-      name: major.name,
-      region: major.region,
-      count: 1,
-      lastModified: new Date("2026-10-01"),
-      storedCities: [major.name, major.name.toLowerCase()],
-    });
-  }
-
-  const entries = [...bySlug.values()].sort(
-    (a, b) => b.count - a.count || a.name.localeCompare(b.name)
-  );
-
-  cityCache = { at: Date.now(), entries };
-  return entries;
 }
 
 /** Resolve a /city/<slug> URL to a city that has real listings or major hub status. */
@@ -384,4 +392,178 @@ export async function getCityAggregates(
     }
     return EMPTY_AGGREGATES;
   }
+}
+
+/**
+ * Locality listing interface for /call-girls-in/<city>/<locality> pages
+ */
+export interface LocalityListing {
+  /** URL segment for the locality. */
+  slug: string;
+  /** Human readable locality name. */
+  name: string;
+  /** Parent city slug. */
+  citySlug: string;
+  /** Parent city name. */
+  cityName: string;
+  /** Region/state name. */
+  region: string | null;
+  /** Number of publicly listable profiles in this locality. */
+  count: number;
+  lastModified: Date;
+  /** Raw `localArea` column values that map to this slug. */
+  storedLocalAreas: string[];
+}
+
+let localityCache: { at: number; entries: LocalityListing[] } | null = null;
+const LOCALITY_CACHE_MS = 60_000;
+
+/**
+ * Localities that genuinely have at least one publicly listable profile.
+ * A locality only becomes a landing page when real listings back it.
+ *
+ * Now uses LGD-matched data as the source of truth for stable locality identification.
+ */
+export async function listLocalitiesWithListings(): Promise<LocalityListing[]> {
+  if (localityCache && Date.now() - localityCache.at < LOCALITY_CACHE_MS) {
+    return localityCache.entries;
+  }
+
+  try {
+    // Use LGD-matched data as primary source of truth
+    const lgdLocalities = await getLGDMatchedLocalityListings();
+
+    // Convert to LocalityListing format
+    const entries: LocalityListing[] = lgdLocalities.map(loc => ({
+      slug: loc.slug,
+      name: loc.name,
+      citySlug: loc.citySlug,
+      cityName: loc.cityName,
+      region: loc.region,
+      count: loc.count,
+      lastModified: loc.lastModified,
+      storedLocalAreas: loc.storedLocalAreas,
+    }));
+
+    localityCache = { at: Date.now(), entries };
+    return entries;
+  } catch (error) {
+    console.error('[listLocalitiesWithListings] LGD matching failed, falling back to legacy method:', error);
+
+    // Fallback to legacy method
+    const groups = await prisma.profile.groupBy({
+      by: ["city", "localArea", "region"],
+      where: { ...publicProfileWhere, localArea: { not: null }, city: { not: null } },
+      _count: { _all: true },
+      _max: { updatedAt: true },
+    });
+
+    const bySlug = new Map<string, LocalityListing>();
+
+    for (const group of groups) {
+      const storedCity = group.city;
+      const storedLocalArea = group.localArea;
+if (!storedCity || !storedCity.trim() || !storedLocalArea || !storedLocalArea.trim()) continue;
+
+      const citySlug_ = citySlug(storedCity);
+      const localitySlug_ = citySlug(storedLocalArea);
+      if (!citySlug_ || !localitySlug_) continue;
+
+const compositeSlug = `${citySlug_}|${localitySlug_}`;
+
+      const existing = bySlug.get(compositeSlug);
+      if (existing) {
+        existing.count += group._count._all;
+        if (!existing.storedLocalAreas.includes(storedLocalArea)) existing.storedLocalAreas.push(storedLocalArea);
+        if (group._max.updatedAt && group._max.updatedAt > existing.lastModified) {
+          existing.lastModified = group._max.updatedAt;
+        }
+        continue;
+      }
+
+      bySlug.set(compositeSlug, {
+        slug: localitySlug_,
+        name: displayCityName(storedLocalArea),
+        citySlug: citySlug_,
+        cityName: displayCityName(storedCity),
+        region: group.region,
+        count: group._count._all,
+        lastModified: group._max.updatedAt ?? new Date(0),
+        storedLocalAreas: [storedLocalArea],
+      });
+    }
+
+    // Also add static profiles
+    for (const profile of staticPublicProfiles()) {
+      if (!profile.city || !profile.localArea) continue;
+      const citySlug_ = citySlug(profile.city);
+      const localitySlug_ = citySlug(profile.localArea);
+      if (!citySlug_ || !localitySlug_) continue;
+
+      const compositeSlug = `${citySlug_}|${localitySlug_}`;
+      const existing = bySlug.get(compositeSlug);
+      if (existing) {
+        existing.count += 1;
+        if (!existing.storedLocalAreas.includes(profile.localArea)) {
+          existing.storedLocalAreas.push(profile.localArea);
+        }
+        continue;
+      }
+
+      bySlug.set(compositeSlug, {
+        slug: localitySlug_,
+        name: displayCityName(profile.localArea),
+        citySlug: citySlug_,
+        cityName: displayCityName(profile.city),
+        region: profile.state ?? null,
+        count: 1,
+        lastModified: new Date(0),
+        storedLocalAreas: [profile.localArea],
+      });
+    }
+
+    const entries = [...bySlug.values()].sort(
+      (a, b) => b.count - a.count || a.name.localeCompare(b.name)
+    );
+
+    localityCache = { at: Date.now(), entries };
+    return entries;
+  }
+}
+
+/** Resolve a /call-girls-in/<city>/<locality> URL to a locality with real listings. */
+export async function getLocalityListing(
+  citySlug: string,
+  localitySlug: string
+): Promise<LocalityListing | null> {
+  const normalizedCity = normalizeKey(citySlug);
+  const normalizedLocality = normalizeKey(localitySlug);
+  const compositeKey = `${normalizedCity}|${normalizedLocality}`;
+
+  const localities = await listLocalitiesWithListings();
+  return localities.find((l) =>
+    normalizeKey(l.citySlug) === normalizedCity &&
+    normalizeKey(l.slug) === normalizedLocality
+  ) ?? null;
+}
+
+/** The publicly listable profiles backing one locality landing page. */
+export async function getProfilesForLocality(
+  locality: LocalityListing
+): Promise<EscortProfile[]> {
+  const fromDb = await safeDbProfiles({
+    ...publicProfileWhere,
+    city: locality.cityName,
+    localArea: { in: locality.storedLocalAreas },
+  });
+
+  const dbIds = new Set(fromDb.map((p) => p.id));
+  const fromStatic = staticPublicProfiles().filter(
+    (p) =>
+      displayCityName(p.city) === locality.cityName &&
+      locality.storedLocalAreas.some((la) => la.toLowerCase() === (p.localArea || '').toLowerCase()) &&
+      !dbIds.has(p.id)
+  );
+
+  return [...fromStatic, ...fromDb];
 }

@@ -31,3 +31,9 @@ Lovebite (https://www.lovebite.live) is a curated directory of verified independ
 - Lucknow: https://www.lovebite.live/city/lucknow
 - Noida: https://www.lovebite.live/city/noida
 - Gurgaon: https://www.lovebite.live/city/gurgaon
+- Surat: https://www.lovebite.live/city/surat
+- Indore: https://www.lovebite.live/city/indore
+- Bhubaneswar: https://www.lovebite.live/city/bhubaneswar
+- Kochi: https://www.lovebite.live/city/cochin
+- Dehradun: https://www.lovebite.live/city/dehradun
+- Patna: https://www.lovebite.live/city/patna

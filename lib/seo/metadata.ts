@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { BRAND, absoluteUrl, clampMeta, displayCityName } from "@/lib/seo/site";
-import type { CityListing } from "@/lib/seo/profiles";
+import type { CityListing, LocalityListing } from "@/lib/seo/profiles";
 import type { EscortProfile } from "@/lib/profiles-data";
 import { INDIA_LOCATIONS } from "@/lib/india-locations";
 
@@ -57,20 +57,22 @@ export function buildServicePageMetadata(profileCount: number): Metadata {
  */
 export function buildCityMetadata(city: CityListing): Metadata {
   const plural = city.count === 1;
-  const title = `Escorts in ${city.name} | Call Girls & Companions`;
+  const title = `Call Girls in ${city.name} | ${BRAND}`;
   const description = clampMeta(
-    `Browse verified independent escorts and call girls in ${city.name}. Real photos, published rates and direct contact on ${BRAND}. Find companions across ${city.name}.`,
+    `Browse publicly listed profiles in ${city.name} on ${BRAND}. View available profile details and contact information published by each listing.`,
     160
   );
+
+  const canonicalUrl = absoluteUrl(`/call-girls-in/${city.slug}`);
 
   return {
     title,
     description,
-    alternates: { canonical: absoluteUrl(`/city/${city.slug}`) },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: `${title} | ${BRAND}`,
       description,
-      url: absoluteUrl(`/city/${city.slug}`),
+      url: canonicalUrl,
       type: "website",
       images: [OG_IMAGE],
     },
@@ -160,6 +162,38 @@ function usableBioSentence(profile: EscortProfile): string | null {
   if (!cityWords.some((word) => first.toLowerCase().includes(word))) return null;
 
   return first;
+}
+
+/**
+ * Metadata for a locality landing page. `count` is the real number of publicly
+ * listable profiles in the locality, so the description never overstates the page.
+ */
+export function buildLocalityMetadata(locality: LocalityListing): Metadata {
+  const title = `Call Girls in ${locality.name}, ${locality.cityName} | ${BRAND}`;
+  const description = clampMeta(
+    `Browse publicly listed profiles in ${locality.name}, ${locality.cityName} on ${BRAND}. View available profile details and contact information published by each listing.`,
+    160
+  );
+
+  const canonicalUrl = absoluteUrl(`/call-girls-in/${locality.citySlug}/${locality.slug}`);
+
+  return {
+    title,
+    description,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      title: `${title} | ${BRAND}`,
+      description,
+      url: canonicalUrl,
+      type: "website",
+      images: [OG_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | ${BRAND}`,
+      description,
+    },
+  };
 }
 
 /** Metadata for a public profile page. The title template adds the brand. */

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { JsonLd, breadcrumbJsonLd } from "@/lib/seo/jsonld";
 import { absoluteUrl, BRAND } from "@/lib/seo/site";
 import SiteFooter from "@/components/SiteFooter";
 import { listCitiesWithListings } from "@/lib/seo/profiles";
@@ -15,6 +16,11 @@ export default async function AboutPage() {
 
   return (
     <>
+      <JsonLd data={breadcrumbJsonLd([
+        { name: "Home", path: "/" },
+        { name: "About", path: "/about" },
+      ])} />
+
       <main className="info-page-main">
       <div className="info-page-container">
         <nav className="profile-breadcrumbs" aria-label="Breadcrumb">

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import Logo from "./Logo";
+import { citySlug } from "@/lib/seo/site";
 
 const CITIES = [
   "Bangalore", "Mumbai", "Delhi", "Chennai", "Pune",
@@ -55,10 +56,10 @@ export default function Navbar() {
           {CITIES.map((city) => (
             <Link
               key={city}
-              href={`/?city=${encodeURIComponent(city)}`}
+              href={`/call-girls-in/${citySlug(city)}`}
               className="navbar__city"
             >
-              {city} Directory
+              {city}
             </Link>
           ))}
         </div>
