@@ -278,10 +278,9 @@ Hygiene, mutual respect, and 100% verified real photos are guaranteed. Contact m
     availableFor: ["Incall", "Outcall"],
     meetingWith: ["Man"],
     rates: [
-      { duration: "1 Hour", incall: "₹15,000", outcall: "₹20,000" },
-      { duration: "2 Hours", incall: "₹25,000", outcall: "₹32,000" },
-      { duration: "Dinner Date (4 Hours)", incall: "₹45,000", outcall: "₹55,000" },
-      { duration: "Overnight (10 Hours)", incall: "₹80,000", outcall: "₹95,000" },
+      { duration: "1 Hour", incall: "₹1,500", outcall: "₹1,500" },
+      { duration: "2 Hours", incall: "₹2,000", outcall: "₹2,000" },
+      { duration: "Full Night", incall: "₹5,000", outcall: "₹5,000" },
     ],
     services: [
       { name: "Girlfriend Experience (GFE)", category: "Classic", available: true },
@@ -334,10 +333,9 @@ Hygiene, mutual respect, and 100% verified real photos are guaranteed. Contact m
     availableFor: ["Incall", "Outcall"],
     meetingWith: ["Man"],
     rates: [
-      { duration: "1 Hour", incall: "₹12,000", outcall: "₹16,000" },
-      { duration: "2 Hours", incall: "₹20,000", outcall: "₹26,000" },
-      { duration: "Dinner Date (4 Hours)", incall: "₹38,000", outcall: "₹48,000" },
-      { duration: "Overnight (10 Hours)", incall: "₹70,000", outcall: "₹85,000" },
+      { duration: "1 Hour", incall: "₹1,500", outcall: "₹1,500" },
+      { duration: "2 Hours", incall: "₹2,000", outcall: "₹2,000" },
+      { duration: "Full Night", incall: "₹5,000", outcall: "₹5,000" },
     ],
     services: [
       { name: "Girlfriend Experience (GFE)", category: "Classic", available: true },
@@ -389,10 +387,9 @@ Hygiene, mutual respect, and 100% verified real photos are guaranteed. Contact m
     availableFor: ["Incall", "Outcall"],
     meetingWith: ["Man"],
     rates: [
-      { duration: "1 Hour", incall: "₹14,000", outcall: "₹18,000" },
-      { duration: "2 Hours", incall: "₹24,000", outcall: "₹30,000" },
-      { duration: "Dinner Date (4 Hours)", incall: "₹42,000", outcall: "₹52,000" },
-      { duration: "Overnight (10 Hours)", incall: "₹75,000", outcall: "₹90,000" },
+      { duration: "1 Hour", incall: "₹1,500", outcall: "₹1,500" },
+      { duration: "2 Hours", incall: "₹2,000", outcall: "₹2,000" },
+      { duration: "Full Night", incall: "₹5,000", outcall: "₹5,000" },
     ],
     services: [
       { name: "Girlfriend Experience (GFE)", category: "Classic", available: true },
@@ -444,10 +441,9 @@ Hygiene, mutual respect, and 100% verified real photos are guaranteed. Contact m
     availableFor: ["Incall", "Outcall"],
     meetingWith: ["Man"],
     rates: [
-      { duration: "1 Hour", incall: "₹10,000", outcall: "₹14,000" },
-      { duration: "2 Hours", incall: "₹18,000", outcall: "₹24,000" },
-      { duration: "Dinner Date (4 Hours)", incall: "₹35,000", outcall: "₹45,000" },
-      { duration: "Overnight (10 Hours)", incall: "₹65,000", outcall: "₹75,000" },
+      { duration: "1 Hour", incall: "₹1,500", outcall: "₹1,500" },
+      { duration: "2 Hours", incall: "₹2,000", outcall: "₹2,000" },
+      { duration: "Full Night", incall: "₹5,000", outcall: "₹5,000" },
     ],
     services: [
       { name: "Girlfriend Experience (GFE)", category: "Classic", available: true },
@@ -499,11 +495,9 @@ Hygiene, mutual respect, and 100% verified real photos are guaranteed. Contact m
     availableFor: ["Incall", "Outcall"],
     meetingWith: ["Man", "Couple"],
     rates: [
-      { duration: "1 Hour", incall: "₹15,000", outcall: "₹20,000" },
-      { duration: "2 Hours", incall: "₹25,000", outcall: "₹32,000" },
-      { duration: "Dinner Date (4 Hours)", incall: "₹45,000", outcall: "₹55,000" },
-      { duration: "Overnight (10 Hours)", incall: "₹80,000", outcall: "₹95,000" },
-      { duration: "Weekend Getaway", incall: "₹1,60,000", outcall: "₹1,90,000" },
+      { duration: "1 Hour", incall: "₹1,500", outcall: "₹1,500" },
+      { duration: "2 Hours", incall: "₹2,000", outcall: "₹2,000" },
+      { duration: "Full Night", incall: "₹5,000", outcall: "₹5,000" },
     ],
     services: [
       { name: "Girlfriend Experience (GFE)", category: "Classic", available: true },
@@ -556,10 +550,9 @@ Hygiene, mutual respect, and 100% verified real photos are guaranteed. Contact m
     availableFor: ["Incall", "Outcall"],
     meetingWith: ["Man"],
     rates: [
-      { duration: "1 Hour", incall: "₹12,000", outcall: "₹16,000" },
-      { duration: "2 Hours", incall: "₹20,000", outcall: "₹26,000" },
-      { duration: "Dinner Date (4 Hours)", incall: "₹38,000", outcall: "₹48,000" },
-      { duration: "Overnight (10 Hours)", incall: "₹70,000", outcall: "₹85,000" },
+      { duration: "1 Hour", incall: "₹1,500", outcall: "₹1,500" },
+      { duration: "2 Hours", incall: "₹2,000", outcall: "₹2,000" },
+      { duration: "Full Night", incall: "₹5,000", outcall: "₹5,000" },
     ],
     services: [
       { name: "Girlfriend Experience (GFE)", category: "Classic", available: true },
