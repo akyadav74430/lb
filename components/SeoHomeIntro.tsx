@@ -62,7 +62,7 @@ export default async function SeoHomeIntro() {
             <ul className="seo-intro__cities">
               {cities.map((city) => (
                 <li key={city.slug}>
-                  <Link href={`/city/${city.slug}`}>
+                  <Link href={`/call-girls-in/${city.slug}`}>
                     Call girls in {cityRegionLabel(city.name, city.region)}
                   </Link>
                 </li>

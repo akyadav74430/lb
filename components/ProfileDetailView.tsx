@@ -126,8 +126,8 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
             <span className="profile-breadcrumb__sep">›</span>
           </>
         )}
-        <Link href={`/city/${citySlug(profile.city)}`} className="profile-breadcrumb__link">
-          {profile.city} Escorts
+        <Link href={`/call-girls-in/${citySlug(profile.city)}`} className="profile-breadcrumb__link">
+          Call girls in {profile.city}
         </Link>
         <span className="profile-breadcrumb__sep">›</span>
         <span className="profile-breadcrumb__current">{profile.name}</span>

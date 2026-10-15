@@ -34,7 +34,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   if (city) {
     const entry = await getCityListing(city);
     if (entry) {
-      // e.g. /?city=Kolkata -> canonical https://www.lovebite.live/city/kolkata
+      // e.g. /?city=Kolkata -> canonical https://www.lovebite.live/call-girls-in/kolkata
       return buildCityMetadata(entry);
     }
   }
@@ -94,12 +94,12 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   };
 }
 
-export default function HomePage() {
+export default function HomePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   return (
     <>
       <JsonLd data={siteJsonLd()} />
       <Suspense fallback={<div style={{ minHeight: "80vh" }} />}>
-        <HomeDirectory />
+        <HomeDirectory searchParams={searchParams} />
       </Suspense>
       <SeoHomeIntro />
       <SiteFooter />

@@ -178,69 +178,77 @@ export async function listCitiesWithListings(): Promise<CityListing[]> {
       storedCities: city.storedCities,
     }));
 
+    // If LGD matching returns no results, fall back to legacy method
+    if (entries.length === 0) {
+      console.warn('[listCitiesWithListings] LGD matching returned empty results, falling back to legacy method');
+      return await fallbackListCitiesWithListings();
+    }
+
     cityCache = { at: Date.now(), entries };
     return entries;
   } catch (error) {
     console.error('[listCitiesWithListings] LGD matching failed, falling back to legacy method:', error);
-
-    // Fallback to legacy method
-    const bySlug = new Map<string, CityListing>();
-
-    const groups = await dbCityGroups();
-    for (const group of groups) {
-      const stored = group.city;
-      if (!stored || !stored.trim()) continue;
-      const slug = citySlug(stored);
-      if (!slug) continue;
-
-      const existing = bySlug.get(slug);
-      if (existing) {
-        existing.count += group.count;
-        if (!existing.storedCities.includes(stored)) existing.storedCities.push(stored);
-        if (group.lastModified && group.lastModified > existing.lastModified) {
-          existing.lastModified = group.lastModified;
-        }
-        continue;
-      }
-
-      bySlug.set(slug, {
-        slug,
-        name: displayCityName(stored),
-        region: group.region,
-        count: group.count,
-        lastModified: group.lastModified ?? new Date(0),
-        storedCities: [stored],
-      });
-    }
-
-    for (const profile of staticPublicProfiles()) {
-      const slug = citySlug(profile.city);
-      if (!slug) continue;
-      const existing = bySlug.get(slug);
-      if (existing) {
-        existing.count += 1;
-        if (!existing.storedCities.includes(profile.city)) {
-          existing.storedCities.push(profile.city);
-        }
-        continue;
-      }
-      bySlug.set(slug, {
-        slug,
-        name: displayCityName(profile.city),
-        region: profile.state ?? null,
-        count: 1,
-        lastModified: new Date(0),
-        storedCities: [profile.city],
-      });
-    }
-
-    const entries = [...bySlug.values()].sort(
-      (a, b) => b.count - a.count || a.name.localeCompare(b.name)
-    );
-
-    cityCache = { at: Date.now(), entries };
-    return entries;
+    return await fallbackListCitiesWithListings();
   }
+}
+
+async function fallbackListCitiesWithListings(): Promise<CityListing[]> {
+  const bySlug = new Map<string, CityListing>();
+
+  const groups = await dbCityGroups();
+  for (const group of groups) {
+    const stored = group.city;
+    if (!stored || !stored.trim()) continue;
+    const slug = citySlug(stored);
+    if (!slug) continue;
+
+    const existing = bySlug.get(slug);
+    if (existing) {
+      existing.count += group.count;
+      if (!existing.storedCities.includes(stored)) existing.storedCities.push(stored);
+      if (group.lastModified && group.lastModified > existing.lastModified) {
+        existing.lastModified = group.lastModified;
+      }
+      continue;
+    }
+
+    bySlug.set(slug, {
+      slug,
+      name: displayCityName(stored),
+      region: group.region,
+      count: group.count,
+      lastModified: group.lastModified ?? new Date(0),
+      storedCities: [stored],
+    });
+  }
+
+  for (const profile of staticPublicProfiles()) {
+    const slug = citySlug(profile.city);
+    if (!slug) continue;
+    const existing = bySlug.get(slug);
+    if (existing) {
+      existing.count += 1;
+      if (!existing.storedCities.includes(profile.city)) {
+        existing.storedCities.push(profile.city);
+      }
+      continue;
+    }
+    bySlug.set(slug, {
+      slug,
+      name: displayCityName(profile.city),
+      region: profile.state ?? null,
+      count: 1,
+      lastModified: new Date(0),
+      storedCities: [profile.city],
+    });
+  }
+
+  const entries = [...bySlug.values()].sort(
+    (a, b) => b.count - a.count || a.name.localeCompare(b.name)
+  );
+
+  cityCache = { at: Date.now(), entries };
+  return entries;
 }
 
 /** Resolve a /city/<slug> URL to a city that has real listings or major hub status. */
@@ -445,90 +453,98 @@ export async function listLocalitiesWithListings(): Promise<LocalityListing[]> {
       storedLocalAreas: loc.storedLocalAreas,
     }));
 
+    // If LGD matching returns no results, fall back to legacy method
+    if (entries.length === 0) {
+      console.warn('[listLocalitiesWithListings] LGD matching returned empty results, falling back to legacy method');
+      return await fallbackListLocalitiesWithListings();
+    }
+
     localityCache = { at: Date.now(), entries };
     return entries;
   } catch (error) {
     console.error('[listLocalitiesWithListings] LGD matching failed, falling back to legacy method:', error);
-
-    // Fallback to legacy method
-    const groups = await prisma.profile.groupBy({
-      by: ["city", "localArea", "region"],
-      where: { ...publicProfileWhere, localArea: { not: null }, city: { not: null } },
-      _count: { _all: true },
-      _max: { updatedAt: true },
-    });
-
-    const bySlug = new Map<string, LocalityListing>();
-
-    for (const group of groups) {
-      const storedCity = group.city;
-      const storedLocalArea = group.localArea;
-if (!storedCity || !storedCity.trim() || !storedLocalArea || !storedLocalArea.trim()) continue;
-
-      const citySlug_ = citySlug(storedCity);
-      const localitySlug_ = citySlug(storedLocalArea);
-      if (!citySlug_ || !localitySlug_) continue;
-
-const compositeSlug = `${citySlug_}|${localitySlug_}`;
-
-      const existing = bySlug.get(compositeSlug);
-      if (existing) {
-        existing.count += group._count._all;
-        if (!existing.storedLocalAreas.includes(storedLocalArea)) existing.storedLocalAreas.push(storedLocalArea);
-        if (group._max.updatedAt && group._max.updatedAt > existing.lastModified) {
-          existing.lastModified = group._max.updatedAt;
-        }
-        continue;
-      }
-
-      bySlug.set(compositeSlug, {
-        slug: localitySlug_,
-        name: displayCityName(storedLocalArea),
-        citySlug: citySlug_,
-        cityName: displayCityName(storedCity),
-        region: group.region,
-        count: group._count._all,
-        lastModified: group._max.updatedAt ?? new Date(0),
-        storedLocalAreas: [storedLocalArea],
-      });
-    }
-
-    // Also add static profiles
-    for (const profile of staticPublicProfiles()) {
-      if (!profile.city || !profile.localArea) continue;
-      const citySlug_ = citySlug(profile.city);
-      const localitySlug_ = citySlug(profile.localArea);
-      if (!citySlug_ || !localitySlug_) continue;
-
-      const compositeSlug = `${citySlug_}|${localitySlug_}`;
-      const existing = bySlug.get(compositeSlug);
-      if (existing) {
-        existing.count += 1;
-        if (!existing.storedLocalAreas.includes(profile.localArea)) {
-          existing.storedLocalAreas.push(profile.localArea);
-        }
-        continue;
-      }
-
-      bySlug.set(compositeSlug, {
-        slug: localitySlug_,
-        name: displayCityName(profile.localArea),
-        citySlug: citySlug_,
-        cityName: displayCityName(profile.city),
-        region: profile.state ?? null,
-        count: 1,
-        lastModified: new Date(0),
-        storedLocalAreas: [profile.localArea],
-      });
-    }
-
-    const entries = [...bySlug.values()].sort(
-      (a, b) => b.count - a.count || a.name.localeCompare(b.name)
-    );
-
-    localityCache = { at: Date.now(), entries };
-    return entries;
+    return await fallbackListLocalitiesWithListings();
   }
+}
+
+async function fallbackListLocalitiesWithListings(): Promise<LocalityListing[]> {
+  const groups = await prisma.profile.groupBy({
+    by: ["city", "localArea", "region"],
+    where: { ...publicProfileWhere, localArea: { not: null }, city: { not: null } },
+    _count: { _all: true },
+    _max: { updatedAt: true },
+  });
+
+  const bySlug = new Map<string, LocalityListing>();
+
+  for (const group of groups) {
+    const storedCity = group.city;
+    const storedLocalArea = group.localArea;
+    if (!storedCity || !storedCity.trim() || !storedLocalArea || !storedLocalArea.trim()) continue;
+
+    const citySlug_ = citySlug(storedCity);
+    const localitySlug_ = citySlug(storedLocalArea);
+    if (!citySlug_ || !localitySlug_) continue;
+
+    const compositeSlug = `${citySlug_}|${localitySlug_}`;
+
+    const existing = bySlug.get(compositeSlug);
+    if (existing) {
+      existing.count += group._count._all;
+      if (!existing.storedLocalAreas.includes(storedLocalArea)) existing.storedLocalAreas.push(storedLocalArea);
+      if (group._max.updatedAt && group._max.updatedAt > existing.lastModified) {
+        existing.lastModified = group._max.updatedAt;
+      }
+      continue;
+    }
+
+    bySlug.set(compositeSlug, {
+      slug: localitySlug_,
+      name: displayCityName(storedLocalArea),
+      citySlug: citySlug_,
+      cityName: displayCityName(storedCity),
+      region: group.region,
+      count: group._count._all,
+      lastModified: group._max.updatedAt ?? new Date(0),
+      storedLocalAreas: [storedLocalArea],
+    });
+  }
+
+  // Also add static profiles
+  for (const profile of staticPublicProfiles()) {
+    if (!profile.city || !profile.localArea) continue;
+    const citySlug_ = citySlug(profile.city);
+    const localitySlug_ = citySlug(profile.localArea);
+    if (!citySlug_ || !localitySlug_) continue;
+
+    const compositeSlug = `${citySlug_}|${localitySlug_}`;
+    const existing = bySlug.get(compositeSlug);
+    if (existing) {
+      existing.count += 1;
+      if (!existing.storedLocalAreas.includes(profile.localArea)) {
+        existing.storedLocalAreas.push(profile.localArea);
+      }
+      continue;
+    }
+
+    bySlug.set(compositeSlug, {
+      slug: localitySlug_,
+      name: displayCityName(profile.localArea),
+      citySlug: citySlug_,
+      cityName: displayCityName(profile.city),
+      region: profile.state ?? null,
+      count: 1,
+      lastModified: new Date(0),
+      storedLocalAreas: [profile.localArea],
+    });
+  }
+
+  const entries = [...bySlug.values()].sort(
+    (a, b) => b.count - a.count || a.name.localeCompare(b.name)
+  );
+
+  localityCache = { at: Date.now(), entries };
+  return entries;
 }
 
 /** Resolve a /call-girls-in/<city>/<locality> URL to a locality with real listings. */

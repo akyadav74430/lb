@@ -71,8 +71,8 @@ export default async function AboutPage() {
                 <ul className="city-link-list">
                   {cities.map((city) => (
                     <li key={city.slug}>
-                      <Link href={`/city/${city.slug}`} className="city-link">
-                        Escorts in {city.name}
+                      <Link href={`/call-girls-in/${city.slug}`} className="city-link">
+                        Call girls in {city.name}
                         <span className="city-link__meta">
                           {city.count} {city.count === 1 ? "profile" : "profiles"}
                         </span>

@@ -16,5 +16,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CityPage({ params }: Props) {
   const { city } = await params;
-  redirect(`/call-girls-in-${citySlug(city)}`);
+  redirect(`/call-girls-in/${citySlug(city)}`);
 }

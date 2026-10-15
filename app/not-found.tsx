@@ -58,7 +58,7 @@ export default function NotFound() {
           <div style={{ marginTop: 40 }}>
             <h2 className="info-section__title">Popular cities</h2>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
-              {[
+{[
                 { name: "Mumbai", slug: "mumbai" },
                 { name: "Delhi", slug: "delhi" },
                 { name: "Bangalore", slug: "bangalore" },
@@ -70,11 +70,11 @@ export default function NotFound() {
               ].map((city) => (
                 <Link
                   key={city.slug}
-                  href={`/city/${city.slug}`}
+                  href={`/call-girls-in/${city.slug}`}
                   className="city-link"
                   style={{ fontSize: 13 }}
                 >
-                  Escorts in {city.name}
+                  Call girls in {city.name}
                 </Link>
               ))}
             </div>
