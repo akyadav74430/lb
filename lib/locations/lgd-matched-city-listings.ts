@@ -37,27 +37,35 @@ export async function getLGDMatchedCityListings(): GetLGDMatchedCityListingsRetu
   const localBodies = await fetchLGDLocalBodies();
   const lookups = buildLGDLookups(localBodies);
 
-  const profiles = await prisma.profile.findMany({
-    where: publicProfileWhere,
-    select: { id: true, city: true, district: true, region: true, localArea: true, updatedAt: true },
-  });
+  let profiles: Array<{ id: string; city: string | null; district: string | null; region: string | null; localArea: string | null; updatedAt: Date | null }> = [];
+  try {
+    const { prisma } = await import('@/lib/db');
+    const { publicProfileWhere } = await import('@/lib/seo/profiles');
+    profiles = await prisma.profile.findMany({
+      where: publicProfileWhere,
+      select: { id: true, city: true, district: true, region: true, localArea: true, updatedAt: true },
+    });
+  } catch (err) {
+    console.warn('[getLGDMatchedCityListings] Database unavailable, falling back to static profiles:', err);
+    profiles = [];
+  }
 
   const { ESCORT_PROFILES: staticProfiles } = await import('@/lib/profiles-data');
   const staticProfileList = staticProfiles.filter(p => p.city && p.city.trim().length > 0);
 
   const cityGroups = new Map<string, CityGroupValue>();
 
-/** Map value type for city groups */
-type CityGroupValue = {
-  lgdCode: string;
-  name: string;
-  slug: string;
-  region: string | null;
-  count: number;
-  lastModified: Date;
-  storedCities: Set<string>;
-  lgdLocation: Location;
-};
+  /** Map value type for city groups */
+  type CityGroupValue = {
+    lgdCode: string;
+    name: string;
+    slug: string;
+    region: string | null;
+    count: number;
+    lastModified: Date;
+    storedCities: Set<string>;
+    lgdLocation: Location;
+  };
 
   // Process DB profiles
   for (const profile of profiles) {

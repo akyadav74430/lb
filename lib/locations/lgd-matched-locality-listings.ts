@@ -39,29 +39,37 @@ export async function getLGDMatchedLocalityListings(): GetLGDMatchedLocalityList
   const localBodies = await fetchLGDLocalBodies();
   const lookups = buildLGDLookups(localBodies);
 
-  const profiles = await prisma.profile.findMany({
-    where: { ...publicProfileWhere, localArea: { not: null }, city: { not: null } },
-    select: { id: true, city: true, localArea: true, region: true, district: true, updatedAt: true },
-  });
+  let profiles: Array<{ id: string; city: string | null; localArea: string | null; region: string | null; district: string | null; updatedAt: Date | null }> = [];
+  try {
+    const { prisma } = await import('@/lib/db');
+    const { publicProfileWhere } = await import('@/lib/seo/profiles');
+    profiles = await prisma.profile.findMany({
+      where: { ...publicProfileWhere, localArea: { not: null }, city: { not: null } },
+      select: { id: true, city: true, localArea: true, region: true, district: true, updatedAt: true },
+    });
+  } catch (err) {
+    console.warn('[getLGDMatchedLocalityListings] Database unavailable, falling back to static profiles:', err);
+    profiles = [];
+  }
 
   const { ESCORT_PROFILES: staticProfiles } = await import('@/lib/profiles-data');
   const staticProfileList = staticProfiles.filter(p => p.city && p.localArea);
 
   const localityGroups = new Map<string, LocalityGroupValue>();
 
-/** Map value type for locality groups */
-type LocalityGroupValue = {
-  lgdCode: string;
-  name: string;
-  slug: string;
-  citySlug: string;
-  cityName: string;
-  region: string | null;
-  count: number;
-  lastModified: Date;
-  storedLocalAreas: Set<string>;
-  lgdLocation: Location;
-};
+  /** Map value type for locality groups */
+  type LocalityGroupValue = {
+    lgdCode: string;
+    name: string;
+    slug: string;
+    citySlug: string;
+    cityName: string;
+    region: string | null;
+    count: number;
+    lastModified: Date;
+    storedLocalAreas: Set<string>;
+    lgdLocation: Location;
+  };
 
   // Process DB profiles
   for (const profile of profiles) {
