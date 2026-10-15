@@ -1,15 +1,20 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+let supabaseInstance: SupabaseClient | undefined;
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error("Missing Supabase env vars for storage");
+function getSupabaseClient(): SupabaseClient {
+  if (supabaseInstance) return supabaseInstance;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error("Missing Supabase env vars for storage");
+  }
+  supabaseInstance = createClient(supabaseUrl, supabaseServiceKey);
+  return supabaseInstance;
 }
 
-export const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
 export async function uploadImage(file: File, folder: string = "profiles"): Promise<{ url: string; path: string }> {
+  const supabase = getSupabaseClient();
   const ext = file.name.split(".").pop();
   const filename = `${crypto.randomUUID()}.${ext}`;
   const path = `${folder}/${filename}`;
@@ -33,5 +38,6 @@ export async function uploadImage(file: File, folder: string = "profiles"): Prom
 }
 
 export async function deleteImage(path: string): Promise<void> {
+  const supabase = getSupabaseClient();
   await supabase.storage.from("uploads").remove([path]);
 }
