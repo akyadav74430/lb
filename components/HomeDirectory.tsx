@@ -1,87 +1,62 @@
-"use client";
-
-import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import ProfileCard from "@/components/ProfileCard";
-import IndiaLocationSelector from "@/components/IndiaLocationSelector";
-import LeftSidebar from "@/components/LeftSidebar";
 import SidebarMobileWrapper from "@/components/SidebarMobileWrapper";
-import { getAllProfiles, dbProfileToEscortProfile, EscortProfile } from "@/lib/profiles-data";
+import LeftSidebar from "@/components/LeftSidebar";
+import IndiaLocationSelector from "@/components/IndiaLocationSelector";
+import ProfileCard from "@/components/ProfileCard";
+import { HomeDirectoryClient } from "./HomeDirectoryClient";
+import { listPublicProfiles } from "@/lib/seo/profiles";
 
-export default function HomeDirectory() {
-  const searchParams = useSearchParams();
-  const filterParam = searchParams.get("filter") || "";
-  const stateParam = searchParams.get("state") || "";
-  const districtParam = searchParams.get("district") || "";
-  const cityParam = searchParams.get("city") || "";
-  const localAreaParam = searchParams.get("localArea") || "";
+interface HomeDirectoryProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-  const [currentPage, setCurrentPage] = useState(1);
+async function getInitialProfiles() {
+  // listPublicProfiles() already merges DB + static listings; dedupe by id
+  // so a static profile that also exists in the database is not shown twice.
+  const profiles = await listPublicProfiles();
+  const seen = new Set<string>();
+  return profiles.filter((p) => {
+    if (seen.has(p.id)) return false;
+    seen.add(p.id);
+    return true;
+  });
+}
+
+export default async function HomeDirectory({ searchParams }: HomeDirectoryProps) {
+  const sp = await searchParams;
+  const filterParam = (sp.filter as string) || "";
+  const stateParam = (sp.state as string) || "";
+  const districtParam = (sp.district as string) || "";
+  const cityParam = (sp.city as string) || "";
+  const localAreaParam = (sp.localArea as string) || "";
+
+  // Fetch initial profiles on the server
+  const initialProfiles = await getInitialProfiles();
+
+  // Pre-filter on server for initial render
+  const filteredProfiles = initialProfiles.filter((p) => {
+    if (p.gender !== "female") return false;
+    if (filterParam === "vip" && !p.badges.includes("VIP") && p.topBadge !== "top") return false;
+    if (filterParam === "massages" && p.category !== "massages") return false;
+    if (stateParam && p.state && p.state.toLowerCase() !== stateParam.toLowerCase()) return false;
+    if (districtParam && p.district && p.district.toLowerCase() !== districtParam.toLowerCase()) return false;
+    if (cityParam && p.city.toLowerCase() !== cityParam.toLowerCase()) return false;
+    if (localAreaParam && p.localArea && p.localArea.toLowerCase() !== localAreaParam.toLowerCase()) return false;
+    return true;
+  });
+
   const profilesPerPage = 12;
-
-  const [allProfiles, setAllProfiles] = useState<EscortProfile[]>(() => getAllProfiles());
-
-  useEffect(() => {
-    let isMounted = true;
-    fetch("/api/profiles?page=1")
-      .then((r) => r.json())
-      .then((data) => {
-        if (isMounted && data.profiles && Array.isArray(data.profiles) && data.profiles.length > 0) {
-          const dbMapped: EscortProfile[] = data.profiles.map(dbProfileToEscortProfile);
-          setAllProfiles((prev) => {
-            const dbIds = new Set(dbMapped.map((p) => p.id));
-            const filteredPrev = prev.filter((p) => !dbIds.has(p.id));
-            return [...dbMapped, ...filteredPrev];
-          });
-        }
-      })
-      .catch(() => {});
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // Filter profiles based on Indian location params and category filters
-  const filteredProfiles = useMemo(() => {
-    return allProfiles.filter((p) => {
-      // Directory lists female profiles only.
-      if (p.gender !== "female") return false;
-
-      // URL Filter (vip, massages)
-      if (filterParam === "vip" && !p.badges.includes("VIP") && p.topBadge !== "top") return false;
-      if (filterParam === "massages" && p.category !== "massages") return false;
-
-      // Indian Location Filter
-      if (stateParam && p.state && p.state.toLowerCase() !== stateParam.toLowerCase()) return false;
-      if (districtParam && p.district && p.district.toLowerCase() !== districtParam.toLowerCase()) return false;
-      if (cityParam && p.city.toLowerCase() !== cityParam.toLowerCase()) return false;
-      if (localAreaParam && p.localArea && p.localArea.toLowerCase() !== localAreaParam.toLowerCase()) return false;
-
-      return true;
-    });
-  }, [allProfiles, filterParam, stateParam, districtParam, cityParam, localAreaParam]);
-
-  // Pagination calculation
   const totalPages = Math.max(1, Math.ceil(filteredProfiles.length / profilesPerPage));
-  const displayedProfiles = filteredProfiles.slice(
-    (currentPage - 1) * profilesPerPage,
-    currentPage * profilesPerPage
-  );
+  const displayedProfiles = filteredProfiles.slice(0, profilesPerPage);
 
   // Dynamic Page Title
-  const dynamicTitle = useMemo(() => {
-    if (localAreaParam && cityParam) return `${localAreaParam}, ${cityParam} Escorts`;
-    if (cityParam) return `${cityParam} Escorts`;
-    if (districtParam) return `${districtParam} Escorts`;
-    if (stateParam) return `${stateParam} Escorts`;
-    if (filterParam === "vip") return "VIP Escorts Directory India";
-    if (filterParam === "massages") return "Sensual Massage & Wellness India";
-    // The unfiltered homepage is the site's head-term entry point, so the H1
-    // names the query it is meant to win rather than saying "directory".
-    return "Call Girls in India — Verified Escorts & Companions";
-  }, [localAreaParam, cityParam, districtParam, stateParam, filterParam]);
+  let dynamicTitle = "Call Girls in India — Verified Escorts & Companions";
+  if (localAreaParam && cityParam) dynamicTitle = `${localAreaParam}, ${cityParam} Escorts`;
+  else if (cityParam) dynamicTitle = `${cityParam} Escorts`;
+  else if (districtParam) dynamicTitle = `${districtParam} Escorts`;
+  else if (stateParam) dynamicTitle = `${stateParam} Escorts`;
+  else if (filterParam === "vip") dynamicTitle = "VIP Escorts Directory India";
+  else if (filterParam === "massages") dynamicTitle = "Sensual Massage & Wellness India";
 
   return (
     <div className="page-body">
@@ -125,44 +100,34 @@ export default function HomeDirectory() {
                 phone={p.phone}
                 whatsapp={p.whatsapp}
                 hidePhone={Boolean(p.isPhoneHidden || p.hidePhoneFromPublic)}
-                // The first row sits above the fold and is the LCP candidate.
                 priority={index < 4}
               />
             ))}
           </div>
         )}
 
-        {/* Pagination */}
+        {/* Pagination - server-rendered first page, client takes over */}
         {totalPages > 1 && (
           <div className="pagination">
-            <button
-              className={`pagination__btn ${currentPage === 1 ? "pagination__btn--disabled" : ""}`}
-              type="button"
-              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-            >
+            <button className="pagination__btn pagination__btn--disabled" type="button" disabled>
               «
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
-              <button
-                key={num}
-                className={`pagination__btn ${currentPage === num ? "pagination__btn--active" : ""}`}
-                type="button"
-                onClick={() => setCurrentPage(num)}
-              >
+            <button className="pagination__btn pagination__btn--active" type="button">
+              1
+            </button>
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 2).map((num) => (
+              <button key={num} className="pagination__btn" type="button">
                 {num}
               </button>
             ))}
-            <button
-              className={`pagination__btn ${currentPage === totalPages ? "pagination__btn--disabled" : ""}`}
-              type="button"
-              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-            >
+            <button className="pagination__btn" type="button">
               »
             </button>
           </div>
         )}
+
+        {/* Client-side interactivity (filtering, pagination, title updates) */}
+        <HomeDirectoryClient initialProfiles={initialProfiles} />
       </main>
     </div>
   );
