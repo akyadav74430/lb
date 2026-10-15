@@ -11,6 +11,195 @@ import { MAJOR_CITIES, MAJOR_CITY_BY_SLUG } from "@/lib/seo/major-cities";
 // Import LGD-matched functions from dedicated module
 import { getLGDMatchedCityListings, getLGDMatchedLocalityListings } from '@/lib/seo/lgd-matched-listings';
 
+/** Major city localities derived from static profiles and major city definitions */
+const MAJOR_CITY_LOCALITIES: Record<string, Array<{ name: string; slug: string }>> = {
+  mumbai: [
+    { name: "Bandra West", slug: "bandra-west" },
+    { name: "Andheri West", slug: "andheri-west" },
+    { name: "Juhu", slug: "juhu" },
+    { name: "Colaba", slug: "colaba" },
+    { name: "Powai", slug: "powai" },
+    { name: "Worli", slug: "worli" },
+    { name: "BKC", slug: "bkc" },
+    { name: "Thane", slug: "thane" },
+    { name: "Navi Mumbai", slug: "navi-mumbai" },
+    { name: "Santacruz", slug: "santacruz" },
+  ],
+  delhi: [
+    { name: "South Delhi", slug: "south-delhi" },
+    { name: "Connaught Place", slug: "connaught-place" },
+    { name: "Aerocity", slug: "aerocity" },
+    { name: "Dwarka", slug: "dwarka" },
+    { name: "Vasant Kunj", slug: "vasant-kunj" },
+    { name: "Karol Bagh", slug: "karol-bagh" },
+    { name: "Saket", slug: "saket" },
+    { name: "Hauz Khas", slug: "hauz-khas" },
+    { name: "Greater Kailash", slug: "greater-kailash" },
+  ],
+  bangalore: [
+    { name: "Koramangala", slug: "koramangala" },
+    { name: "Indiranagar", slug: "indiranagar" },
+    { name: "Whitefield", slug: "whitefield" },
+    { name: "HSR Layout", slug: "hsr-layout" },
+    { name: "MG Road", slug: "mg-road" },
+    { name: "Electronic City", slug: "electronic-city" },
+    { name: "Jayanagar", slug: "jayanagar" },
+    { name: "Marathahalli", slug: "marathahalli" },
+    { name: "Hebbal", slug: "hebbal" },
+  ],
+  pune: [
+    { name: "Koregaon Park", slug: "koregaon-park" },
+    { name: "Viman Nagar", slug: "viman-nagar" },
+    { name: "Hinjewadi", slug: "hinjewadi" },
+    { name: "Kalyani Nagar", slug: "kalyani-nagar" },
+    { name: "Baner", slug: "baner" },
+    { name: "Wakad", slug: "wakad" },
+    { name: "Shivaji Nagar", slug: "shivaji-nagar" },
+    { name: "Aundh", slug: "aundh" },
+    { name: "Magarpatta", slug: "magarpatta" },
+  ],
+  hyderabad: [
+    { name: "Banjara Hills", slug: "banjara-hills" },
+    { name: "Jubilee Hills", slug: "jubilee-hills" },
+    { name: "Hitech City", slug: "hitech-city" },
+    { name: "Gachibowli", slug: "gachibowli" },
+    { name: "Madhapur", slug: "madhapur" },
+    { name: "Kondapur", slug: "kondapur" },
+    { name: "Begumpet", slug: "begumpet" },
+    { name: "Somajiguda", slug: "somajiguda" },
+  ],
+  goa: [
+    { name: "Calangute", slug: "calangute" },
+    { name: "Baga", slug: "baga" },
+    { name: "Candolim", slug: "candolim" },
+    { name: "Panaji", slug: "panaji" },
+    { name: "Anjuna", slug: "anjuna" },
+    { name: "Arpora", slug: "arpora" },
+    { name: "Colva", slug: "colva" },
+    { name: "Morjim", slug: "morjim" },
+    { name: "Vagator", slug: "vagator" },
+  ],
+  kolkata: [
+    { name: "Park Street", slug: "park-street" },
+    { name: "Salt Lake", slug: "salt-lake" },
+    { name: "New Town", slug: "new-town" },
+    { name: "Ballygunge", slug: "ballygunge" },
+    { name: "Alipore", slug: "alipore" },
+    { name: "Howrah", slug: "howrah" },
+    { name: "Rajarhat", slug: "rajarhat" },
+    { name: "Gariahat", slug: "gariahat" },
+  ],
+  chennai: [
+    { name: "T Nagar", slug: "t-nagar" },
+    { name: "Nungambakkam", slug: "nungambakkam" },
+    { name: "OMR", slug: "omr" },
+    { name: "Velachery", slug: "velachery" },
+    { name: "Anna Nagar", slug: "anna-nagar" },
+    { name: "Guindy", slug: "guindy" },
+    { name: "ECR", slug: "ecr" },
+    { name: "Alwarpet", slug: "alwarpet" },
+  ],
+  jaipur: [
+    { name: "C-Scheme", slug: "c-scheme" },
+    { name: "Vaishali Nagar", slug: "vaishali-nagar" },
+    { name: "Malviya Nagar", slug: "malviya-nagar" },
+    { name: "Mansarovar", slug: "mansarovar" },
+    { name: "MI Road", slug: "mi-road" },
+    { name: "Tonk Road", slug: "tonk-road" },
+    { name: "Raja Park", slug: "raja-park" },
+  ],
+  ahmedabad: [
+    { name: "SG Highway", slug: "sg-highway" },
+    { name: "Bodakdev", slug: "bodakdev" },
+    { name: "Satellite", slug: "satellite" },
+    { name: "Vastrapur", slug: "vastrapur" },
+    { name: "Prahlad Nagar", slug: "prahlad-nagar" },
+    { name: "Navrangpura", slug: "navrangpura" },
+    { name: "Thaltej", slug: "thaltej" },
+  ],
+  chandigarh: [
+    { name: "Sector 17", slug: "sector-17" },
+    { name: "Sector 35", slug: "sector-35" },
+    { name: "Sector 22", slug: "sector-22" },
+    { name: "Sector 8", slug: "sector-8" },
+    { name: "Mohali", slug: "mohali" },
+    { name: "Panchkula", slug: "panchkula" },
+    { name: "Zirakpur", slug: "zirakpur" },
+    { name: "IT Park", slug: "it-park" },
+  ],
+  lucknow: [
+    { name: "Gomti Nagar", slug: "gomti-nagar" },
+    { name: "Hazratganj", slug: "hazratganj" },
+    { name: "Aliganj", slug: "aliganj" },
+    { name: "Indira Nagar", slug: "indira-nagar" },
+    { name: "Vibhuti Khand", slug: "vibhuti-khand" },
+    { name: "Charbagh", slug: "charbagh" },
+  ],
+  noida: [
+    { name: "Sector 18", slug: "sector-18" },
+    { name: "Sector 62", slug: "sector-62" },
+    { name: "Sector 50", slug: "sector-50" },
+    { name: "Sector 137", slug: "sector-137" },
+    { name: "Sector 15", slug: "sector-15" },
+    { name: "Greater Noida", slug: "greater-noida" },
+    { name: "Pari Chowk", slug: "pari-chowk" },
+  ],
+  gurgaon: [
+    { name: "DLF Cyber City", slug: "dlf-cyber-city" },
+    { name: "Sector 29", slug: "sector-29" },
+    { name: "Golf Course Road", slug: "golf-course-road" },
+    { name: "Sohna Road", slug: "sohna-road" },
+    { name: "Sector 56", slug: "sector-56" },
+    { name: "MG Road Gurgaon", slug: "mg-road-gurgaon" },
+    { name: "Udyog Vihar", slug: "udyog-vihar" },
+  ],
+  surat: [
+    { name: "Vesu", slug: "vesu" },
+    { name: "Dumas Road", slug: "dumas-road" },
+    { name: "Adajan", slug: "adajan" },
+    { name: "Varachha", slug: "varachha" },
+    { name: "Piplod", slug: "piplod" },
+    { name: "Ghod Dod Road", slug: "ghod-dod-road" },
+  ],
+  indore: [
+    { name: "Vijay Nagar", slug: "vijay-nagar" },
+    { name: "Palasia", slug: "palasia" },
+    { name: "AB Road", slug: "ab-road" },
+    { name: "Bhawar Kuan", slug: "bhawar-kuan" },
+    { name: "Sapna Sangeeta", slug: "sapna-sangeeta" },
+  ],
+  bhubaneswar: [
+    { name: "Patia", slug: "patia" },
+    { name: "Saheed Nagar", slug: "saheed-nagar" },
+    { name: "Nayapalli", slug: "nayapalli" },
+    { name: "Jayadev Vihar", slug: "jayadev-vihar" },
+    { name: "Chandrasekharpur", slug: "chandrasekharpur" },
+    { name: "Khandagiri", slug: "khandagiri" },
+  ],
+  cochin: [
+    { name: "Ernakulam", slug: "ernakulam" },
+    { name: "Marine Drive", slug: "marine-drive" },
+    { name: "MG Road", slug: "mg-road" },
+    { name: "Kakkanad", slug: "kakkanad" },
+    { name: "Fort Kochi", slug: "fort-kochi" },
+    { name: "Edappally", slug: "edappally" },
+  ],
+  dehradun: [
+    { name: "Rajpur Road", slug: "rajpur-road" },
+    { name: "Jakhan", slug: "jakhan" },
+    { name: "Sahastradhara Road", slug: "sahastradhara-road" },
+    { name: "Clement Town", slug: "clement-town" },
+    { name: "Ballupur", slug: "ballupur" },
+  ],
+  patna: [
+    { name: "Bailey Road", slug: "bailey-road" },
+    { name: "Kankarbagh", slug: "kankarbagh" },
+    { name: "Boring Road", slug: "boring-road" },
+    { name: "Fraser Road", slug: "fraser-road" },
+    { name: "Danapur", slug: "danapur" },
+  ],
+};
+
 /**
  * The single definition of "this profile may appear in public pages".
  *
@@ -181,15 +370,47 @@ export async function listCitiesWithListings(): Promise<CityListing[]> {
     // If LGD matching returns no results, fall back to legacy method
     if (entries.length === 0) {
       console.warn('[listCitiesWithListings] LGD matching returned empty results, falling back to legacy method');
-      return await fallbackListCitiesWithListings();
+      const fallbackEntries = await fallbackListCitiesWithListings();
+      return mergeMajorCities(fallbackEntries);
     }
 
-    cityCache = { at: Date.now(), entries };
-    return entries;
+    // Merge major cities to ensure all major hubs are included
+    const mergedEntries = mergeMajorCities(entries);
+    cityCache = { at: Date.now(), entries: mergedEntries };
+    return mergedEntries;
   } catch (error) {
     console.error('[listCitiesWithListings] LGD matching failed, falling back to legacy method:', error);
-    return await fallbackListCitiesWithListings();
+    const fallbackEntries = await fallbackListCitiesWithListings();
+    return mergeMajorCities(fallbackEntries);
   }
+}
+
+function mergeMajorCities(entries: CityListing[]): CityListing[] {
+  const bySlug = new Map<string, CityListing>();
+  
+  // Add existing entries
+  for (const entry of entries) {
+    bySlug.set(entry.slug, entry);
+  }
+  
+  // Add major cities (with count=0 if not already present)
+  for (const majorCity of MAJOR_CITIES) {
+    if (!bySlug.has(majorCity.slug)) {
+      bySlug.set(majorCity.slug, {
+        slug: majorCity.slug,
+        name: majorCity.name,
+        region: majorCity.region,
+        count: 0,
+        lastModified: new Date(0),
+        storedCities: [majorCity.name],
+      });
+    }
+  }
+  
+  // Sort: cities with listings first, then alphabetically
+  return [...bySlug.values()].sort(
+    (a, b) => (b.count - a.count) || a.name.localeCompare(b.name)
+  );
 }
 
 async function fallbackListCitiesWithListings(): Promise<CityListing[]> {
@@ -247,8 +468,7 @@ async function fallbackListCitiesWithListings(): Promise<CityListing[]> {
     (a, b) => b.count - a.count || a.name.localeCompare(b.name)
   );
 
-  cityCache = { at: Date.now(), entries };
-  return entries;
+  return mergeMajorCities(entries);
 }
 
 /** Resolve a /city/<slug> URL to a city that has real listings or major hub status. */
@@ -278,14 +498,8 @@ export async function getProfilesForCity(
   );
 
   const direct = [...fromStatic, ...fromDb];
-  if (direct.length > 0) return direct;
-
-  // For hubs awaiting local signups, feature verified companions who offer tour / All-India travel
-  const travelCompanions = staticPublicProfiles().filter(
-    (p) => !p.travel || p.travel.some((t) => /all india|state wide/i.test(t))
-  );
-
-  return travelCompanions.length > 0 ? travelCompanions : staticPublicProfiles().slice(0, 3);
+  // Only return profiles genuinely associated with this city
+  return direct;
 }
 
 /**
@@ -456,15 +670,56 @@ export async function listLocalitiesWithListings(): Promise<LocalityListing[]> {
     // If LGD matching returns no results, fall back to legacy method
     if (entries.length === 0) {
       console.warn('[listLocalitiesWithListings] LGD matching returned empty results, falling back to legacy method');
-      return await fallbackListLocalitiesWithListings();
+      const fallbackEntries = await fallbackListLocalitiesWithListings();
+      return mergeMajorLocalities(fallbackEntries);
     }
 
-    localityCache = { at: Date.now(), entries };
-    return entries;
+    // Merge major localities to ensure all major hubs are included
+    const mergedEntries = mergeMajorLocalities(entries);
+    localityCache = { at: Date.now(), entries: mergedEntries };
+    return mergedEntries;
   } catch (error) {
     console.error('[listLocalitiesWithListings] LGD matching failed, falling back to legacy method:', error);
-    return await fallbackListLocalitiesWithListings();
+    const fallbackEntries = await fallbackListLocalitiesWithListings();
+    return mergeMajorLocalities(fallbackEntries);
   }
+}
+
+function mergeMajorLocalities(entries: LocalityListing[]): LocalityListing[] {
+  const bySlug = new Map<string, LocalityListing>();
+  
+  // Add existing entries
+  for (const entry of entries) {
+    const compositeSlug = `${entry.citySlug}|${entry.slug}`;
+    bySlug.set(compositeSlug, entry);
+  }
+  
+  // Add major city localities (with count=0 if not already present)
+  for (const [citySlug, localities] of Object.entries(MAJOR_CITY_LOCALITIES)) {
+    const majorCity = MAJOR_CITY_BY_SLUG.get(citySlug);
+    if (!majorCity) continue;
+    
+    for (const locality of localities) {
+      const compositeSlug = `${citySlug}|${locality.slug}`;
+      if (!bySlug.has(compositeSlug)) {
+        bySlug.set(compositeSlug, {
+          slug: locality.slug,
+          name: locality.name,
+          citySlug,
+          cityName: majorCity.name,
+          region: majorCity.region,
+          count: 0,
+          lastModified: new Date(0),
+          storedLocalAreas: [locality.name],
+        });
+      }
+    }
+  }
+  
+  // Sort: localities with listings first, then alphabetically
+  return [...bySlug.values()].sort(
+    (a, b) => (b.count - a.count) || a.name.localeCompare(b.name)
+  );
 }
 
 async function fallbackListLocalitiesWithListings(): Promise<LocalityListing[]> {
@@ -543,8 +798,7 @@ async function fallbackListLocalitiesWithListings(): Promise<LocalityListing[]> 
     (a, b) => b.count - a.count || a.name.localeCompare(b.name)
   );
 
-  localityCache = { at: Date.now(), entries };
-  return entries;
+  return mergeMajorLocalities(entries);
 }
 
 /** Resolve a /call-girls-in/<city>/<locality> URL to a locality with real listings. */

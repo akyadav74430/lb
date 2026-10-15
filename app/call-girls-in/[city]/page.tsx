@@ -31,6 +31,7 @@ export async function generateStaticParams() {
 
 async function resolveCity(slug: string): Promise<CityListing> {
   const city = await getCityListing(slug);
+  // Allow major cities even with 0 listings (they have fallback content)
   if (!city) notFound();
   return city;
 }
@@ -51,7 +52,9 @@ export default async function CityPage({ params }: Props) {
   ]);
   const otherCities = allCities.filter((c) => c.slug !== city.slug);
   const regionSuffix = city.region ? ` in ${displayCityName(city.region)}` : "";
-  const countText = `${city.count} public ${city.count === 1 ? "profile" : "profiles"}`;
+  const countText = city.count > 0
+    ? `${city.count} public ${city.count === 1 ? "profile" : "profiles"}`
+    : "No verified listings yet";
   const body = buildCityBody(city, aggregates);
   const cityDef = MAJOR_CITY_BY_SLUG.get(city.slug);
   const faqs = cityDef?.faqs && cityDef.faqs.length > 0 ? cityDef.faqs : null;
@@ -98,23 +101,38 @@ export default async function CityPage({ params }: Props) {
 
           <div className="info-card-content">
             <h2 className="info-section__title">Profiles in {city.name}</h2>
-            <div className="profiles-grid">
-              {profiles.map((profile, index) => (
-                <ProfileCard
-                  key={profile.id}
-                  name={profile.name}
-                  location={`${profile.city}${profile.state ? `, ${profile.state}` : ""}`}
-                  photoUrl={profile.photoUrl}
-                  topBadge={profile.topBadge}
-                  badges={profile.badges}
-                  href={`/profile/${profile.id}`}
-                  phone={profile.phone}
-                  whatsapp={profile.whatsapp}
-                  hidePhone={Boolean(profile.isPhoneHidden || profile.hidePhoneFromPublic)}
-                  priority={index < 4}
-                />
-              ))}
-            </div>
+            {profiles.length > 0 ? (
+              <div className="profiles-grid">
+                {profiles.map((profile, index) => (
+                  <ProfileCard
+                    key={profile.id}
+                    name={profile.name}
+                    location={`${profile.city}${profile.state ? `, ${profile.state}` : ""}`}
+                    photoUrl={profile.photoUrl}
+                    topBadge={profile.topBadge}
+                    badges={profile.badges}
+                    href={`/profile/${profile.id}`}
+                    phone={profile.phone}
+                    whatsapp={profile.whatsapp}
+                    hidePhone={Boolean(profile.isPhoneHidden || profile.hidePhoneFromPublic)}
+                    priority={index < 4}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="info-text">
+                No verified profiles are currently listed in {city.name}.{" "}
+                {city.count === 0 && (
+                  <>
+                    Be the first to{" "}
+                    <Link href="/profile/add" className="btn-leave-review" style={{ display: "inline-block" }}>
+                      add your profile
+                    </Link>
+                    {"."}
+                  </>
+                )}
+              </p>
+            )}
           </div>
 
           <div className="info-card-content">
@@ -144,16 +162,18 @@ export default async function CityPage({ params }: Props) {
             <div className="info-card-content">
               <h2 className="info-section__title">Other cities with listings</h2>
               <ul className="city-link-list">
-                {otherCities.map((other) => (
-                  <li key={other.slug}>
-                    <Link href={`/call-girls-in/${other.slug}`} className="city-link">
-                      Call girls in {other.name}
-                      <span className="city-link__meta">
-                        {other.count} {other.count === 1 ? "profile" : "profiles"}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
+                {otherCities
+                  .filter((other) => other.count > 0)
+                  .map((other) => (
+                    <li key={other.slug}>
+                      <Link href={`/call-girls-in/${other.slug}`} className="city-link">
+                        Call girls in {other.name}
+                        <span className="city-link__meta">
+                          {other.count} {other.count === 1 ? "profile" : "profiles"}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
               </ul>
             </div>
           )}

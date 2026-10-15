@@ -2,11 +2,11 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 import {
   listCitiesWithListings,
+  listLocalitiesWithListings,
   listPublicProfiles,
   publicProfileWhere,
 } from "@/lib/seo/profiles";
 import { absoluteUrl } from "@/lib/seo/site";
-import { getIndexableCities, getIndexableLocalities } from "@/lib/india-locations";
 
 /**
  * The sitemap queries the database, so it must not be baked at build time.
@@ -66,42 +66,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // City landing pages: only cities that currently have public listings, so the
   // sitemap can never advertise an empty or 404 page.
   const cities = await listCitiesWithListings();
-  const cityRoutes: MetadataRoute.Sitemap = cities.map((city) => ({
-    url: absoluteUrl(`/call-girls-in/${city.slug}`),
-    lastModified: realDate(city.lastModified),
-    changeFrequency: "daily",
-    priority: 0.8,
-  }));
-
-  // LGD-based indexable city pages (from official Government of India data)
-  let lgdCityRoutes: MetadataRoute.Sitemap = [];
-  try {
-    const lgdCities = await getIndexableCities();
-    lgdCityRoutes = lgdCities.map((city) => ({
+  const cityRoutes: MetadataRoute.Sitemap = cities
+    .filter((city) => city.count > 0)
+    .map((city) => ({
       url: absoluteUrl(`/call-girls-in/${city.slug}`),
-      lastModified: now,
+      lastModified: realDate(city.lastModified),
       changeFrequency: "daily",
       priority: 0.8,
     }));
-    console.log(`[sitemap] Added ${lgdCityRoutes.length} LGD-based indexable city URLs`);
-  } catch (error) {
-    console.warn('[sitemap] Failed to fetch LGD cities:', error);
-  }
 
-  // LGD-based indexable locality pages
-  let lgdLocalityRoutes: MetadataRoute.Sitemap = [];
-  try {
-    const lgdLocalities = await getIndexableLocalities();
-    lgdLocalityRoutes = lgdLocalities.map((loc) => ({
-      url: absoluteUrl(`/call-girls-in/${loc.city}/${loc.slug}`),
-      lastModified: now,
+  // Locality landing pages: only localities that currently have public listings.
+  const localities = await listLocalitiesWithListings();
+  const localityRoutes: MetadataRoute.Sitemap = localities
+    .filter((loc) => loc.count > 0)
+    .map((loc) => ({
+      url: absoluteUrl(`/call-girls-in/${loc.citySlug}/${loc.slug}`),
+      lastModified: realDate(loc.lastModified),
       changeFrequency: "daily",
       priority: 0.7,
     }));
-    console.log(`[sitemap] Added ${lgdLocalityRoutes.length} LGD-based indexable locality URLs`);
-  } catch (error) {
-    console.warn('[sitemap] Failed to fetch LGD localities:', error);
-  }
 
   // Profile pages: same public filter the pages themselves use.
   const profiles = await listPublicProfiles();
@@ -141,7 +124,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   // Combine all routes, deduplicate by URL
-  const allRoutes = [...coreRoutes, ...cityRoutes, ...lgdCityRoutes, ...lgdLocalityRoutes, ...profileRoutes, ...infoRoutes];
+  const allRoutes = [...coreRoutes, ...cityRoutes, ...localityRoutes, ...profileRoutes, ...infoRoutes];
   const seen = new Set<string>();
   const uniqueRoutes = allRoutes.filter(route => {
     if (seen.has(route.url)) return false;

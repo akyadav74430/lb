@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BRAND, absoluteUrl, clampMeta, displayCityName } from "@/lib/seo/site";
+import { BRAND, absoluteUrl, clampMeta, displayCityName, NO_INDEX_FOLLOW } from "@/lib/seo/site";
 import type { CityListing, LocalityListing } from "@/lib/seo/profiles";
 import type { EscortProfile } from "@/lib/profiles-data";
 import { INDIA_LOCATIONS } from "@/lib/india-locations";
@@ -65,7 +65,7 @@ export function buildCityMetadata(city: CityListing): Metadata {
 
   const canonicalUrl = absoluteUrl(`/call-girls-in/${city.slug}`);
 
-  return {
+  const baseMetadata: Metadata = {
     title,
     description,
     alternates: { canonical: canonicalUrl },
@@ -82,6 +82,16 @@ export function buildCityMetadata(city: CityListing): Metadata {
       description,
     },
   };
+
+  // Zero-listing city pages should not be indexed but should be crawled
+  if (city.count === 0) {
+    return {
+      ...baseMetadata,
+      robots: NO_INDEX_FOLLOW,
+    };
+  }
+
+  return baseMetadata;
 }
 
 /**
@@ -177,7 +187,7 @@ export function buildLocalityMetadata(locality: LocalityListing): Metadata {
 
   const canonicalUrl = absoluteUrl(`/call-girls-in/${locality.citySlug}/${locality.slug}`);
 
-  return {
+  const baseMetadata: Metadata = {
     title,
     description,
     alternates: { canonical: canonicalUrl },
@@ -194,6 +204,16 @@ export function buildLocalityMetadata(locality: LocalityListing): Metadata {
       description,
     },
   };
+
+  // Zero-listing locality pages should not be indexed but should be crawled
+  if (locality.count === 0) {
+    return {
+      ...baseMetadata,
+      robots: NO_INDEX_FOLLOW,
+    };
+  }
+
+  return baseMetadata;
 }
 
 /** Metadata for a public profile page. The title template adds the brand. */

@@ -134,3 +134,12 @@ export const NO_INDEX = {
     "max-snippet": 0,
   },
 } satisfies Metadata["robots"];
+
+/**
+ * robots directives for pages that should not be indexed but should be crawled
+ * (e.g., empty city/locality pages with genuine empty states and CTAs).
+ */
+export const NO_INDEX_FOLLOW = {
+  index: false,
+  follow: true,
+} satisfies Metadata["robots"];

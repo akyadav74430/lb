@@ -44,7 +44,9 @@ export default async function LocalityPage({ params }: Props) {
   const profiles = await getProfilesForLocality(locality);
 
   const regionSuffix = locality.region ? ` in ${displayCityName(locality.region)}` : "";
-  const countText = `${locality.count} public ${locality.count === 1 ? "profile" : "profiles"}`;
+  const countText = locality.count > 0
+    ? `${locality.count} public ${locality.count === 1 ? "profile" : "profiles"}`
+    : "No verified listings yet";
 
   return (
     <>
@@ -89,23 +91,38 @@ export default async function LocalityPage({ params }: Props) {
 
           <div className="info-card-content">
             <h2 className="info-section__title">Profiles in {locality.name}, {locality.cityName}</h2>
-            <div className="profiles-grid">
-              {profiles.map((profile, index) => (
-                <ProfileCard
-                  key={profile.id}
-                  name={profile.name}
-                  location={`${profile.city}${profile.state ? `, ${profile.state}` : ""}`}
-                  photoUrl={profile.photoUrl}
-                  topBadge={profile.topBadge}
-                  badges={profile.badges}
-                  href={`/profile/${profile.id}`}
-                  phone={profile.phone}
-                  whatsapp={profile.whatsapp}
-                  hidePhone={Boolean(profile.isPhoneHidden || profile.hidePhoneFromPublic)}
-                  priority={index < 4}
-                />
-              ))}
-            </div>
+            {profiles.length > 0 ? (
+              <div className="profiles-grid">
+                {profiles.map((profile, index) => (
+                  <ProfileCard
+                    key={profile.id}
+                    name={profile.name}
+                    location={`${profile.city}${profile.state ? `, ${profile.state}` : ""}`}
+                    photoUrl={profile.photoUrl}
+                    topBadge={profile.topBadge}
+                    badges={profile.badges}
+                    href={`/profile/${profile.id}`}
+                    phone={profile.phone}
+                    whatsapp={profile.whatsapp}
+                    hidePhone={Boolean(profile.isPhoneHidden || profile.hidePhoneFromPublic)}
+                    priority={index < 4}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="info-text">
+                No verified profiles are currently listed in {locality.name}, {locality.cityName}.{" "}
+                {locality.count === 0 && (
+                  <>
+                    Be the first to{" "}
+                    <Link href="/profile/add" className="btn-leave-review" style={{ display: "inline-block" }}>
+                      add your profile
+                    </Link>
+                    {"."}
+                  </>
+                )}
+              </p>
+            )}
           </div>
 
           <div className="info-card-content">
@@ -114,8 +131,7 @@ export default async function LocalityPage({ params }: Props) {
               {BRAND} publishes verified independent escorts and call girls in {locality.name}, {locality.cityName}.
               {locality.count > 0
                 ? ` There ${locality.count === 1 ? "is" : "are"} currently ${locality.count} public ${locality.count === 1 ? "listing" : "listings"} in this locality.`
-                : " No verified listings are currently available in this locality."
-              }
+                : " No verified listings are currently available in this locality."}
               Open a profile to see real photos, published rates, and direct contact details.
             </p>
             <p className="info-text">
