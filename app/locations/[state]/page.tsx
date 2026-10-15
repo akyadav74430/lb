@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteFooter from "@/components/SiteFooter";
-import { initializeLGDRegistry, getLGDRegistry, isLGDRegistryReady } from "@/lib/india-locations";
+import { initializeLGDRegistry, getLGDRegistry, isLGDRegistryReady } from "@/lib/india-locations-lgd";
 import { absoluteUrl, BRAND } from "@/lib/seo/site";
 import { breadcrumbJsonLd, JsonLd } from "@/lib/seo/jsonld";
 import { NO_INDEX } from "@/lib/seo/site";
