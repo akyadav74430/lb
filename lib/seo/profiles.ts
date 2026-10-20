@@ -251,6 +251,10 @@ function staticPublicProfiles(): EscortProfile[] {
   return ESCORT_PROFILES.filter((p) => p.city && p.city.trim().length > 0);
 }
 
+// In-memory cache for public profiles (60s TTL matches ISR revalidate)
+let publicProfilesCache: { data: EscortProfile[]; timestamp: number } | null = null;
+const PUBLIC_PROFILES_TTL_MS = 60_000;
+
 async function safeDbProfiles(
   where: Prisma.ProfileWhereInput
 ): Promise<EscortProfile[]> {
@@ -271,12 +275,21 @@ async function safeDbProfiles(
 /**
  * Every publicly listable profile (database + bundled static profiles).
  * Used by the /escorts service page and for internal linking.
+ * Cached for 60 seconds to avoid hitting DB on every request.
  */
 export async function listPublicProfiles(): Promise<EscortProfile[]> {
+  const now = Date.now();
+  if (publicProfilesCache && now - publicProfilesCache.timestamp < PUBLIC_PROFILES_TTL_MS) {
+    return publicProfilesCache.data;
+  }
+
   const fromDb = await safeDbProfiles(publicProfileWhere);
   const dbIds = new Set(fromDb.map((p) => p.id));
   const fromStatic = staticPublicProfiles().filter((p) => !dbIds.has(p.id));
-  return [...fromStatic, ...fromDb];
+  const combined = [...fromStatic, ...fromDb];
+
+  publicProfilesCache = { data: combined, timestamp: now };
+  return combined;
 }
 
 /**

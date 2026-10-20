@@ -58,6 +58,36 @@ const nextConfig: NextConfig = {
           { key: "X-DNS-Prefetch-Control", value: "on" },
         ],
       },
+      // Home page & directory - ISR with 60s revalidate, allow stale content while revalidating
+      {
+        source: "/",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=60, stale-while-revalidate=300",
+          },
+        ],
+      },
+      // City listing pages - ISR with 1 hour revalidate
+      {
+        source: "/call-girls-in/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      // Profile pages - ISR with 1 hour revalidate
+      {
+        source: "/profile/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
       // Long-lived cache for Next.js immutable static assets (hashed filenames).
       // These never change at the same URL, so a 1-year max-age is safe and
       // eliminates the network round-trip for returning visitors entirely.

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { NAV_ITEMS } from "./SubNav";
 import Logo from "./Logo";
@@ -21,7 +20,6 @@ const ICONS: Record<string, string> = {
 export default function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
 
   const currentFilter = searchParams.get("filter");
 
@@ -90,18 +88,9 @@ export default function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProp
 
         {/* User Status / Account Bar */}
         <div className="mobile-nav-panel__user-box">
-          {session ? (
-            <div className="mobile-nav-panel__user-logged">
-              <div className="mobile-nav-panel__user-info">
-                <span className="mobile-nav-panel__user-avatar">👤</span>
-                <span className="mobile-nav-panel__user-name">{session.user?.name || "Member"}</span>
-              </div>
-            </div>
-          ) : (
-            <div className="mobile-nav-panel__auth-cta">
-              <p className="mobile-nav-panel__cta-text">Welcome to lovebite.live</p>
-            </div>
-          )}
+          <div className="mobile-nav-panel__auth-cta">
+            <p className="mobile-nav-panel__cta-text">Welcome to lovebite.live</p>
+          </div>
         </div>
 
         {/* Navigation Categories */}

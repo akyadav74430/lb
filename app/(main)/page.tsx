@@ -94,12 +94,17 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   };
 }
 
-export default function HomePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+// ISR: Re-generate page at most once every 60 seconds
+export const revalidate = 60;
+
+// This page uses searchParams for client-side filtering only.
+// The server renders the full unfiltered directory, client handles filters.
+export default function HomePage() {
   return (
     <>
       <JsonLd data={siteJsonLd()} />
       <Suspense fallback={<div style={{ minHeight: "80vh" }} />}>
-        <HomeDirectory searchParams={searchParams} />
+        <HomeDirectory />
       </Suspense>
       <SeoHomeIntro />
       <SiteFooter />
