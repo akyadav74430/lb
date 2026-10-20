@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { buildContactLinks } from "@/lib/contact-visibility";
@@ -25,9 +24,9 @@ interface ProfileCardProps {
 }
 
 /* SVG silhouette for cards with no photo */
-function SilhouettePlaceholder({ name }: { name: string }) {
+function SilhouettePlaceholder({ name, hidden }: { name: string; hidden?: boolean }) {
   return (
-    <div className="profile-card__placeholder">
+    <div className="profile-card__placeholder" style={{ display: hidden ? "none" : "flex" }}>
       <svg viewBox="0 0 64 80" fill="currentColor" opacity="0.35">
         <circle cx="32" cy="20" r="14" />
         <ellipse cx="32" cy="62" rx="24" ry="18" />
@@ -54,14 +53,6 @@ function WhatsAppIcon() {
   );
 }
 
-function LockIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 2a5 5 0 00-5 5v2H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2v-9a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm-3 7V7a3 3 0 116 0v2H9z" />
-    </svg>
-  );
-}
-
 export default function ProfileCard({
   name,
   location,
@@ -74,12 +65,10 @@ export default function ProfileCard({
   hidePhone,
   priority = false,
 }: ProfileCardProps) {
-  const [imgError, setImgError] = useState(false);
-
   const contact = buildContactLinks({ phone, whatsapp, profileName: name, gated: hidePhone });
-  const signInHref = `/signin?callbackUrl=${encodeURIComponent(href)}`;
 
   // Profile card image is 3:4 aspect ratio, ~200px wide on desktop
+  // Explicit dimensions prevent layout shift
   const imageWidth = 320;
   const imageHeight = 427;
 
@@ -87,11 +76,12 @@ export default function ProfileCard({
     <article className="profile-card" id={`profile-card-${name.toLowerCase().replace(/\s+/g, "-")}`}>
       {/* Image area */}
       <div className="profile-card__media">
-        {photoUrl && !imgError ? (
+        {photoUrl ? (
           <Image
             src={photoUrl}
             alt={`${name} profile photo`}
-            fill
+            width={imageWidth}
+            height={imageHeight}
             sizes="(max-width: 600px) 50vw, (max-width: 960px) 33vw, (max-width: 1240px) 25vw, 20vw"
             loading={priority ? "eager" : "lazy"}
             fetchPriority={priority ? "high" : "auto"}
@@ -99,11 +89,16 @@ export default function ProfileCard({
             placeholder="blur"
             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
             style={{ objectFit: "cover" }}
-            onError={() => setImgError(true)}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              const placeholder = e.currentTarget.parentElement?.querySelector(".profile-card__placeholder");
+              if (placeholder) {
+                (placeholder as HTMLElement).style.display = "flex";
+              }
+            }}
           />
-        ) : (
-          <SilhouettePlaceholder name={name} />
-        )}
+        ) : null}
+        <SilhouettePlaceholder name={name} hidden={!!photoUrl} />
 
         {/* TOP / NEW badge */}
         {topBadge && (
@@ -159,14 +154,7 @@ export default function ProfileCard({
       </Link>
 
       {/* Call / WhatsApp actions */}
-      {contact.gated ? (
-        <div className="profile-card__actions">
-          <Link href={signInHref} className="profile-card__action profile-card__action--locked">
-            <LockIcon />
-            <span className="profile-card__action-label">Sign in</span>
-          </Link>
-        </div>
-      ) : (
+      {!contact.gated && (
         <div className="profile-card__actions">
           <a
             href={contact.callHref}

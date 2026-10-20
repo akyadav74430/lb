@@ -8,17 +8,8 @@ export default function AuthPage() {
     <div className="auth-page">
       <div className="auth-card">
         <Logo size="auth" />
-        <h1 className="auth-card__title">Welcome</h1>
-        <p className="auth-card__subtitle">Choose how you want to sign in.</p>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <Link href="/signin" className="auth-btn auth-btn--primary" style={{ textDecoration: "none" }}>
-            👤 User Sign In
-          </Link>
-          <Link href="/signup" className="auth-btn auth-btn--secondary" style={{ textDecoration: "none" }}>
-            ✨ Create User Account
-          </Link>
-        </div>
+        <h1 className="auth-card__title">Authentication Disabled</h1>
+        <p className="auth-card__subtitle">User sign-in and registration have been disabled on this site.</p>
 
         <div className="auth-divider">
           <span className="auth-divider__line" />
@@ -32,8 +23,7 @@ export default function AuthPage() {
 
         <div className="auth-footer" style={{ marginTop: 16 }}>
           <p className="auth-footer__text">
-            Browse profiles without an account?{" "}
-            <Link href="/" className="auth-footer__link">View Directory</Link>
+            <Link href="/" className="auth-footer__link">← Back to Directory</Link>
           </p>
         </div>
       </div>

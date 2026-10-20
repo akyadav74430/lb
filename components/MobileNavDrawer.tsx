@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { NAV_ITEMS } from "./SubNav";
 import Logo from "./Logo";
@@ -10,7 +10,6 @@ import Logo from "./Logo";
 interface MobileNavDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onOpenLogin?: () => void;
 }
 
 const ICONS: Record<string, string> = {
@@ -19,7 +18,7 @@ const ICONS: Record<string, string> = {
   massages: "💆",
 };
 
-export default function MobileNavDrawer({ isOpen, onClose, onOpenLogin }: MobileNavDrawerProps) {
+export default function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
@@ -97,48 +96,10 @@ export default function MobileNavDrawer({ isOpen, onClose, onOpenLogin }: Mobile
                 <span className="mobile-nav-panel__user-avatar">👤</span>
                 <span className="mobile-nav-panel__user-name">{session.user?.name || "Member"}</span>
               </div>
-              <div className="mobile-nav-panel__user-actions">
-                <Link
-                  href="/profile/edit"
-                  className="mobile-nav-panel__btn mobile-nav-panel__btn--secondary"
-                  onClick={onClose}
-                >
-                  Edit Profile
-                </Link>
-                <button
-                  type="button"
-                  className="mobile-nav-panel__btn mobile-nav-panel__btn--danger"
-                  onClick={() => {
-                    onClose();
-                    signOut({ callbackUrl: "/" });
-                  }}
-                >
-                  Sign Out
-                </button>
-              </div>
             </div>
           ) : (
             <div className="mobile-nav-panel__auth-cta">
               <p className="mobile-nav-panel__cta-text">Welcome to lovebite.live</p>
-              <div className="mobile-nav-panel__auth-buttons">
-                <button
-                  type="button"
-                  className="mobile-nav-panel__btn mobile-nav-panel__btn--primary"
-                  onClick={() => {
-                    onClose();
-                    onOpenLogin?.();
-                  }}
-                >
-                  🔑 Sign In
-                </button>
-                <Link
-                  href="/signup"
-                  className="mobile-nav-panel__btn mobile-nav-panel__btn--outline"
-                  onClick={onClose}
-                >
-                  ✨ Create Account
-                </Link>
-              </div>
             </div>
           )}
         </div>

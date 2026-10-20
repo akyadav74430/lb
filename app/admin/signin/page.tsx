@@ -92,21 +92,9 @@ function AdminSignInForm() {
           </button>
         </form>
 
-        <div className="auth-footer">
-          <p className="auth-footer__text">
-            <Link href="/signin" className="auth-footer__link">← User Sign In</Link>
-          </p>
+        <div className="auth-footer" style={{ marginTop: 16 }}>
+          <Link href="/" className="auth-footer__link">← Back to Directory</Link>
         </div>
-
-        <div className="auth-divider">
-          <span className="auth-divider__line" />
-          <span className="auth-divider__text">or</span>
-          <span className="auth-divider__line" />
-        </div>
-
-        <Link href="/" className="auth-btn auth-btn--secondary" style={{ textDecoration: "none" }}>
-          ← Back to Directory
-        </Link>
       </div>
     </div>
   );

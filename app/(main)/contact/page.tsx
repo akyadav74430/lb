@@ -437,9 +437,6 @@ export default function ContactPage() {
               <p className="verify-desc">
                 Get the <strong>✓ Verified</strong> badge on your profile to gain 4x more calls and appear at the top of your city listings. Verification is 100% free.
               </p>
-              <Link href="/signup" className="verify-btn">
-                Register as Model Now →
-              </Link>
             </div>
           </div>
         </div>

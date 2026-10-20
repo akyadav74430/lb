@@ -63,7 +63,6 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
   });
   const telHref = contact.callHref;
   const waHref = contact.whatsappHref;
-  const signInHref = `/signin?callbackUrl=${encodeURIComponent(`/profile/${profile.id}`)}`;
 
   const handleCopyPhone = () => {
     if (!contact.phone || isContactRestricted) return;
@@ -279,22 +278,7 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
             <h3 className="pdv-contact-box__title">Contact {profile.name}</h3>
             <p className="pdv-contact-box__desc">Mention lovebite.live when contacting for VIP rate</p>
 
-            {isContactRestricted ? (
-              <>
-                <div className="pdv-contact-restricted">
-                  🔒 Contact details are restricted by the profile owner for unauthenticated users.
-                  Please sign in to view phone and WhatsApp info.
-                </div>
-                <Link href={signInHref} className="pdv-cta-btn pdv-cta-btn--signin" id="btn-signin-to-contact">
-                  <span className="pdv-cta-icon">🔑</span>
-                  <span className="pdv-cta-text">
-                    <strong>Sign in to view contact</strong>
-                    <span>Call &amp; WhatsApp unlock after sign in</span>
-                  </span>
-                </Link>
-              </>
-            ) : (
-              <div className="pdv-contact-btns">
+            <div className="pdv-contact-btns">
                 {contact.callHref && (
                   <a
                     href={contact.callHref}
@@ -350,7 +334,6 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
                   </a>
                 )}
               </div>
-            )}
 
             {/* Quick action bar */}
             <div className="pdv-contact-actions">
@@ -589,14 +572,7 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
                   </Link>
 
                   <div className="similar-card__actions">
-                    {pContact.gated ? (
-                      <Link
-                        href={`/signin?callbackUrl=${encodeURIComponent(`/profile/${p.id}`)}`}
-                        className="similar-card__action similar-card__action--locked"
-                      >
-                        🔑 Sign in
-                      </Link>
-                    ) : (
+                    {!pContact.gated && (
                       <>
                         <a
                           href={pContact.callHref}
@@ -676,13 +652,7 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
       )}
 
       {/* Sticky Mobile Bar — always reachable Call / WhatsApp */}
-      {isContactRestricted ? (
-        <div className="mobile-sticky-bar">
-          <Link href={signInHref} className="mobile-bar-btn mobile-bar-btn--signin" aria-label="Sign in to view contact details">
-            🔑 Sign in to view contact
-          </Link>
-        </div>
-      ) : (
+      {!isContactRestricted && (
         <div className="mobile-sticky-bar">
           {contact.callHref && (
             <a href={contact.callHref} className="mobile-bar-btn mobile-bar-btn--call" aria-label={`Call ${profile.name}`}>📞 Call</a>
@@ -710,3 +680,6 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
     </div>
   );
 }
+
+
+

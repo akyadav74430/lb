@@ -1,0 +1,496 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { buildContactLinks } from "@/lib/contact-visibility";
+import { EscortProfile } from "@/lib/profiles-data";
+
+interface ProfileGalleryProps {
+  profile: {
+    name: string;
+    gallery: string[];
+    photoUrl: string;
+    badges: string[];
+    topBadge: "top" | "new" | null;
+    status?: string;
+    phone?: string | null;
+    whatsapp?: string | null;
+    isPhoneHidden?: boolean;
+    hidePhoneFromPublic?: boolean;
+    telegram?: string;
+    city?: string;
+    id: string;
+  };
+  allProfileIds?: string[];
+  similarProfiles?: EscortProfile[];
+}
+
+export default function ProfileGallery({
+  profile,
+  allProfileIds = [],
+  similarProfiles = [],
+}: ProfileGalleryProps) {
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [phoneRevealed, setPhoneRevealed] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const gallery = profile.gallery.length > 0 ? profile.gallery : [profile.photoUrl];
+  const activePhoto = gallery[photoIndex] || profile.photoUrl;
+
+  const handlePrevPhoto = useCallback(() => {
+    setPhotoIndex((prev) => (prev > 0 ? prev - 1 : gallery.length - 1));
+  }, [gallery.length]);
+
+  const handleNextPhoto = useCallback(() => {
+    setPhotoIndex((prev) => (prev < gallery.length - 1 ? prev + 1 : 0));
+  }, [gallery.length]);
+
+  // Keyboard navigation for gallery & lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        handlePrevPhoto();
+      } else if (e.key === "ArrowRight") {
+        handleNextPhoto();
+      } else if (e.key === "Escape" && lightboxOpen) {
+        setLightboxOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handlePrevPhoto, handleNextPhoto, lightboxOpen]);
+
+  const currentIndex = allProfileIds.indexOf(profile.id);
+  const prevId = currentIndex > 0 ? allProfileIds[currentIndex - 1] : null;
+  const nextId = currentIndex < allProfileIds.length - 1 ? allProfileIds[currentIndex + 1] : null;
+
+  // Check if contact info is restricted / hidden by profile privacy settings
+  const isContactRestricted = Boolean(profile.isPhoneHidden || profile.hidePhoneFromPublic);
+
+  // All Call / WhatsApp links come from the shared helper
+  const contact = buildContactLinks({
+    phone: profile.phone,
+    whatsapp: profile.whatsapp,
+    profileName: profile.name,
+    gated: isContactRestricted,
+  });
+
+  const handleCopyPhone = () => {
+    if (!contact.phone || isContactRestricted || !profile.phone) return;
+    navigator.clipboard.writeText(profile.phone);
+    setPhoneRevealed(true);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="pdv-wrapper">
+      {/* Breadcrumb */}
+      <nav className="profile-breadcrumbs" aria-label="Breadcrumb">
+        <Link href="/" className="profile-breadcrumb__link">Home</Link>
+        <span className="profile-breadcrumb__sep">›</span>
+        {profile.city && (
+          <Link href={`/call-girls-in/${profile.city.toLowerCase().replace(/\s+/g, "-")}`} className="profile-breadcrumb__link">
+            {profile.city} Escorts
+          </Link>
+        )}
+        <span className="profile-breadcrumb__sep">›</span>
+        <span className="profile-breadcrumb__current">{profile.name}</span>
+      </nav>
+
+      {/* Two-column Main Layout */}
+      <div className="pdv-layout">
+        {/* ══════════════════════════════════════
+            LEFT COLUMN — Photo Gallery + Contact
+            ══════════════════════════════════════ */}
+        <div className="pdv-media-col">
+
+          {/* Main Photo with badge overlays */}
+          <div
+            className="pdv-main-photo"
+            onClick={() => setLightboxOpen(true)}
+            role="button"
+            tabIndex={0}
+            aria-label={`Open full gallery for ${profile.name}`}
+          >
+            <div className="pdv-main-photo__inner">
+              <Image
+                src={activePhoto}
+                alt={`${profile.name} primary photo`}
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 420px"
+                className="pdv-main-photo__img"
+                placeholder="blur"
+                blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+              />
+
+              {/* Top-left stacked circular badges */}
+              <div className="pdv-circle-badges">
+                {profile.badges.includes("NEW") || profile.topBadge === "new" ? (
+                  <span className="pdv-circle-badge pdv-circle-badge--new">NEW</span>
+                ) : null}
+                {profile.badges.includes("Independent") || profile.status === "Independent" ? (
+                  <span className="pdv-circle-badge pdv-circle-badge--independent">INDEP</span>
+                ) : null}
+                {profile.badges.includes("Video") ? (
+                  <span className="pdv-circle-badge pdv-circle-badge--video">VIDEO</span>
+                ) : null}
+              </div>
+
+              {/* Bottom-left: VERIFIED diagonal ribbon */}
+              {profile.badges.includes("Verified") && (
+                <div className="pdv-ribbon pdv-ribbon--verified pdv-ribbon--bottom-left">
+                  <span>VERIFIED</span>
+                </div>
+              )}
+
+              {/* Top-right: VIP diagonal ribbon */}
+              {profile.badges.includes("VIP") && (
+                <div className="pdv-ribbon pdv-ribbon--vip pdv-ribbon--top-right">
+                  <span>VIP</span>
+                </div>
+              )}
+
+              {/* Bottom-right: PREMIUM TOP gold ribbon */}
+              {(profile.topBadge === "top" || profile.badges.includes("PREMIUM TOP")) && (
+                <div className="pdv-ribbon pdv-ribbon--premium pdv-ribbon--bottom-right">
+                  <span>PREMIUM</span>
+                </div>
+              )}
+
+              {/* Online indicator */}
+              <div className="pdv-online-pill">
+                <span className="pdv-online-dot" />
+                Online Now
+              </div>
+
+              {/* Zoom hint */}
+              <div className="pdv-zoom-hint">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  <line x1="11" y1="8" x2="11" y2="14" />
+                  <line x1="8" y1="11" x2="14" y2="11" />
+                </svg>
+                <span>Click to zoom ({photoIndex + 1}/{gallery.length})</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 6-Photo Thumbnail Gallery Grid */}
+          {gallery.length > 1 && (
+            <div className="pdv-gallery-container">
+              <div className="pdv-thumbs-grid">
+                {gallery.map((photo, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    id={`thumb-${idx}`}
+                    onClick={() => setPhotoIndex(idx)}
+                    className={`pdv-thumb-item ${photoIndex === idx ? "pdv-thumb-item--active" : ""}`}
+                    aria-label={`Select photo ${idx + 1}`}
+                  >
+                    <Image
+                      src={photo}
+                      alt={`${profile.name} photo ${idx + 1}`}
+                      fill
+                      sizes="72px"
+                      className="pdv-thumb-img"
+                      loading="lazy"
+                      placeholder="blur"
+                      blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+                    />
+                    <span className="pdv-thumb-number">{idx + 1}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Navigation Controls: Previous | Next | View Gallery */}
+              <div className="pdv-gallery-nav-bar">
+                <button
+                  type="button"
+                  id="btn-gallery-prev"
+                  className="pdv-gallery-nav-btn"
+                  onClick={handlePrevPhoto}
+                  aria-label="Previous image"
+                >
+                  ‹ Previous
+                </button>
+                <button
+                  type="button"
+                  id="btn-gallery-view"
+                  className="pdv-gallery-view-btn"
+                  onClick={() => setLightboxOpen(true)}
+                  aria-label="Open full gallery view"
+                >
+                  🔍 View Gallery ({photoIndex + 1}/{gallery.length})
+                </button>
+                <button
+                  type="button"
+                  id="btn-gallery-next"
+                  className="pdv-gallery-nav-btn"
+                  onClick={handleNextPhoto}
+                  aria-label="Next image"
+                >
+                  Next ›
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Contact Card */}
+          <div className="pdv-contact-box">
+            <h3 className="pdv-contact-box__title">Contact {profile.name}</h3>
+            <p className="pdv-contact-box__desc">Mention lovebite.live when contacting for VIP rate</p>
+
+            <div className="pdv-contact-btns">
+              {contact.callHref && (
+                <a
+                  href={contact.callHref}
+                  id="btn-call"
+                  className="pdv-cta-btn pdv-cta-btn--call"
+                  onClick={() => setPhoneRevealed(true)}
+                  aria-label={`Call ${profile.name} at ${phoneRevealed ? contact.displayPhone : "show phone number"}`}
+                  title={phoneRevealed ? contact.displayPhone : "Call Now / Show Phone Number"}
+                >
+                  <span className="pdv-cta-icon">📞</span>
+                  <span className="pdv-cta-text">
+                    <strong>Call Now</strong>
+                    <span>{phoneRevealed ? contact.displayPhone : "Show Phone Number"}</span>
+                  </span>
+                </a>
+              )}
+              {contact.whatsappHref && (
+                  <a
+                    href={contact.whatsappHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    id="btn-whatsapp"
+                    className="pdv-cta-btn pdv-cta-btn--wa"
+                    aria-label={`WhatsApp chat with ${profile.name}`}
+                    title="WhatsApp Instant Chat & Booking"
+                  >
+                    <span className="pdv-cta-icon">💬</span>
+                    <span className="pdv-cta-text">
+                      <strong>WhatsApp</strong>
+                      <span>Instant Chat & Booking</span>
+                    </span>
+                  </a>
+                )}
+
+                {/* Telegram is optional */}
+                {profile.telegram && (
+                  <a
+                    href={`https://t.me/${profile.telegram.replace("@", "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    id="btn-telegram"
+                    className="pdv-cta-btn pdv-cta-btn--tg"
+                    aria-label={`Telegram chat with ${profile.name}`}
+                    title="Telegram Chat"
+                  >
+                    <span className="pdv-cta-icon">✈️</span>
+                    <span className="pdv-cta-text">
+                      <strong>Telegram</strong>
+                      <span>{profile.telegram}</span>
+                    </span>
+                  </a>
+                )}
+              </div>
+
+            {/* Quick action bar */}
+            <div className="pdv-contact-actions">
+              <button
+                type="button"
+                className="pdv-action-link"
+                onClick={handleCopyPhone}
+                id="btn-copy-phone"
+                disabled={isContactRestricted || !contact.phone}
+                aria-label="Copy phone number to clipboard"
+              >
+                {copied ? "✓ Number Copied!" : "📋 Copy Number"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════
+            RIGHT COLUMN — Similar Profiles (Client-side only)
+            ══════════════════════════════════════ */}
+        <div className="pdv-similar-col">
+          {/* Previous / Next profile navigation */}
+          <div className="pdv-profile-nav">
+            {prevId ? (
+              <Link href={`/profile/${prevId}`} className="pdv-nav-btn" title="Previous profile">
+                ‹ Prev
+              </Link>
+            ) : (
+              <span className="pdv-nav-btn pdv-nav-btn--disabled">‹ Prev</span>
+            )}
+            <span className="pdv-nav-sep" />
+            {nextId ? (
+              <Link href={`/profile/${nextId}`} className="pdv-nav-btn" title="Next profile">
+                Next ›
+              </Link>
+            ) : (
+              <span className="pdv-nav-btn pdv-nav-btn--disabled">Next ›</span>
+            )}
+          </div>
+
+          {/* Similar Profiles Section */}
+          {similarProfiles.length > 0 && (
+            <section className="similar-section">
+              <h3 className="similar-title">Similar Escorts in {profile.city}</h3>
+              <div className="similar-grid">
+                {similarProfiles.map((p) => {
+                  const pContact = buildContactLinks({
+                    phone: p.phone,
+                    whatsapp: p.whatsapp,
+                    profileName: p.name,
+                    gated: Boolean(p.isPhoneHidden || p.hidePhoneFromPublic),
+                  });
+                  return (
+                    <article key={p.id} className="similar-card">
+                      <div className="similar-card__img-wrap">
+                        <Image
+                          src={p.photoUrl || gallery[0]}
+                          alt={p.name}
+                          fill
+                          sizes="(max-width: 768px) 90px, (max-width: 1240px) 180px, 200px"
+                          className="similar-card__img"
+                          loading="lazy"
+                          placeholder="blur"
+                          blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+                        />
+                        {p.badges.includes("VIP") && (
+                          <span className="similar-badge similar-badge--vip">VIP</span>
+                        )}
+                      </div>
+
+                      <Link
+                        href={`/profile/${p.id}`}
+                        className="similar-card__link"
+                        aria-label={`View ${p.name}'s profile`}
+                      >
+                        <div className="similar-card__body">
+                          <h4 className="similar-card__name">{p.name}</h4>
+                          <p className="similar-card__loc">{p.location}</p>
+                          <span className="similar-card__rate">{p.rates[0]?.incall} / hr</span>
+                        </div>
+                      </Link>
+
+                      <div className="similar-card__actions">
+                        {!pContact.gated && (
+                          <>
+                            <a
+                              href={pContact.callHref}
+                              className="similar-card__action similar-card__action--call"
+                              aria-label={`Call ${p.name}`}
+                              title={`Call ${pContact.displayPhone}`}
+                            >📞 Call</a>
+                            <a
+                              href={pContact.whatsappHref}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="similar-card__action similar-card__action--wa"
+                              aria-label={`WhatsApp ${p.name}`}
+                              title={`WhatsApp ${pContact.displayPhone}`}
+                            >💬 WhatsApp</a>
+                          </>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Lightbox Zoom / Full Gallery Modal */}
+          {lightboxOpen && (
+            <div className="lightbox-backdrop" onClick={() => setLightboxOpen(false)}>
+              <button
+                type="button"
+                className="lightbox-close-btn"
+                onClick={() => setLightboxOpen(false)}
+                aria-label="Close image zoom"
+              >
+                ✕
+              </button>
+
+              {/* Lightbox Navigation Buttons */}
+              <button
+                type="button"
+                className="lightbox-nav-btn lightbox-nav-btn--prev"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrevPhoto();
+                }}
+                aria-label="Previous photo"
+              >
+                ‹
+              </button>
+
+              <button
+                type="button"
+                className="lightbox-nav-btn lightbox-nav-btn--next"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNextPhoto();
+                }}
+                aria-label="Next photo"
+              >
+                ›
+              </button>
+
+              <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+                <Image
+                  src={activePhoto}
+                  alt={`${profile.name} gallery photo ${photoIndex + 1}`}
+                  width={900}
+                  height={1100}
+                  priority
+                  style={{ objectFit: "contain", maxHeight: "82vh", maxWidth: "90vw" }}
+                />
+                <div className="lightbox-counter">
+                  Photo {photoIndex + 1} of {gallery.length} · {profile.name}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Sticky Mobile Bar — always reachable Call / WhatsApp */}
+          {!isContactRestricted && (
+            <div className="mobile-sticky-bar">
+              {contact.callHref && (
+                <a href={contact.callHref} className="mobile-bar-btn mobile-bar-btn--call" aria-label={`Call ${profile.name}`}>📞 Call</a>
+              )}
+              {contact.whatsappHref && (
+                <a
+                  href={contact.whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mobile-bar-btn mobile-bar-btn--wa"
+                  aria-label={`WhatsApp chat with ${profile.name}`}
+                >💬 WhatsApp</a>
+              )}
+              {profile.telegram && (
+                <a
+                  href={`https://t.me/${profile.telegram.replace("@", "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mobile-bar-btn mobile-bar-btn--tg"
+                  aria-label={`Telegram chat with ${profile.name}`}
+                >✈️ Telegram</a>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+

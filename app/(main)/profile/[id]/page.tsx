@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import ProfileDetailView from "@/components/ProfileDetailView";
+import ProfileDetailStatic from "@/components/ProfileDetailStatic";
+import ProfileGallery from "@/components/ProfileGallery";
 import {
   getCityListing,
   getProfilesForCity,
@@ -44,15 +45,22 @@ export default async function ProfileDetailPage({ params }: Props) {
   const profile = await getPublicProfileById(id);
   if (!profile) notFound();
 
-  // Prefer other public profiles in the same city: keeps prev/next and the
-  // "similar" block inside one city instead of linking across the country.
-  const city = await getCityListing(citySlug(profile.city));
-  const inCity = city ? await getProfilesForCity(city) : [];
+  // Parallel data fetching to avoid N+1 sequential queries
+  const [city, inCity, allPublic] = await Promise.all([
+    getCityListing(citySlug(profile.city)),
+    // Fetch city profiles and all public profiles in parallel
+    (async () => {
+      const cityListing = await getCityListing(citySlug(profile.city));
+      return cityListing ? getProfilesForCity(cityListing) : [];
+    })(),
+    listPublicProfiles(),
+  ]);
+
   const siblings = inCity.filter((p) => p.id !== profile.id);
   const similar =
     siblings.length > 0
       ? siblings
-      : (await listPublicProfiles()).filter((p) => p.id !== profile.id).slice(0, 4);
+      : allPublic.filter((p) => p.id !== profile.id).slice(0, 4);
   const allProfileIds = inCity.length > 1 ? inCity.map((p) => p.id) : [];
 
   return (
@@ -67,7 +75,10 @@ export default async function ProfileDetailPage({ params }: Props) {
       />
       <JsonLd data={personJsonLd(profile)} />
       <main className="profile-page-main">
-        <ProfileDetailView
+        {/* Static content rendered on server */}
+        <ProfileDetailStatic profile={profile} />
+        {/* Interactive gallery & similar profiles as client component */}
+        <ProfileGallery
           profile={profile}
           similarProfiles={similar}
           allProfileIds={allProfileIds}

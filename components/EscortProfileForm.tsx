@@ -339,8 +339,7 @@ export default function EscortProfileForm({ initialData, mode = "add" }: EscortP
       });
 
       if (res.status === 401) {
-        alert("Please sign in or create an account to publish your profile.");
-        router.push("/signin?callbackUrl=/profile/add");
+        alert("Authentication required to publish profile. Please contact support.");
         return;
       }
 

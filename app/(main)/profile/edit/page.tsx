@@ -13,7 +13,15 @@ export const metadata = {
 export default async function EditProfilePage() {
   const session = await auth();
   if (!session?.user?.id) {
-    redirect("/signin?callbackUrl=/profile/edit");
+    // Authentication removed - profile editing is no longer available
+    return (
+      <div className="auth-page">
+        <div className="auth-card">
+          <h1 className="auth-card__title">Profile Editing Unavailable</h1>
+          <p className="auth-card__subtitle">User authentication has been disabled. Profile editing is not available at this time.</p>
+        </div>
+      </div>
+    );
   }
 
   // Fetch profile with ordered photos and user relation

@@ -129,33 +129,35 @@ export function parseCSV<T>(csvText: string): T[] {
 }
 
 /**
- * In-memory cache for LGD data to avoid repeated downloads
+ * In-memory cache for LGD data (short-lived, for same-process requests)
  */
-const LGD_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const MEMORY_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const lgdMemoryCache = new Map<string, { data: any; timestamp: number }>();
 
-interface LGDCacheEntry<T> {
-  data: T;
-  timestamp: number;
-}
+async function fetchAndParseCSV<T>(url: string, parser: (rows: Record<string, string>[]) => T): Promise<T> {
+  const cacheKey = url.replace(/[^a-zA-Z0-9]/g, '_');
 
-const lgdCache = new Map<string, LGDCacheEntry<any>>();
-
-async function fetchAndParseCSV<T>(url: string, parser: (rows: Record<string, string>[]) => T[]): Promise<T[]> {
-  const cacheKey = url;
-  const cached = lgdCache.get(cacheKey);
-  if (cached && Date.now() - cached.timestamp < LGD_CACHE_TTL_MS) {
-    console.log(`[LGD] Cache hit for ${url}`);
-    return cached.data;
+  // Check memory cache
+  const memCached = lgdMemoryCache.get(cacheKey);
+  if (memCached && Date.now() - memCached.timestamp < MEMORY_CACHE_TTL_MS) {
+    console.log(`[LGD] Memory cache hit for ${url}`);
+    return memCached.data;
   }
 
+  // Fetch from network
   console.log(`[LGD] Fetching ${url}`);
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    // Cache for 7 days at CDN level too
+    next: { revalidate: 604800 },
+  });
   if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
   const csv = await response.text();
   const parsed = parseCSV<Record<string, string>>(csv);
   const data = parser(parsed);
 
-  lgdCache.set(cacheKey, { data, timestamp: Date.now() });
+  // Store in memory cache
+  lgdMemoryCache.set(cacheKey, { data, timestamp: Date.now() });
+
   return data;
 }
 
