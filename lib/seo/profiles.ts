@@ -354,12 +354,47 @@ let cityCache: { at: number; entries: CityListing[] } | null = null;
 const CITY_CACHE_MS = 60_000;
 
 /**
+ * Compute city listings from static profiles (build-time safe, no DB required)
+ */
+function computeCityListingsFromStatic(): CityListing[] {
+  const profiles = staticPublicProfiles();
+  const bySlug = new Map<string, CityListing>();
+
+  for (const profile of profiles) {
+    if (!profile.city) continue;
+    const slug = citySlug(profile.city);
+    if (!slug) continue;
+
+    const existing = bySlug.get(slug);
+    if (existing) {
+      existing.count += 1;
+      if (!existing.storedCities.includes(profile.city)) {
+        existing.storedCities.push(profile.city);
+      }
+      continue;
+    }
+
+    bySlug.set(slug, {
+      slug,
+      name: displayCityName(profile.city),
+      region: profile.state ?? null,
+      count: 1,
+      lastModified: new Date(),
+      storedCities: [profile.city],
+    });
+  }
+
+  // Merge major cities to ensure all major hubs are included
+  return mergeMajorCities([...bySlug.values()]);
+}
+
+/**
  * Cities that genuinely have at least one publicly listable profile.
  *
  * This is what keeps /city/* from becoming a set of empty doorway pages: a city
  * only becomes a landing page when real listings back it.
  *
- * Now uses LGD-matched data as the source of truth for stable city identification.
+ * Uses static profiles as primary source (build-time safe), falls back to LGD-matched data.
  */
 export async function listCitiesWithListings(): Promise<CityListing[]> {
   if (cityCache && Date.now() - cityCache.at < CITY_CACHE_MS) {
@@ -367,10 +402,18 @@ export async function listCitiesWithListings(): Promise<CityListing[]> {
   }
 
   try {
-    // Use LGD-matched data as primary source of truth
+    // First, compute from static profiles (always works, no DB required)
+    const staticEntries = computeCityListingsFromStatic();
+
+    // If we have static data, use it as primary (build-time safe)
+    if (staticEntries.length > 0) {
+      cityCache = { at: Date.now(), entries: staticEntries };
+      return staticEntries;
+    }
+
+    // Fallback to LGD-matched data (requires DB)
     const lgdCities = await getLGDMatchedCityListings();
 
-    // Convert to CityListing format
     const entries: CityListing[] = lgdCities.map(city => ({
       slug: city.slug,
       name: city.name,
@@ -380,19 +423,22 @@ export async function listCitiesWithListings(): Promise<CityListing[]> {
       storedCities: city.storedCities,
     }));
 
-    // If LGD matching returns no results, fall back to legacy method
     if (entries.length === 0) {
       console.warn('[listCitiesWithListings] LGD matching returned empty results, falling back to legacy method');
       const fallbackEntries = await fallbackListCitiesWithListings();
       return mergeMajorCities(fallbackEntries);
     }
 
-    // Merge major cities to ensure all major hubs are included
     const mergedEntries = mergeMajorCities(entries);
     cityCache = { at: Date.now(), entries: mergedEntries };
     return mergedEntries;
   } catch (error) {
-    console.error('[listCitiesWithListings] LGD matching failed, falling back to legacy method:', error);
+    console.error('[listCitiesWithListings] Error, using static fallback:', error);
+    const staticEntries = computeCityListingsFromStatic();
+    if (staticEntries.length > 0) {
+      cityCache = { at: Date.now(), entries: staticEntries };
+      return staticEntries;
+    }
     const fallbackEntries = await fallbackListCitiesWithListings();
     return mergeMajorCities(fallbackEntries);
   }
@@ -654,10 +700,49 @@ let localityCache: { at: number; entries: LocalityListing[] } | null = null;
 const LOCALITY_CACHE_MS = 60_000;
 
 /**
+ * Compute locality listings from static profiles (build-time safe, no DB required)
+ */
+function computeLocalityListingsFromStatic(): LocalityListing[] {
+  const profiles = staticPublicProfiles();
+  const bySlug = new Map<string, LocalityListing>();
+
+  for (const profile of profiles) {
+    if (!profile.city || !profile.localArea) continue;
+    const citySlug_ = citySlug(profile.city);
+    const localitySlug_ = citySlug(profile.localArea);
+    if (!citySlug_ || !localitySlug_) continue;
+
+    const compositeSlug = `${citySlug_}|${localitySlug_}`;
+    const existing = bySlug.get(compositeSlug);
+    if (existing) {
+      existing.count += 1;
+      if (!existing.storedLocalAreas.includes(profile.localArea)) {
+        existing.storedLocalAreas.push(profile.localArea);
+      }
+      continue;
+    }
+
+    bySlug.set(compositeSlug, {
+      slug: localitySlug_,
+      name: displayCityName(profile.localArea),
+      citySlug: citySlug_,
+      cityName: displayCityName(profile.city),
+      region: profile.state ?? null,
+      count: 1,
+      lastModified: new Date(),
+      storedLocalAreas: [profile.localArea],
+    });
+  }
+
+  // Merge major localities to ensure all major hubs are included
+  return mergeMajorLocalities([...bySlug.values()]);
+}
+
+/**
  * Localities that genuinely have at least one publicly listable profile.
  * A locality only becomes a landing page when real listings back it.
  *
- * Now uses LGD-matched data as the source of truth for stable locality identification.
+ * Uses static profiles as primary source (build-time safe), falls back to LGD-matched data.
  */
 export async function listLocalitiesWithListings(): Promise<LocalityListing[]> {
   if (localityCache && Date.now() - localityCache.at < LOCALITY_CACHE_MS) {
@@ -665,10 +750,18 @@ export async function listLocalitiesWithListings(): Promise<LocalityListing[]> {
   }
 
   try {
-    // Use LGD-matched data as primary source of truth
+    // First, compute from static profiles (always works, no DB required)
+    const staticEntries = computeLocalityListingsFromStatic();
+
+    // If we have static data, use it as primary (build-time safe)
+    if (staticEntries.length > 0) {
+      localityCache = { at: Date.now(), entries: staticEntries };
+      return staticEntries;
+    }
+
+    // Fallback to LGD-matched data (requires DB)
     const lgdLocalities = await getLGDMatchedLocalityListings();
 
-    // Convert to LocalityListing format
     const entries: LocalityListing[] = lgdLocalities.map(loc => ({
       slug: loc.slug,
       name: loc.name,
@@ -680,19 +773,22 @@ export async function listLocalitiesWithListings(): Promise<LocalityListing[]> {
       storedLocalAreas: loc.storedLocalAreas,
     }));
 
-    // If LGD matching returns no results, fall back to legacy method
     if (entries.length === 0) {
       console.warn('[listLocalitiesWithListings] LGD matching returned empty results, falling back to legacy method');
       const fallbackEntries = await fallbackListLocalitiesWithListings();
       return mergeMajorLocalities(fallbackEntries);
     }
 
-    // Merge major localities to ensure all major hubs are included
     const mergedEntries = mergeMajorLocalities(entries);
     localityCache = { at: Date.now(), entries: mergedEntries };
     return mergedEntries;
   } catch (error) {
-    console.error('[listLocalitiesWithListings] LGD matching failed, falling back to legacy method:', error);
+    console.error('[listLocalitiesWithListings] Error, using static fallback:', error);
+    const staticEntries = computeLocalityListingsFromStatic();
+    if (staticEntries.length > 0) {
+      localityCache = { at: Date.now(), entries: staticEntries };
+      return staticEntries;
+    }
     const fallbackEntries = await fallbackListLocalitiesWithListings();
     return mergeMajorLocalities(fallbackEntries);
   }
