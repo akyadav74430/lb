@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { EscortProfile } from "@/lib/profiles-data";
+import { EscortProfile } from "@/lib/profiles-types";
 import { citySlug } from "@/lib/seo/site";
 import { bioAdvertisesOtherCity } from "@/lib/seo/metadata";
 import { buildContactLinks } from "@/lib/contact-visibility";

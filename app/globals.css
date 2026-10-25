@@ -5764,7 +5764,8 @@ input[type="radio"] {
 
 .sidebar-all-india__count {
   font-size: 11px;
-  opacity: 0.8;
+  color: var(--text-muted);
+  opacity: 1;
 }
 
 .india-state-list {
@@ -5904,7 +5905,8 @@ input[type="radio"] {
 
 .india-city-count {
   font-size: 10px;
-  opacity: 0.7;
+  color: var(--text-muted);
+  opacity: 1;
 }
 
 /* ═══════════════════════════════════════════════════════════════

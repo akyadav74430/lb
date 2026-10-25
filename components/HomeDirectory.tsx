@@ -1,43 +1,84 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import SidebarMobileWrapper from "@/components/SidebarMobileWrapper";
 import LeftSidebar from "@/components/LeftSidebar";
 import IndiaLocationSelector from "@/components/IndiaLocationSelector";
 import { HomeDirectoryClient } from "./HomeDirectoryClient";
-import { listPublicProfiles } from "@/lib/seo/profiles";
+import { listPublicProfilesPaginated } from "@/lib/seo/profiles";
 
-async function getInitialProfiles() {
-  // listPublicProfiles() already merges DB + static listings; dedupe by id
-  // so a static profile that also exists in the database is not shown twice.
-  const profiles = await listPublicProfiles();
-  const seen = new Set<string>();
-  return profiles.filter((p) => {
-    if (seen.has(p.id)) return false;
-    seen.add(p.id);
-    return true;
+interface HomeDirectoryProps {
+  searchParams: Promise<{
+    filter?: string;
+    state?: string;
+    district?: string;
+    city?: string;
+    localArea?: string;
+    page?: string;
+  }>;
+}
+
+function SidebarSkeleton() {
+  return (
+    <SidebarMobileWrapper>
+      <LeftSidebar />
+    </SidebarMobileWrapper>
+  );
+}
+
+async function getPaginatedProfiles(searchParams: HomeDirectoryProps["searchParams"]) {
+  const sp = await searchParams;
+  return listPublicProfilesPaginated({
+    filter: sp.filter,
+    state: sp.state,
+    district: sp.district,
+    city: sp.city,
+    localArea: sp.localArea,
+    page: sp.page ? parseInt(sp.page, 10) : 1,
+    perPage: 12,
   });
 }
 
-export default async function HomeDirectory() {
-  // Fetch initial profiles on the server (cached for 60s via listPublicProfiles cache)
-  const initialProfiles = await getInitialProfiles();
+export default async function HomeDirectory({ searchParams }: HomeDirectoryProps) {
+  const { profiles: initialProfiles, totalCount, totalPages } = await getPaginatedProfiles(searchParams);
+  const sp = await searchParams;
+  const currentPage = sp.page ? parseInt(sp.page, 10) : 1;
+
+  // Build dynamic title on server for SEO
+  const dynamicTitle = (() => {
+    if (sp.localArea && sp.city) return `${sp.localArea}, ${sp.city} Escorts`;
+    if (sp.city) return `${sp.city} Escorts`;
+    if (sp.district) return `${sp.district} Escorts`;
+    if (sp.state) return `${sp.state} Escorts`;
+    if (sp.filter === "vip") return "VIP Escorts Directory India";
+    if (sp.filter === "massages") return "Sensual Massage & Wellness India";
+    return "Call Girls in India — Verified Escorts & Companions";
+  })();
 
   return (
     <div className="page-body">
       {/* LEFT SIDEBAR — Indian Location Nav */}
-      <SidebarMobileWrapper>
-        <LeftSidebar />
-      </SidebarMobileWrapper>
+      <Suspense fallback={<SidebarSkeleton />}>
+        <SidebarMobileWrapper>
+          <LeftSidebar />
+        </SidebarMobileWrapper>
+      </Suspense>
 
       {/* MAIN CONTENT */}
       <main className="main-content">
         {/* Top Indian Location Filter Bar */}
         <IndiaLocationSelector />
 
-        {/* Page Title - Default, client will update based on URL params */}
-        <h1 className="page-title">Call Girls in India — Verified Escorts & Companions</h1>
+        {/* Page Title - Server-rendered for SEO, client will update on navigation */}
+        <h1 className="page-title" id="page-title">{dynamicTitle}</h1>
 
-        {/* Client-side interactivity (filtering, pagination, title updates) */}
-        <HomeDirectoryClient initialProfiles={initialProfiles} />
+        {/* Client-side interactivity (pagination, filter updates without full reload) */}
+        <HomeDirectoryClient
+          initialProfiles={initialProfiles}
+          totalCount={totalCount}
+          totalPages={totalPages}
+          currentPage={currentPage}
+          searchParams={sp}
+        />
       </main>
     </div>
   );

@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { INDIA_LOCATIONS } from "@/lib/india-locations";
-import { getAllProfiles } from "@/lib/profiles-data";
+
+interface SidebarCounts {
+  states: Array<{ name: string; count: number }>;
+  cities: Array<{ name: string; count: number; state: string }>;
+}
 
 export default function LeftSidebar() {
   const searchParams = useSearchParams();
@@ -12,31 +16,49 @@ export default function LeftSidebar() {
   const activeCity = searchParams.get("city") || "";
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedStates, setExpandedStates] = useState<Record<string, boolean>>({
-    Odisha: true,
-    "West Bengal": true,
-    Maharashtra: true,
-    Delhi: true,
-    Karnataka: true,
+  // Only expand active state by default, or first state if none active
+  // This significantly reduces initial DOM nodes
+  const [expandedStates, setExpandedStates] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    if (activeState) {
+      initial[activeState] = true;
+    }
+    return initial;
   });
+  const [sidebarData, setSidebarData] = useState<SidebarCounts>({ states: [], cities: [] });
+  const [isLoading, setIsLoading] = useState(true);
 
-  const allProfiles = useMemo(() => getAllProfiles(), []);
+  useEffect(() => {
+    let mounted = true;
+    fetch("/api/profiles/sidebar")
+      .then((res) => res.json())
+      .then((data) => {
+        if (mounted) {
+          setSidebarData(data);
+          setIsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (mounted) setIsLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
-  // Compute live profile counts per state and city (no hardcoded inaccurate counts)
+  // Build lookup maps for quick access
   const profileCounts = useMemo(() => {
     const stateCounts: Record<string, number> = {};
     const cityCounts: Record<string, number> = {};
 
-    for (const p of allProfiles) {
-      if (p.state) {
-        stateCounts[p.state] = (stateCounts[p.state] || 0) + 1;
-      }
-      if (p.city) {
-        cityCounts[p.city] = (cityCounts[p.city] || 0) + 1;
-      }
+    for (const s of sidebarData.states) {
+      stateCounts[s.name] = s.count;
+    }
+    for (const c of sidebarData.cities) {
+      cityCounts[c.name] = c.count;
     }
     return { stateCounts, cityCounts };
-  }, [allProfiles]);
+  }, [sidebarData]);
 
   const toggleState = (stateName: string) => {
     setExpandedStates((prev) => ({
@@ -60,6 +82,29 @@ export default function LeftSidebar() {
   }, [searchQuery]);
 
   const isAllIndiaActive = !activeState && !activeCity;
+  const totalProfiles = sidebarData.states.reduce((sum, s) => sum + s.count, 0);
+
+  if (isLoading) {
+    return (
+      <aside className="sidebar-left" id="sidebar-left">
+        <div className="sidebar-search">
+          <div className="sidebar-search__box">
+            <input
+              type="text"
+              className="sidebar-search__input"
+              placeholder="Search Indian city or state…"
+              disabled
+              aria-label="Search Indian locations"
+            />
+          </div>
+        </div>
+        <div className="sidebar-section">
+          <div className="sidebar-section__title"><span>🇮🇳 Indian States & Cities</span></div>
+          <div className="sidebar-loading">Loading…</div>
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside className="sidebar-left" id="sidebar-left">
@@ -91,14 +136,14 @@ export default function LeftSidebar() {
         >
           <span className="sidebar-all-india__flag">🇮🇳</span>
           <span className="sidebar-all-india__text">All India Directory</span>
-          <span className="sidebar-all-india__count">({allProfiles.length})</span>
+          <span className="sidebar-all-india__count">({totalProfiles})</span>
         </Link>
       </div>
 
       {/* Indian States & Cities Navigation */}
       <div className="sidebar-section">
         <div className="sidebar-section__title">
-          <span>🇮🇳 Indian States &amp; Cities</span>
+          <span>🇮🇳 Indian States & Cities</span>
         </div>
 
         <div className="india-state-list">

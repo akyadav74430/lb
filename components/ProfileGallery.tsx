@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { buildContactLinks } from "@/lib/contact-visibility";
-import { EscortProfile } from "@/lib/profiles-data";
+import { EscortProfile } from "@/lib/profiles-types";
 
 interface ProfileGalleryProps {
   profile: {

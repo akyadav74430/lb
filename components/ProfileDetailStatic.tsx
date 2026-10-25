@@ -1,4 +1,4 @@
-import { EscortProfile } from "@/lib/profiles-data";
+import { EscortProfile } from "@/lib/profiles-types";
 import { citySlug } from "@/lib/seo/site";
 import { bioAdvertisesOtherCity } from "@/lib/seo/metadata";
 

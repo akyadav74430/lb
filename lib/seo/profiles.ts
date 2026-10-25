@@ -1,11 +1,7 @@
 import type { Prisma } from "@/lib/generated/prisma";
 import { prisma } from "@/lib/db";
-import {
-  ESCORT_PROFILES,
-  dbProfileToEscortProfile,
-  MIN_PLAUSIBLE_RATE as PROFILE_MIN_PLAUSIBLE_RATE,
-  type EscortProfile,
-} from "@/lib/profiles-data";
+import { ESCORT_PROFILES, dbProfileToEscortProfile } from "@/lib/profiles-data";
+import { MIN_PLAUSIBLE_RATE as PROFILE_MIN_PLAUSIBLE_RATE, type EscortProfile } from "@/lib/profiles-types";
 import { citySlug, displayCityName, normalizeKey } from "@/lib/seo/site";
 import { MAJOR_CITIES, MAJOR_CITY_BY_SLUG } from "@/lib/seo/major-cities";
 // Import LGD-matched functions from dedicated module
@@ -290,6 +286,49 @@ export async function listPublicProfiles(): Promise<EscortProfile[]> {
 
   publicProfilesCache = { data: combined, timestamp: now };
   return combined;
+}
+
+/**
+ * Fetch a paginated, filtered subset of public profiles for the homepage directory.
+ * Performs filtering on the server to avoid sending all profiles to the client.
+ */
+export async function listPublicProfilesPaginated(
+  options: {
+    filter?: string;
+    state?: string;
+    district?: string;
+    city?: string;
+    localArea?: string;
+    page?: number;
+    perPage?: number;
+  } = {}
+): Promise<{ profiles: EscortProfile[]; totalCount: number; totalPages: number }> {
+  const { filter, state, district, city, localArea, page = 1, perPage = 12 } = options;
+
+  // Get all profiles (cached)
+  const allProfiles = await listPublicProfiles();
+
+  // Filter on server
+  const filtered = allProfiles.filter((p) => {
+    if (p.gender !== "female") return false;
+
+    if (filter === "vip" && !p.badges.includes("VIP") && p.topBadge !== "top") return false;
+    if (filter === "massages" && p.category !== "massages") return false;
+
+    if (state && p.state && p.state.toLowerCase() !== state.toLowerCase()) return false;
+    if (district && p.district && p.district.toLowerCase() !== district.toLowerCase()) return false;
+    if (city && p.city.toLowerCase() !== city.toLowerCase()) return false;
+    if (localArea && p.localArea && p.localArea.toLowerCase() !== localArea.toLowerCase()) return false;
+
+    return true;
+  });
+
+  const totalCount = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
+  const start = (page - 1) * perPage;
+  const profiles = filtered.slice(start, start + perPage);
+
+  return { profiles, totalCount, totalPages };
 }
 
 /**

@@ -21,6 +21,11 @@ interface ProfileCardProps {
    * Every other card must stay lazy or the browser queues dozens of images.
    */
   priority?: boolean;
+  /**
+   * Mark the first card as the LCP candidate to ensure it's discovered early.
+   * This adds a preload hint and ensures the image is loaded with high priority.
+   */
+  isPotentialLcp?: boolean;
 }
 
 /* SVG silhouette for cards with no photo */
@@ -64,6 +69,7 @@ export default function ProfileCard({
   whatsapp,
   hidePhone,
   priority = false,
+  isPotentialLcp = false,
 }: ProfileCardProps) {
   const contact = buildContactLinks({ phone, whatsapp, profileName: name, gated: hidePhone });
 
@@ -71,6 +77,9 @@ export default function ProfileCard({
   // Explicit dimensions prevent layout shift
   const imageWidth = 320;
   const imageHeight = 427;
+
+  // LCP optimization: first card gets highest priority
+  const isLcpCandidate = priority || isPotentialLcp;
 
   return (
     <article className="profile-card" id={`profile-card-${name.toLowerCase().replace(/\s+/g, "-")}`}>
@@ -83,9 +92,9 @@ export default function ProfileCard({
             width={imageWidth}
             height={imageHeight}
             sizes="(max-width: 600px) 50vw, (max-width: 960px) 33vw, (max-width: 1240px) 25vw, 20vw"
-            loading={priority ? "eager" : "lazy"}
-            fetchPriority={priority ? "high" : "auto"}
-            decoding={priority ? "sync" : "async"}
+            loading={isLcpCandidate ? "eager" : "lazy"}
+            fetchPriority={isLcpCandidate ? "high" : "auto"}
+            decoding={isLcpCandidate ? "sync" : "async"}
             placeholder="blur"
             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
             style={{ objectFit: "cover" }}

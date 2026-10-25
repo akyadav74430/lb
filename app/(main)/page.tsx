@@ -99,12 +99,12 @@ export const revalidate = 60;
 
 // This page uses searchParams for client-side filtering only.
 // The server renders the full unfiltered directory, client handles filters.
-export default function HomePage() {
+export default function HomePage({ searchParams }: Props) {
   return (
     <>
       <JsonLd data={siteJsonLd()} />
       <Suspense fallback={<div style={{ minHeight: "80vh" }} />}>
-        <HomeDirectory />
+        <HomeDirectory searchParams={searchParams} />
       </Suspense>
       <SeoHomeIntro />
       <SiteFooter />

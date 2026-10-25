@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { BRAND, absoluteUrl, clampMeta, displayCityName, NO_INDEX_FOLLOW } from "@/lib/seo/site";
 import type { CityListing, LocalityListing } from "@/lib/seo/profiles";
-import type { EscortProfile } from "@/lib/profiles-data";
+import type { EscortProfile } from "@/lib/profiles-types";
 import { INDIA_LOCATIONS } from "@/lib/india-locations";
 
 /** Safely resolve a photoUrl to an absolute URL string, or undefined if invalid. */

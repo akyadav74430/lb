@@ -22,6 +22,24 @@ export interface LogoProps {
   showText?: boolean;
 }
 
+/** Map size variant to optimal emblem width (2x for retina) */
+function getEmblemSrcSet(size: LogoProps["size"]): { src: string; srcSet: string } {
+  const sizeMap: Record<string, { width: number; fallback: string }> = {
+    header: { width: 68, fallback: "/images/logo-emblem-34w.png" },
+    mobile: { width: 56, fallback: "/images/logo-emblem-34w.png" },
+    auth: { width: 104, fallback: "/images/logo-emblem-56w.png" },
+    footer: { width: 64, fallback: "/images/logo-emblem-34w.png" },
+    compact: { width: 48, fallback: "/images/logo-emblem-34w.png" },
+    nav: { width: 56, fallback: "/images/logo-emblem-34w.png" },
+  };
+  const { width, fallback } = sizeMap[size || "header"];
+  const base = `/images/logo-emblem-${width}w`;
+  return {
+    src: `${base}.webp`,
+    srcSet: `${base}.avif 1x, ${base}.webp 1x, ${fallback} 1x`,
+  };
+}
+
 const SIZE_CONFIGS = {
   header: {
     emblemSize: 34,
@@ -68,11 +86,16 @@ export default function Logo({
   priority = false,
   onClick,
   src,
-  emblemSrc = "/images/logo-emblem.png",
+  emblemSrc,
   showText = true,
 }: LogoProps) {
   const config = SIZE_CONFIGS[size] || SIZE_CONFIGS.header;
   const [imgError, setImgError] = useState(false);
+
+  // Resolve optimized emblem sources
+  const { src: optimizedSrc, srcSet } = emblemSrc
+    ? { src: emblemSrc, srcSet: emblemSrc }
+    : getEmblemSrcSet(size);
 
   // If a specific custom src (e.g., full SVG or horizontal PNG) is passed, render that directly
   if (src) {
@@ -147,7 +170,8 @@ export default function Logo({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={emblemSrc}
+            src={optimizedSrc}
+            srcSet={srcSet}
             alt="lovebite emblem"
             width={config.emblemSize}
             height={config.emblemSize}
@@ -160,6 +184,8 @@ export default function Logo({
               display: "block",
             }}
             loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : "auto"}
+            decoding={priority ? "sync" : "async"}
           />
         </span>
       ) : (
