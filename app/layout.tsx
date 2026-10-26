@@ -51,6 +51,7 @@ export const metadata: Metadata = {
     title: `${BRAND} — Escorts, Call Girls & Companions in India`,
     description:
       "City-wise listings of independent escorts, call girls and companions in India, with real photos and published rates.",
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import SidebarMobileWrapper from "@/components/SidebarMobileWrapper";
 import LeftSidebar from "@/components/LeftSidebar";
@@ -39,11 +38,10 @@ async function getPaginatedProfiles(searchParams: HomeDirectoryProps["searchPara
 }
 
 export default async function HomeDirectory({ searchParams }: HomeDirectoryProps) {
-  const { profiles: initialProfiles, totalCount, totalPages } = await getPaginatedProfiles(searchParams);
+  const { profiles: initialProfiles, totalPages } = await getPaginatedProfiles(searchParams);
   const sp = await searchParams;
   const currentPage = sp.page ? parseInt(sp.page, 10) : 1;
 
-  // Build dynamic title on server for SEO
   const dynamicTitle = (() => {
     if (sp.localArea && sp.city) return `${sp.localArea}, ${sp.city} Escorts`;
     if (sp.city) return `${sp.city} Escorts`;
@@ -51,7 +49,7 @@ export default async function HomeDirectory({ searchParams }: HomeDirectoryProps
     if (sp.state) return `${sp.state} Escorts`;
     if (sp.filter === "vip") return "VIP Escorts Directory India";
     if (sp.filter === "massages") return "Sensual Massage & Wellness India";
-    return "Call Girls in India — Verified Escorts & Companions";
+    return "Escorts & Call Girls Directory in India";
   })();
 
   return (
@@ -68,16 +66,15 @@ export default async function HomeDirectory({ searchParams }: HomeDirectoryProps
         {/* Top Indian Location Filter Bar */}
         <IndiaLocationSelector />
 
-        {/* Page Title - Server-rendered for SEO, client will update on navigation */}
+        {/* Keep the primary heading in the server-rendered page shell so crawlers
+            see one semantic main region and one authoritative H1. */}
         <h1 className="page-title" id="page-title">{dynamicTitle}</h1>
 
         {/* Client-side interactivity (pagination, filter updates without full reload) */}
         <HomeDirectoryClient
           initialProfiles={initialProfiles}
-          totalCount={totalCount}
           totalPages={totalPages}
           currentPage={currentPage}
-          searchParams={sp}
         />
       </main>
     </div>
