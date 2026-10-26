@@ -57,7 +57,7 @@ export function buildServicePageMetadata(profileCount: number): Metadata {
  */
 export function buildCityMetadata(city: CityListing): Metadata {
   const plural = city.count === 1;
-  const title = `Call Girls in ${city.name} | ${BRAND}`;
+  const title = `Call Girls in ${city.name}`;
   const description = clampMeta(
     `Browse publicly listed profiles in ${city.name} on ${BRAND}. View available profile details and contact information published by each listing.`,
     160
@@ -70,7 +70,7 @@ export function buildCityMetadata(city: CityListing): Metadata {
     description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: `${title} | ${BRAND}`,
+      title,
       description,
       url: canonicalUrl,
       type: "website",
@@ -78,7 +78,7 @@ export function buildCityMetadata(city: CityListing): Metadata {
     },
     twitter: {
       card: "summary_large_image",
-      title: `${title} | ${BRAND}`,
+      title,
       description,
     },
   };
@@ -179,7 +179,7 @@ function usableBioSentence(profile: EscortProfile): string | null {
  * listable profiles in the locality, so the description never overstates the page.
  */
 export function buildLocalityMetadata(locality: LocalityListing): Metadata {
-  const title = `Call Girls in ${locality.name}, ${locality.cityName} | ${BRAND}`;
+  const title = `Call Girls in ${locality.name}, ${locality.cityName}`;
   const description = clampMeta(
     `Browse publicly listed profiles in ${locality.name}, ${locality.cityName} on ${BRAND}. View available profile details and contact information published by each listing.`,
     160
@@ -192,7 +192,7 @@ export function buildLocalityMetadata(locality: LocalityListing): Metadata {
     description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: `${title} | ${BRAND}`,
+      title,
       description,
       url: canonicalUrl,
       type: "website",
@@ -200,7 +200,7 @@ export function buildLocalityMetadata(locality: LocalityListing): Metadata {
     },
     twitter: {
       card: "summary_large_image",
-      title: `${title} | ${BRAND}`,
+      title,
       description,
     },
   };
