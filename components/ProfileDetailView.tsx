@@ -86,7 +86,7 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
     {
       label: "Location",
       value: (
-        <Link href={`/?city=${encodeURIComponent(profile.city)}`} className="profile-attr-link">
+        <Link href={`/call-girls-in/${citySlug(profile.city)}`} className="profile-attr-link">
           {profile.localArea ? `${profile.localArea}, ` : ""}{profile.city}{profile.state ? `, ${profile.state}` : ""}
         </Link>
       ),
@@ -119,7 +119,7 @@ export default function ProfileDetailView({ profile, similarProfiles, allProfile
         <span className="profile-breadcrumb__sep">›</span>
         {profile.state && (
           <>
-            <Link href={`/?state=${encodeURIComponent(profile.state)}`} className="profile-breadcrumb__link">
+            <Link href={`/locations/${citySlug(profile.state)}`} className="profile-breadcrumb__link">
               {profile.state}
             </Link>
             <span className="profile-breadcrumb__sep">›</span>

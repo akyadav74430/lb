@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { INDIA_LOCATIONS } from "@/lib/india-locations";
+import { citySlug } from "@/lib/seo/site";
 
 interface SidebarCounts {
   states: Array<{ name: string; count: number }>;
@@ -184,7 +185,7 @@ export default function LeftSidebar() {
                   </button>
 
                   <Link
-                    href={`/?state=${encodeURIComponent(state.name)}`}
+                    href={`/locations/${citySlug(state.name)}`}
                     className="india-state-link"
                   >
                     <span className="india-state-name">{state.name}</span>

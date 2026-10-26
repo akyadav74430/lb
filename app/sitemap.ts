@@ -6,7 +6,7 @@ import {
   listPublicProfiles,
   publicProfileWhere,
 } from "@/lib/seo/profiles";
-import { absoluteUrl } from "@/lib/seo/site";
+import { absoluteUrl, citySlug } from "@/lib/seo/site";
 
 /**
  * The sitemap queries the database, so it must not be baked at build time.
@@ -88,6 +88,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Profile pages: same public filter the pages themselves use.
   const profiles = await listPublicProfiles();
+  // State landing pages are only advertised when real public profiles back
+  // them. Query-string filters remain UI variants and are not sitemap URLs.
+  const stateSlugs = new Set(
+    profiles
+      .map((profile) => profile.state?.trim())
+      .filter((state): state is string => Boolean(state))
+      .map((state) => citySlug(state)),
+  );
+  const stateRoutes: MetadataRoute.Sitemap = [...stateSlugs].map((slug) => ({
+    url: absoluteUrl(`/locations/${slug}`),
+    changeFrequency: "daily",
+    priority: 0.65,
+  }));
   const updatedAtById = new Map<string, Date>();
   try {
     const rows = await prisma.profile.findMany({
@@ -124,7 +137,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   // Combine all routes, deduplicate by URL
-  const allRoutes = [...coreRoutes, ...cityRoutes, ...localityRoutes, ...profileRoutes, ...infoRoutes];
+  const allRoutes = [
+    ...coreRoutes,
+    ...stateRoutes,
+    ...cityRoutes,
+    ...localityRoutes,
+    ...profileRoutes,
+    ...infoRoutes,
+  ];
   const seen = new Set<string>();
   const uniqueRoutes = allRoutes.filter(route => {
     if (seen.has(route.url)) return false;
