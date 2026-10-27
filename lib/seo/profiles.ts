@@ -573,7 +573,7 @@ async function fallbackListCitiesWithListings(): Promise<CityListing[]> {
 export async function getCityListing(
   slug: string
 ): Promise<CityListing | null> {
-  const normalized = normalizeKey(citySlug(slug));
+  const normalized = normalizeKey(slug);
   const cities = await listCitiesWithListings();
   return cities.find((c) => c.slug === normalized) ?? null;
 }

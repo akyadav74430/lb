@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { buildContactLinks } from "@/lib/contact-visibility";
 import { EscortProfile } from "@/lib/profiles-types";
+import { citySlug } from "@/lib/seo/site";
 
 interface ProfileGalleryProps {
   profile: {
@@ -92,7 +93,7 @@ export default function ProfileGallery({
         <Link href="/" className="profile-breadcrumb__link">Home</Link>
         <span className="profile-breadcrumb__sep">›</span>
         {profile.city && (
-          <Link href={`/call-girls-in/${profile.city.toLowerCase().replace(/\s+/g, "-")}`} className="profile-breadcrumb__link">
+          <Link href={`/call-girls-in/${citySlug(profile.city)}`} className="profile-breadcrumb__link">
             {profile.city} Escorts
           </Link>
         )}
