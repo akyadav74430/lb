@@ -5,7 +5,7 @@ import SeoHomeIntro from "@/components/SeoHomeIntro";
 import SiteFooter from "@/components/SiteFooter";
 import { getCityListing } from "@/lib/seo/profiles";
 import { buildCityMetadata } from "@/lib/seo/metadata";
-import { absoluteUrl, clampMeta } from "@/lib/seo/site";
+import { absoluteUrl, citySlug, clampMeta } from "@/lib/seo/site";
 import { JsonLd, siteJsonLd } from "@/lib/seo/jsonld";
 
 interface Props {
@@ -57,13 +57,17 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   }
 
   if (state) {
+    const stateName = state.trim();
+    const statePath = `/locations/${citySlug(stateName)}`;
     return {
-      title: `Escorts in ${state} — Browse Verified Profiles`,
+      title: `Escorts in ${stateName} — Browse Public Profiles`,
       description: clampMeta(
-        `Browse escort and companion listings in ${state} on Lovebite. Open a profile to see real photos, published rates and contact details.`,
+        `Browse escort and companion listings in ${stateName} on Lovebite. Open a profile to see real photos, published rates and contact details.`,
         160
       ),
-      alternates: { canonical: absoluteUrl("/") },
+      // The query string is a UI filter. The crawlable state directory owns
+      // the search signal and is the URL Google should index.
+      alternates: { canonical: absoluteUrl(statePath) },
     };
   }
 

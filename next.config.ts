@@ -113,11 +113,21 @@ const nextConfig: NextConfig = {
       },
       // Public assets (icons, manifest, sitemap) — 1 hour with revalidation.
       {
-        source: "/(favicon.ico|icon.*\\.png|apple-icon\\.png|manifest\\.webmanifest|sitemap\\.xml|robots\\.txt|llms\\.txt)",
+        source: "/(favicon.ico|icon.*\\.png|apple-icon\\.png|manifest\\.webmanifest|sitemap\\.xml|robots\\.txt)",
         headers: [
           {
             key: "Cache-Control",
             value: "public, max-age=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      // Keep crawler guidance fresh after content and URL changes.
+      {
+        source: "/llms.txt",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=300, must-revalidate",
           },
         ],
       },

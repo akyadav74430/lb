@@ -126,8 +126,13 @@ export function buildCityBody(
 
   /* ---------- editorial overrides win ---------- */
 
-  const intro = editorial.intro ?? generated;
-  if (editorial.extra?.length) intro.push(...editorial.extra);
+  // Never mutate the module-level editorial object. Server-rendered pages can
+  // reuse this module across requests; mutating `editorial.intro` here would
+  // append the same paragraphs again on every render and create duplicated,
+  // ever-growing page content for crawlers and visitors.
+  const intro = editorial.intro
+    ? [...editorial.intro, ...(editorial.extra ?? [])]
+    : generated;
 
   return {
     intro,

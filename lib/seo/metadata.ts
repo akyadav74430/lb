@@ -56,7 +56,6 @@ export function buildServicePageMetadata(profileCount: number): Metadata {
  * listable profiles, so the description never overstates the page.
  */
 export function buildCityMetadata(city: CityListing): Metadata {
-  const plural = city.count === 1;
   const title = `Call Girls in ${city.name}`;
   const description = clampMeta(
     `Browse publicly listed profiles in ${city.name} on ${BRAND}. View available profile details and contact information published by each listing.`,
@@ -80,6 +79,7 @@ export function buildCityMetadata(city: CityListing): Metadata {
       card: "summary_large_image",
       title,
       description,
+      images: [OG_IMAGE],
     },
   };
 
@@ -202,6 +202,7 @@ export function buildLocalityMetadata(locality: LocalityListing): Metadata {
       card: "summary_large_image",
       title,
       description,
+      images: [OG_IMAGE],
     },
   };
 
@@ -252,6 +253,10 @@ export function buildProfileMetadata(profile: EscortProfile): Metadata {
       card: "summary_large_image",
       title: `${profile.name} — Escort in ${city}`,
       description,
+      images: (() => {
+        const imageUrl = resolveImageUrl(profile.photoUrl);
+        return imageUrl ? [imageUrl] : [OG_IMAGE];
+      })(),
     },
   };
 }

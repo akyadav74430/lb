@@ -6,8 +6,8 @@ import { initializeLGDRegistry, getLGDRegistry, isLGDRegistryReady } from "@/lib
 import { absoluteUrl, BRAND } from "@/lib/seo/site";
 import { breadcrumbJsonLd, JsonLd } from "@/lib/seo/jsonld";
 import { NO_INDEX } from "@/lib/seo/site";
+import { listPublicProfiles } from "@/lib/seo/profiles";
 
-// State directory pages are noindex, follow
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ state: string }> }): Promise<Metadata> {
@@ -27,19 +27,22 @@ export async function generateMetadata({ params }: { params: Promise<{ state: st
   }
 
   const districts = registry.getDistrictsForState(state.id.replace('state:', ''));
-  const districtCount = districts.length;
-  const citiesWithListings = districts.flatMap(d => d.children.filter(c => c.type === 'city' && c.isIndexable)).length;
+  const publicProfiles = await listPublicProfiles();
+  const profileCount = publicProfiles.filter(
+    (profile) => profile.state?.trim().toLowerCase() === state.name.trim().toLowerCase(),
+  ).length;
 
   const title = `${state.name} — Call Girls Directory`;
-  const description = `Browse call girls and escorts in ${state.name}. ${districtCount} districts, ${citiesWithListings} cities with verified listings. Official directory by ${BRAND}.`;
+  const description = `Browse ${profileCount} public escort and companion ${profileCount === 1 ? "listing" : "listings"} in ${state.name} on ${BRAND}. Explore cities and open a profile for photos, rates and direct contact.`;
 
   return {
     title,
     description,
-    robots: { index: false, follow: true },
+    // Empty state pages remain crawlable but are not useful search results.
+    robots: profileCount > 0 ? { index: true, follow: true } : { index: false, follow: true },
     alternates: { canonical: absoluteUrl(`/locations/${state.slug}`) },
     openGraph: {
-      title,
+      title: `${title} | ${BRAND}`,
       description,
       url: absoluteUrl(`/locations/${state.slug}`),
       type: "website",
@@ -89,7 +92,7 @@ export default async function StateDirectoryPage({ params }: { params: Promise<{
           <header className="info-page-hero">
             <h1 className="info-page-title">{state.name} — Call Girls Directory</h1>
             <p className="info-page-subtitle">
-              {districts.length} districts, {citiesWithListings.length} cities with verified listings.
+              {districts.length} districts, {citiesWithListings.length} cities with public listings.
               Browse districts below to find call girls and escorts in {state.name}.
             </p>
           </header>

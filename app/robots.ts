@@ -7,7 +7,11 @@ export default function robots(): MetadataRoute.Robots {
       // Primary rule: allow all crawlers access to the public directory.
       {
         userAgent: "*",
-        allow: "/",
+        // State filter links are kept crawlable so Google can discover the
+        // matching clean /locations/<state> canonical. Other query-string
+        // variants remain blocked because they are UI filters, not landing
+        // pages.
+        allow: ["/", "/*?state=*"],
         disallow: [
           // Dashboards and admin APIs.
           "/admin",
@@ -28,7 +32,8 @@ export default function robots(): MetadataRoute.Robots {
           // Internal/API surfaces that are not pages.
           "/api/",
           // Search/filter query variants of the homepage are not separate pages
-          // and should not be crawled or indexed independently.
+          // and should not be crawled or indexed independently. State-only
+          // variants are the exception above and canonicalise to /locations/.
           "/*?*",
         ],
       },
