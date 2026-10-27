@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ state: st
   const districtCount = districts.length;
   const citiesWithListings = districts.flatMap(d => d.children.filter(c => c.type === 'city' && c.isIndexable)).length;
 
-  const title = `${state.name} — Call Girls Directory | ${BRAND}`;
+  const title = `${state.name} — Call Girls Directory`;
   const description = `Browse call girls and escorts in ${state.name}. ${districtCount} districts, ${citiesWithListings} cities with verified listings. Official directory by ${BRAND}.`;
 
   return {
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ state: st
     robots: { index: false, follow: true },
     alternates: { canonical: absoluteUrl(`/locations/${state.slug}`) },
     openGraph: {
-      title: `${title} | ${BRAND}`,
+      title,
       description,
       url: absoluteUrl(`/locations/${state.slug}`),
       type: "website",

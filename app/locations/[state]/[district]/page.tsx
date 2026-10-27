@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ state: st
   const districtCities = district.children.filter(c => c.type === 'city' && c.isIndexable);
   const cityCount = districtCities.length;
 
-  const title = `${district.name}, ${state.name} — Call Girls Directory | ${BRAND}`;
+  const title = `${district.name}, ${state.name} — Call Girls Directory`;
   const description = `Browse call girls and escorts in ${district.name} district, ${state.name}. ${cityCount} ${cityCount === 1 ? "city" : "cities"} with verified listings. Official directory by ${BRAND}.`;
 
   return {
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ state: st
     robots: { index: false, follow: true },
     alternates: { canonical: absoluteUrl(`/locations/${state.slug}/${district.slug}`) },
     openGraph: {
-      title: `${title} | ${BRAND}`,
+      title,
       description,
       url: absoluteUrl(`/locations/${state.slug}/${district.slug}`),
       type: "website",
