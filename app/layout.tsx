@@ -99,6 +99,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en-IN" className={inter.className}>
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2210254424433494"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
         <Providers>
           <TopHeader />
